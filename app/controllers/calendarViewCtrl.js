@@ -9,30 +9,15 @@
 
 	function ctrl($scope, $state, uiCalendarConfig) {
 
-		var vm = this;
+		var vm = this,
+			events = [[]],
+			defaultEventCollection = 0;
 
-		/////////////////////////////////////////////////////////////////////////////////////
-
-		var uniqueId = 0;
-
-		function getNewId() { return ++uniqueId; }
-
-		// Log
-		vm.Logs = [];
+		vm.Events = events;
 
 		///////////////////////////////////////// CAL ///////////////////////////////////////
 
 		(function configCalendar(){
-
-			vm.Calendar = {
-
-				Events : [],
-				Index_hourlyEvents : 1,
-				Index_allDayEvents : 0,
-			};
-
-			vm.Calendar.Events.push([]);
-			vm.Calendar.Events.push([]);
 
 			vm.CalendarConfig = {
 				height : 450,
@@ -55,9 +40,11 @@
 		function eventResizeHandler(event, delta, revertFunc) {
 
 			var eventId = event._id;
-			var eventIndex = getEventIndexFromCollection(vm.Calendar.Index_hourlyEvents, eventId);
+			var eventIndex = getEventIndexFromCollection(defaultEventCollection, eventId);
 
-			vm.Calendar.Events[vm.Calendar.Index_hourlyEvents][eventIndex] = event;
+			events[defaultEventCollection][eventIndex] = event;
+			updateEvents();
+			updateUIEvents();
 
 		}
 
@@ -65,9 +52,9 @@
 
 		function getEventIndexFromCollection(eventCollectionIndex, eventId) {
 
-			for(var i = 0; i < vm.Calendar.Events[eventCollectionIndex].length; ++i) {
+			for(var i = 0; i < events[eventCollectionIndex].length; ++i) {
 
-				var evnt = vm.Calendar.Events[eventCollectionIndex][i];
+				var evnt = events[eventCollectionIndex][i];
 				
 				if(evnt._id === eventId) {
 
@@ -80,15 +67,12 @@
 
 
 		function calendarSelect(start, end, jsEvent, view) {
-			
-			logEvent(start, end);
-
 
 			if(eventIsMultiDay(start, end)) {
 
 				addMultiDayEvent(start, end);
 			}
-			else if(dayHasEvents(start) && currentViewIsMonth()) {
+			else if(thisDayHasEvents(start.date()) && currentViewIsMonth()) {
 
 				// Go to day view
 				uiCalendarConfig.calendars.theCalendar.fullCalendar('changeView', 'agendaDay');
@@ -103,7 +87,34 @@
 				addEvent('Available', start, end);
 			}
 
+			updateEvents();
+			updateUIEvents();
 			uiCalendarConfig.calendars.theCalendar.fullCalendar('rerenderEvents');                          
+		}
+
+
+
+		function updateUIEvents() {
+
+			vm.UIEvents = [];
+
+			for(var i = 0; i < events[defaultEventCollection].length; ++i) {
+
+				var evnt = events[defaultEventCollection][i];
+
+				vm.UIEvents.push({
+					Title : evnt.title,
+					Start : evnt.start.format(),
+					End : evnt.end.format(),
+					AllDay : evnt.IsAllDay
+				});
+			}
+		}
+
+
+		function updateEvents() {
+
+			vm.Events = events;
 		}
 
 
@@ -154,6 +165,11 @@
 
 		function addAllDayEvent(_title, _start, _end) {
 
+			if(thisDayHasEvents(_start.date())) {
+
+				return;
+			}
+
 			var year = _start.year();
 			var month = _start.month();
 			var day = _start.date();
@@ -164,7 +180,9 @@
 				d : day,
 				h : 9,
 				m : 0,
-				s : 0
+				s : 0,
+				ms : 0
+
 			});
 
 			var newEventEnd = moment({
@@ -173,7 +191,8 @@
 				d : day,
 				h : 18,
 				m : 0,
-				s : 0
+				s : 0,
+				ms : 0
 			});
 			
 			var newEvent = {
@@ -183,33 +202,16 @@
 				isAllDay : true
 			};
 
-			vm.Calendar.Events[vm.Calendar.Index_hourlyEvents].push(newEvent);
-		}
-
-
-
-		function dayHasEvents(start, end) {
-
-			var found = false,
-				hourCalendarIndex = vm.Calendar.Index_hourlyEvents,
-				dayCalendarIndex = vm.Calendar.Index_allDayEvents,
-				testDay = start.date();
-
-			if(eventCollectionHasAllDay(dayCalendarIndex, testDay) || thisDayHasEvents(testDay)) {
-
-				found = true;
-			}
-
-			return found;
+			events[defaultEventCollection].push(newEvent);
 		}
 
 
 
 		function thisDayHasEvents(day) {
 
-			for(var i = 0; i < vm.Calendar.Events[vm.Calendar.Index_hourlyEvents].length; ++i) {
+			for(var i = 0; i < events[defaultEventCollection].length; ++i) {
 
-				var calendarEvnt = vm.Calendar.Events[vm.Calendar.Index_hourlyEvents][i];
+				var calendarEvnt = events[defaultEventCollection][i];
 				var calendarDay = calendarEvnt.start.date();
 
 				if(day === calendarDay) {
@@ -223,9 +225,9 @@
 
 		function eventCollectionHasAllDay(eventCollectionIndex, day) {
 
-			for(var i = 0; i < vm.Calendar.Events[eventCollectionIndex].length; ++i) {
+			for(var i = 0; i < events[eventCollectionIndex].length; ++i) {
 
-				var calendarEvnt = vm.Calendar.Events[eventCollectionIndex][i];
+				var calendarEvnt = events[eventCollectionIndex][i];
 				var calendarDay = calendarEvnt.start.date();
 
 				if(day === calendarDay && calendarEvnt.isAllDay) {
@@ -244,22 +246,9 @@
 
 
 
-		function logEvent(start, end) {
-
-			vm.Logs.push({
-
-				action : 'User selection',
-				agent : 'calendarViewCtrl.calendarSelect',
-				start : start,
-				end : end
-			});
-		}
-
-
-
 		function addEvent(_title, _start, _end) {
 
-			vm.Calendar.Events[vm.Calendar.Index_hourlyEvents].push({
+			events[defaultEventCollection].push({
 
 				title : _title,
 				start : _start,

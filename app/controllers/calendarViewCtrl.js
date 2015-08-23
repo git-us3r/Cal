@@ -40,23 +40,55 @@
 				selectable : true,
 				header : {
 
-					left : 'month agendaWeek agendaDay',
+					left : 'month agendaDay',
 					center : 'title',
 					right : 'today prev,next'
 				},
 				defaultView : 'month',
 				businessHours : true,
-				select : calendarSelect
+				select : calendarSelect,
+				eventResize : eventResizeHandler
 			};
 		}());
 
+
+		function eventResizeHandler(event, delta, revertFunc) {
+
+			var eventId = event._id;
+			var eventIndex = getEventIndexFromCollection(vm.Calendar.Index_hourlyEvents, eventId);
+
+			vm.Calendar.Events[vm.Calendar.Index_hourlyEvents][eventIndex] = event;
+
+		}
+
+
+
+		function getEventIndexFromCollection(eventCollectionIndex, eventId) {
+
+			for(var i = 0; i < vm.Calendar.Events[eventCollectionIndex].length; ++i) {
+
+				var evnt = vm.Calendar.Events[eventCollectionIndex][i];
+				
+				if(evnt._id === eventId) {
+
+					return i;
+				}
+			}
+
+			return null;
+		}
 
 
 		function calendarSelect(start, end, jsEvent, view) {
 			
 			logEvent(start, end);
 
-			if(dayHasEvents(start) && currentViewIsMonth()) {
+
+			if(eventIsMultiDay(start, end)) {
+
+				addMultiDayEvent(start, end);
+			}
+			else if(dayHasEvents(start) && currentViewIsMonth()) {
 
 				// Go to day view
 				uiCalendarConfig.calendars.theCalendar.fullCalendar('changeView', 'agendaDay');
@@ -75,6 +107,36 @@
 
 				addEvent('Available', start, end);
 			}                          
+		}
+
+
+
+		function addMultiDayEvent(start, end) {
+
+			var startDay = start.date();
+			var endDay = end.date();
+			var daysInBetween = endDay - startDay;
+
+			addAllDayEvent('Available', start, moment(start).add(1, 'days'));	
+
+			for(var i = 1; i < daysInBetween; ++i) {
+
+				addAllDayEvent('Available', moment(start).add(i, 'days'), moment(start).add(i + 1, 'days'));
+			}
+		}
+
+
+
+		function eventIsMultiDay(start, end) {
+
+			if(end.date() - start.date() > 1) {
+
+				return true;
+			}
+			else {
+
+				return false;
+			}
 		}
 
 
@@ -121,12 +183,6 @@
 
 
 
-		// NOTE: 
-		//		If the day had an all-day event, which is default first-click behavior,
-		//		said all-day event will exist in the events array.
-		// TODO: 
-		//  	there needs to be a function which checks every day with events and removes
-		//  	the all-day event, in the case that the day has other events.
 		function dayHasEvents(start, end) {
 
 			var found = false,

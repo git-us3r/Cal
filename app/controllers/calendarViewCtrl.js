@@ -100,13 +100,10 @@
 			}
 			else {
 
-				if(eventCollectionHasDay(vm.Calendar.Index_allDayEvents, start.date())) {
-			 		
-			 		removeAllDayEvent(start.date());			
-			 	}
-
 				addEvent('Available', start, end);
-			}                          
+			}
+
+			uiCalendarConfig.calendars.theCalendar.fullCalendar('rerenderEvents');                          
 		}
 
 
@@ -155,30 +152,38 @@
 
 
 
-		function removeAllDayEvent(dayOfTheMonth) {
-
-			for(var i = 0; i < vm.Calendar.Events[vm.Calendar.Index_allDayEvents].length; ++i) {
-
-				var eventDay = vm.Calendar.Events[vm.Calendar.Index_allDayEvents][i].start.date();
-				
-				if(eventDay === dayOfTheMonth) {
-
-					delete vm.Calendar.Events[vm.Calendar.Index_allDayEvents][i];
-					--vm.Calendar.Events[vm.Calendar.Index_allDayEvents].length;
-				}
-			}
-		}
-
-
-
 		function addAllDayEvent(_title, _start, _end) {
 
-			vm.Calendar.Events[vm.Calendar.Index_allDayEvents].push({
-
-				title : _title,
-				start : _start,
-				end : _end
+			var year = _start.year();
+			var month = _start.month();
+			var day = _start.date();
+			
+			var newEventStart = moment({
+				y : year,
+				M : month,
+				d : day,
+				h : 9,
+				m : 0,
+				s : 0
 			});
+
+			var newEventEnd = moment({
+				y : year,
+				M : month,
+				d : day,
+				h : 18,
+				m : 0,
+				s : 0
+			});
+			
+			var newEvent = {
+				title : _title,
+				start : newEventStart,
+				end : newEventEnd,
+				isAllDay : true
+			};
+
+			vm.Calendar.Events[vm.Calendar.Index_hourlyEvents].push(newEvent);
 		}
 
 
@@ -190,27 +195,44 @@
 				dayCalendarIndex = vm.Calendar.Index_allDayEvents,
 				testDay = start.date();
 
-			if(eventCollectionHasDay(dayCalendarIndex, testDay) || eventCollectionHasDay(hourCalendarIndex, testDay)) {
+			if(eventCollectionHasAllDay(dayCalendarIndex, testDay) || thisDayHasEvents(testDay)) {
 
 				found = true;
 			}
 
 			return found;
 		}
+
+
+
+		function thisDayHasEvents(day) {
+
+			for(var i = 0; i < vm.Calendar.Events[vm.Calendar.Index_hourlyEvents].length; ++i) {
+
+				var calendarEvnt = vm.Calendar.Events[vm.Calendar.Index_hourlyEvents][i];
+				var calendarDay = calendarEvnt.start.date();
+
+				if(day === calendarDay) {
+
+					return true;
+				}
+			}	
+		}
 		
 
-		function eventCollectionHasDay(eventCollectionIndex, day) {
+
+		function eventCollectionHasAllDay(eventCollectionIndex, day) {
 
 			for(var i = 0; i < vm.Calendar.Events[eventCollectionIndex].length; ++i) {
 
-					var calendarEvnt = vm.Calendar.Events[eventCollectionIndex][i];
-					var calendarDay = calendarEvnt.start.date();
+				var calendarEvnt = vm.Calendar.Events[eventCollectionIndex][i];
+				var calendarDay = calendarEvnt.start.date();
 
-					if(day === calendarDay) {
+				if(day === calendarDay && calendarEvnt.isAllDay) {
 
-						return true;
-					}
-				}			
+					return true;
+				}
+			}			
 		}
 
 

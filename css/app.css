@@ -1,6 +1,16 @@
 #eventOptionsPrompt {
 
+	max-height: auto;
+	max-width: auto;
 	padding-bottom: 20px;
 	padding-top: 2px;
 	padding-right: 5px;
+}
+
+#chart {
+
+	min-width: 400px;
+	width: 250px;
+	height: 200px;
+	margin: 0 auto;
 }

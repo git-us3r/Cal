@@ -68,6 +68,8 @@
 		    $('.popover').css('left', left);
 		    $('.popover').css('top', top);
 
+		    renderPieChart('Rank', 'chart');
+
 		    vm.ShowEventOptionsPrompt = true;
 		}
 
@@ -82,10 +84,10 @@
 				case 'edit':
 					// Go to day view
 					uiCalendarConfig.calendars.theCalendar.fullCalendar('changeView', 'agendaDay');
-					uiCalendarConfig.calendars.theCalendar.fullCalendar('gotoDate', moment(events.CurrentEvent.start));
+					uiCalendarConfig.calendars.theCalendar.fullCalendar('gotoDate', moment(vm.CurrentEvent.start));
 					break;
 				case 'delete':
-					removeEvent(events.CurrentEvent);
+					removeEvent(vm.CurrentEvent);
 					break;
 				case 'close':
 					vm.ShowEventOptionsPrompt = false;
@@ -172,9 +174,17 @@
 		function updateEvents() {
 
 			vm.Events[events.DefaultEventCollection] = events.GetEventDefaultCollection();
+
+			// Reset the current event, if any.
+			if(vm.CurrentEvent) {
+
+				vm.CurrentEvent = events.Collection[vm.CurrentEvent.id];
+			}
+
 			var cal = $('.theCalendar');
 			cal.fullCalendar('rerenderEvents');
-			vm.DigestSwitch = !vm.DigestSwitch;
+
+			renderPieChart('Rank', 'chart');
 		}
 
 
@@ -307,9 +317,91 @@
 			};
 		}
 
+
+
+		function addTimeToCurrentEvent(timeSection, time, timeUnit) {
+
+			if(timeSection === 'start') {
+
+				events.Collection[vm.CurrentEvent.id].start = events.Collection[vm.CurrentEvent.id].start.add(time, timeUnit);
+			}
+			else {
+
+				events.Collection[vm.CurrentEvent.id].end = events.Collection[vm.CurrentEvent.id].end.add(time, timeUnit);
+			}
+
+			events.Collection[vm.CurrentEvent.id].color = events.DefaultEventColor;
+			updateEvents();
+			updateUIEvents();
+			
+		}
+
+
+
+		function renderPieChart(title, elementId) {
+
+			var dataList = [];
+			var workdayInMinutes = 8 * 60;
+			var eventDurationInMinutes = getEventDurationInMinutes(vm.CurrentEvent);
+			var eventDurationPercentage = eventDurationInMinutes / workdayInMinutes * 100; 		// 8-hour day
+			vm.CurrentEventTotalHours = eventDurationInMinutes / 60;
+
+
+			dataList.push(
+
+				['Crushed', eventDurationInMinutes / 60],
+				['Slacked', (workdayInMinutes / 60) - (eventDurationInMinutes / 60) ]
+			);
+
+			new Highcharts.Chart({
+				chart: {
+					 renderTo: elementId,
+					 plotBackgroundColor: null,
+					 plotBorderWidth: null,
+					 plotShadow: false
+				},
+				title: {
+					 text: title
+				},
+				tooltip: {
+					 formatter: function() {
+						  return '<b>' + this.point.name + '</b>: ' + this.percentage + ' %';
+					 }
+				},
+				plotOptions: {
+					 pie: {
+						  allowPointSelect: true,
+						  cursor: 'pointer',
+						  dataLabels: {
+								enabled: true,
+								color: '#000000',
+								connectorColor: '#000000',
+								formatter: function() {
+									 return '<b>' + this.point.name + '</b>: ' + this.percentage + ' %';
+								}
+						  }
+					 }
+				},
+				series: [{
+					 type: 'pie',
+					 name: title,
+					 data: dataList
+				}]
+			});
+		 };
+
+
+
+		 function getEventDurationInMinutes(_event) {
+
+		 	var startTimeInMinutesFromZero = _event.start.hour() * 60 + _event.start.minute();
+		 	var endTimeInMinutesFromZero = _event.end.hour() * 60 + _event.end.minute();
+		 	var differenceInMinutes = endTimeInMinutesFromZero - startTimeInMinutesFromZero;	// greater than 0
+		 	return differenceInMinutes;
+		 }
+
 		//////////////////////////// Setup vm's public interface ///////////////
 
-		vm.DigestSwitch = false;
 		vm.Events = [[]];
 		vm.UIEvents = [];
 		vm.ShowEventOptions = false;
@@ -338,6 +430,7 @@
 		};
 
 		vm.EventOptionsInput = eventOptionsInput;
+		vm.AddTimeToCurrentEvent = addTimeToCurrentEvent;
 
 		return vm;
 	}

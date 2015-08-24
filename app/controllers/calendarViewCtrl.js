@@ -11,30 +11,71 @@
 
 		var vm = this,
 			events = [[]],
-			defaultEventCollection = 0;
+			defaultEventCollection = 0,
+			currentEvent = {},
+			deleteEvent = false,
+			editEvent = false;
 
-		vm.Events = events;
 
-		///////////////////////////////////////// CAL ///////////////////////////////////////
 
-		(function configCalendar(){
+		function eventClickHandler(_event, jsEvent, view) {
 
-			vm.CalendarConfig = {
-				height : 450,
-				editable: true,
-				selectable : true,
-				header : {
+			openEventOptionsPrompt(_event);
+		}
 
-					left : 'month agendaDay',
-					center : 'title',
-					right : 'today prev,next'
-				},
-				defaultView : 'month',
-				businessHours : true,
-				select : calendarSelect,
-				eventResize : eventResizeHandler
-			};
-		}());
+
+
+		function openEventOptionsPrompt(_event) {
+
+			currentEvent = _event;
+
+			// Launch a modal switch for now?
+			$('#myModal').modal('show');
+		}
+
+
+
+		function eventOptionsInput(userChoice) {
+
+			switch(userChoice) {
+
+				case 'edit':
+					// Go to day view
+					uiCalendarConfig.calendars.theCalendar.fullCalendar('changeView', 'agendaDay');
+					uiCalendarConfig.calendars.theCalendar.fullCalendar('gotoDate', moment(currentEvent.start));
+					break;
+				case 'delete':
+					removeEvent(currentEvent);
+					break;
+				default:
+					// Do nothing
+					break;
+			}
+		}
+
+
+
+		function removeEvent(_event) {
+
+			var newEventCollection = [];
+
+			uiCalendarConfig.calendars.theCalendar.fullCalendar('removeEvents', [_event._id]);
+
+			// iterate over the events array and remove the element with matching _id.
+			for(var i = 0; i < events[defaultEventCollection].length; ++i) {
+
+				if(events[defaultEventCollection][i]._id !== _event._id) {
+
+					newEventCollection.push(events[defaultEventCollection][i]);
+				}
+			}
+
+			events[defaultEventCollection] = newEventCollection;
+
+			updateEvents();
+			updateUIEvents();
+		}
+
 
 
 		function eventResizeHandler(event, delta, revertFunc) {
@@ -89,7 +130,6 @@
 
 			updateEvents();
 			updateUIEvents();
-			uiCalendarConfig.calendars.theCalendar.fullCalendar('rerenderEvents');                          
 		}
 
 
@@ -115,6 +155,9 @@
 		function updateEvents() {
 
 			vm.Events = events;
+			var cal = $('.theCalendar');
+			cal.fullCalendar('rerenderEvents');
+			vm.DigestSwitch = !vm.DigestSwitch;
 		}
 
 
@@ -255,6 +298,34 @@
 				end : _end
 			});
 		}
+
+
+		//////////////////////////// Setup vm's public interface ///////////////
+
+		vm.DigestSwitch = false;
+		vm.Events = events;
+		vm.UIEvents = [];
+		vm.ShowEventOptions = false;
+
+		vm.CalendarConfig = {
+
+			height : 450,
+			editable: true,
+			selectable : true,
+			header : {
+
+				left : 'month agendaDay',
+				center : 'title',
+				right : 'today prev,next'
+			},
+			defaultView : 'month',
+			businessHours : true,
+			select : calendarSelect,
+			eventResize : eventResizeHandler,
+			eventClick : eventClickHandler
+		};
+
+		vm.EventOptionsInput = eventOptionsInput;
 
 		return vm;
 	}

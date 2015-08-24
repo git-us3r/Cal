@@ -1,7 +1,23 @@
 <div class="container container-fluid">
-    <div  class="fc" ui-calendar="vm.CalendarConfig" ng-model="vm.Events" calendar="theCalendar"></div>
+    <div  class="fc" ui-calendar="vm.CalendarConfig" ng-model="vm.Events" calendar="theCalendar" id="theCalendar"></div>
 </div>
 <div class="container">
 	<h3>Events</h3>
 	<h4>{{vm.UIEvents}}</h4>
 </div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Event Options</h4>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default danger" data-dismiss="modal" ng-click="vm.EventOptionsInput('delete')">Delete Event</button>
+        <button type="button" class="btn btn-primary warning" data-dismiss="modal" ng-click="vm.EventOptionsInput('edit')">Edit Event</button>
+      </div>
+    </div>
+  </div>
+<div ng-model="vm.DigestSwitch"></div>

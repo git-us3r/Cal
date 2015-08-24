@@ -17,9 +17,15 @@
 
 					// The properties of this collection are the events.
 				},
-				GetEventDefaultCollection : events_getDefaultCollection			
+				GetEventDefaultCollection : events_getDefaultCollection,
+				DefaultEventColor : '#337AB7',
+				AllDayEventColor : 'orange'		
 			},
 			uniqueId = 0;
+
+
+		function getUniqueHoverActionId() { return uniqueHoverActionId++; }
+
 
 
 		function getUniqueId() { return uniqueId++; }
@@ -43,22 +49,33 @@
 
 		function eventClickHandler(_event, jsEvent, view) {
 
-			openEventOptionsPrompt(_event);
+			openEventOptionsPrompt(_event, jsEvent.clientX, jsEvent.clientY);
 		}
 
 
 
-		function openEventOptionsPrompt(_event) {
+		function openEventOptionsPrompt(_event, xCoordinate, yCoordinate) {
 
-			events.CurrentEvent = _event;
+			vm.CurrentEvent = _event;
 
-			// Launch a modal switch for now?
-			$('#myModal').modal('show');
+			var prompt = $('.popover'),
+				height = prompt.height(),
+				width = prompt.width(),
+				left = (xCoordinate) + 'px',
+				top = (yCoordinate + 2 * height) + 'px';
+
+		   	$('.popover').show();
+		    $('.popover').css('left', left);
+		    $('.popover').css('top', top);
+
+		    vm.ShowEventOptionsPrompt = true;
 		}
 
 
 
 		function eventOptionsInput(userChoice) {
+
+			vm.ShowEventOptionsPrompt = false;
 
 			switch(userChoice) {
 
@@ -70,8 +87,11 @@
 				case 'delete':
 					removeEvent(events.CurrentEvent);
 					break;
+				case 'close':
+					vm.ShowEventOptionsPrompt = false;
+					break;
 				default:
-					// Do nothing
+					vm.ShowEventOptionsPrompt = false;
 					break;
 			}
 		}
@@ -93,6 +113,7 @@
 
 		function eventResizeHandler(_event, delta, revertFunc) {
 
+			_event.color = events.DefaultEventColor;
 			events.Collection[_event.id] = _event;
 			updateEvents();
 			updateUIEvents();
@@ -143,6 +164,8 @@
 					AllDay : evnt.IsAllDay
 				});
 			}
+
+			vm.UIEvents.push(vm.CurrentEvent);
 		}
 
 
@@ -237,7 +260,8 @@
 				title : _title,
 				start : newEventStart,
 				end : newEventEnd,
-				isAllDay : true
+				isAllDay : true,
+				color : 'orange'
 			};
 
 			events.Collection[newEvent.id] = newEvent;
@@ -283,13 +307,14 @@
 			};
 		}
 
-
 		//////////////////////////// Setup vm's public interface ///////////////
 
 		vm.DigestSwitch = false;
 		vm.Events = [[]];
 		vm.UIEvents = [];
 		vm.ShowEventOptions = false;
+		vm.ShowEventOptionsPrompt = false;
+		vm.CurrentEvent = {};
 
 		vm.CalendarConfig = {
 
@@ -302,6 +327,9 @@
 				center : 'title',
 				right : 'today prev,next'
 			},
+			eventColor : events.DefaultEventColor,
+			eventOverlap : false,
+			displayEventEnd : true,
 			defaultView : 'month',
 			businessHours : true,
 			select : calendarSelect,

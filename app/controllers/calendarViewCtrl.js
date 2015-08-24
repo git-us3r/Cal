@@ -10,11 +10,34 @@
 	function ctrl($scope, $state, uiCalendarConfig) {
 
 		var vm = this,
-			events = [[]],
-			defaultEventCollection = 0,
-			currentEvent = {},
-			deleteEvent = false,
-			editEvent = false;
+			events = {
+				DefaultEventCollection : 0,
+				CurrentEvent : {},
+				Collection : { 
+
+					// The properties of this collection are the events.
+				},
+				GetEventDefaultCollection : events_getDefaultCollection			
+			},
+			uniqueId = 0;
+
+
+		function getUniqueId() { return uniqueId++; }
+
+
+
+		function events_getDefaultCollection() {
+
+			var eventArray = [];
+
+			for(var key in events.Collection) {
+
+				eventArray.push(events.Collection[key]);
+			}
+
+			return eventArray;
+		}
+
 
 
 
@@ -27,7 +50,7 @@
 
 		function openEventOptionsPrompt(_event) {
 
-			currentEvent = _event;
+			events.CurrentEvent = _event;
 
 			// Launch a modal switch for now?
 			$('#myModal').modal('show');
@@ -42,10 +65,10 @@
 				case 'edit':
 					// Go to day view
 					uiCalendarConfig.calendars.theCalendar.fullCalendar('changeView', 'agendaDay');
-					uiCalendarConfig.calendars.theCalendar.fullCalendar('gotoDate', moment(currentEvent.start));
+					uiCalendarConfig.calendars.theCalendar.fullCalendar('gotoDate', moment(events.CurrentEvent.start));
 					break;
 				case 'delete':
-					removeEvent(currentEvent);
+					removeEvent(events.CurrentEvent);
 					break;
 				default:
 					// Do nothing
@@ -57,54 +80,25 @@
 
 		function removeEvent(_event) {
 
-			var newEventCollection = [];
+			delete events.Collection[_event.id];
 
-			uiCalendarConfig.calendars.theCalendar.fullCalendar('removeEvents', [_event._id]);
-
-			// iterate over the events array and remove the element with matching _id.
-			for(var i = 0; i < events[defaultEventCollection].length; ++i) {
-
-				if(events[defaultEventCollection][i]._id !== _event._id) {
-
-					newEventCollection.push(events[defaultEventCollection][i]);
-				}
-			}
-
-			events[defaultEventCollection] = newEventCollection;
+			uiCalendarConfig.calendars.theCalendar.fullCalendar('removeEvents', [_event.id]);
 
 			updateEvents();
+
 			updateUIEvents();
 		}
 
 
 
-		function eventResizeHandler(event, delta, revertFunc) {
+		function eventResizeHandler(_event, delta, revertFunc) {
 
-			var eventId = event._id;
-			var eventIndex = getEventIndexFromCollection(defaultEventCollection, eventId);
-
-			events[defaultEventCollection][eventIndex] = event;
+			events.Collection[_event.id] = _event;
 			updateEvents();
 			updateUIEvents();
 
 		}
 
-
-
-		function getEventIndexFromCollection(eventCollectionIndex, eventId) {
-
-			for(var i = 0; i < events[eventCollectionIndex].length; ++i) {
-
-				var evnt = events[eventCollectionIndex][i];
-				
-				if(evnt._id === eventId) {
-
-					return i;
-				}
-			}
-
-			return null;
-		}
 
 
 		function calendarSelect(start, end, jsEvent, view) {
@@ -138,9 +132,9 @@
 
 			vm.UIEvents = [];
 
-			for(var i = 0; i < events[defaultEventCollection].length; ++i) {
+			for(var key in events.Collection) {
 
-				var evnt = events[defaultEventCollection][i];
+				var evnt = events.Collection[key];
 
 				vm.UIEvents.push({
 					Title : evnt.title,
@@ -154,7 +148,7 @@
 
 		function updateEvents() {
 
-			vm.Events = events;
+			vm.Events[events.DefaultEventCollection] = events.GetEventDefaultCollection();
 			var cal = $('.theCalendar');
 			cal.fullCalendar('rerenderEvents');
 			vm.DigestSwitch = !vm.DigestSwitch;
@@ -239,46 +233,33 @@
 			});
 			
 			var newEvent = {
+				id : getUniqueId(),
 				title : _title,
 				start : newEventStart,
 				end : newEventEnd,
 				isAllDay : true
 			};
 
-			events[defaultEventCollection].push(newEvent);
+			events.Collection[newEvent.id] = newEvent;
 		}
 
 
 
 		function thisDayHasEvents(day) {
 
-			for(var i = 0; i < events[defaultEventCollection].length; ++i) {
+			for(var key in events.Collection) {
 
-				var calendarEvnt = events[defaultEventCollection][i];
-				var calendarDay = calendarEvnt.start.date();
+				var evnt = events.Collection[key];
 
-				if(day === calendarDay) {
+				if(evnt.start.date() === day || evnt.end.date() === day) {
 
 					return true;
 				}
-			}	
+			}
+
+			return false;
 		}
 		
-
-
-		function eventCollectionHasAllDay(eventCollectionIndex, day) {
-
-			for(var i = 0; i < events[eventCollectionIndex].length; ++i) {
-
-				var calendarEvnt = events[eventCollectionIndex][i];
-				var calendarDay = calendarEvnt.start.date();
-
-				if(day === calendarDay && calendarEvnt.isAllDay) {
-
-					return true;
-				}
-			}			
-		}
 
 
 		function eventIsAllDay(start, end) {
@@ -291,19 +272,22 @@
 
 		function addEvent(_title, _start, _end) {
 
-			events[defaultEventCollection].push({
+			var uniqueId = getUniqueId();
+			
+			events.Collection[uniqueId] = {
 
+				id : uniqueId,
 				title : _title,
 				start : _start,
 				end : _end
-			});
+			};
 		}
 
 
 		//////////////////////////// Setup vm's public interface ///////////////
 
 		vm.DigestSwitch = false;
-		vm.Events = events;
+		vm.Events = [[]];
 		vm.UIEvents = [];
 		vm.ShowEventOptions = false;
 

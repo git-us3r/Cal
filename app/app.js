@@ -19,6 +19,11 @@
                     url: "/calendar",
                     templateUrl: "app/views/calendar.html",
                     controller: "calendarViewCtrl as vm"
+                })
+                .state("canvasChart", {
+                    url: "/canvasChart",
+                    templateUrl: "app/views/canvasChart.html",
+                    controller: "canvasChartViewCtrl as vm"
                 });
         }]
     );

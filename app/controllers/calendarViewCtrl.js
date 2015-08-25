@@ -69,6 +69,7 @@
 		    $('.popover').css('top', top);
 
 		    renderPieChart('Rank', 'chart');
+		    renderBarChart('Rank', 'barChart')
 
 		    vm.ShowEventOptionsPrompt = true;
 		}
@@ -185,6 +186,7 @@
 			cal.fullCalendar('rerenderEvents');
 
 			renderPieChart('Rank', 'chart');
+			renderBarChart('Rank', 'barChart');
 		}
 
 
@@ -399,6 +401,52 @@
 		 	var differenceInMinutes = endTimeInMinutesFromZero - startTimeInMinutesFromZero;	// greater than 0
 		 	return differenceInMinutes;
 		 }
+
+
+		function renderBarChart(title, elementId) {
+
+			var dataSet = {};
+			var workdayInMinutes = 8 * 60;
+			var eventDurationInMinutes = getEventDurationInMinutes(vm.CurrentEvent);
+			var eventDurationPercentage = eventDurationInMinutes / workdayInMinutes * 100; 		// 8-hour day
+			vm.CurrentEventTotalHours = eventDurationInMinutes / 60;
+
+			dataSet.crushed = {name: 'Crushed', value: [eventDurationInMinutes / 60]};
+			dataSet.slacked = {name: 'Slacked', value: [(workdayInMinutes / 60) - (eventDurationInMinutes / 60)]};
+
+			$('#' + elementId).highcharts({
+		        chart: {
+		            type: 'bar'
+		        },
+		        title: {
+		            text: title
+		        },
+		        xAxis: {
+		            categories: ['WorkDay']
+		        },
+		        yAxis: {
+		            min: 0,
+		            title: {
+		                text: 'Hours Worked'
+		            }
+		        },
+		        legend: {
+		            reversed: true
+		        },
+		        plotOptions: {
+		            series: {
+		                stacking: 'normal'
+		            }
+		        },
+		        series: [{
+		            name: dataSet.slacked.name,
+		            data: dataSet.slacked.value
+		        }, {
+		            name: dataSet.crushed.name,
+		            data: dataSet.crushed.value
+		        }]
+		    });			
+		}
 
 		//////////////////////////// Setup vm's public interface ///////////////
 

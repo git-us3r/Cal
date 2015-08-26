@@ -7,11 +7,42 @@
 
     background: #f3f3f3;
 
-    max-width: 1200px;
-    max-height: 1000px;
+    max-width: auto;
+    max-height: auto;
     width: 100%;
     height: 100%;
 }
+
+
+.card {
+
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+    border-radius: 3px 3px;
+    margin: 10px;
+}
+
+.card-link {
+
+    -webkit-transition: width .25s;
+    transition: .25s;
+}
+
+
+.card-link:hover {
+
+    box-shadow: 0 20px 22px rgba(0, 0, 0, 0.5);
+    background-color: #FAFEFF;
+    cursor: pointer;
+}
+
+.content {
+
+    min-height: 100%;
+    height: 100%;
+    padding-top: 80px;
+}
+
 
 #eventOptionsPrompt {
     max-height: 100%;
@@ -21,55 +52,55 @@
     padding-right: 5px;
 }
 
-.card {
 
-    background: white;
-    width: 300px;
-    height: 250px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    border-radius: 3px 3px;
-    margin: 10px;
+#gotoAvailabilityCalendarCard {
+
+    min-width: 300px;
+    min-height: 250px;
+    width: auto;
+    height: auto;
 }
 
-.card:hover {
 
-    box-shadow: 0 10px 11px rgba(0, 0, 0, 0.5);
-    background-color: #FAFEFF;
-}
+#gotoCalendarCard {
 
-.mainCard {
-    background: white;
-    width: 450px;
-    height: 420px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    border-radius: 3px 3px;
-    margin: 10px;
+    min-width: 450px;
+    min-height: 420px;
+    width: auto;
+    height: auto;
 }
 
 
 
-.longCard {
-    background: white;
-    width: 570px;
-    height: 150px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    border-radius: 3px 3px;
-    margin: 10px;
+#gotoMessagesCard {
+    
+    min-width: 570px;
+    min-height: 150px;
+    width: auto;
+    height: auto;
 }
 
 
 
-.smallCard {
-    background: white;
-    width: 250px;
-    height: 115px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    border-radius: 3px 3px;
-    margin: 10px;
+#gotoAboutUsCard {
+    
+    min-width: 250px;
+    min-height: 115px;
+    width: auto;
+    height: auto;    
 }
 
 
-.clendarCard {
+#gotoHelpCard {
+
+    min-width: 250px;
+    min-height: 115px;
+    width: auto;
+    height: auto;
+}
+
+
+#clendarCard {
     background: white;
     max-width: 700px;
     min-width: 450px;
@@ -85,7 +116,7 @@
 }
 
 
-.chartCard {
+#chartCard {
     background: white;
     max-width: 450px;
     min-width: 350px;
@@ -101,34 +132,11 @@
 }
 
 
-.statsCard {
+#statsCard {
     background: white;
     max-width: 450px;
     min-width: 350px;
-    max-height: 650px;
-    min-height: 470px;
-
-    width: 100%;
-    height: 100%;
-    padding: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
-    border-radius: 3px 3px;
-    margin: 10px;
-}
-
-.content {
-
-	min-height: 100%;
-	height: 100%;
-	padding-top: 80px;
-}
-
-.pieChartCard {
-
-    background: white;
-    max-width: 550px;
-    min-width: 350px;
-    max-height: 800px;
+    max-height: 250px;
     min-height: 250px;
 
     width: 100%;
@@ -139,28 +147,46 @@
     margin: 10px;
 }
 
-.backCard {
+#pieChartCard {
 
     background: white;
-    max-width: 450px;
-    min-width: 250px;
-    max-height: 800px;
+    max-width: auto;
+    min-width: auto;
+    max-height: auto;
+    min-height: 250px;
+
+    width: 100%;
+    height: 100%;    
+    
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+    border-radius: 3px 3px;
+    
+    padding: 10px;
+
+    margin: 10px;
+    margin-right: 20px; 
+
+    float: right;
+
+}
+
+#backCard {
+
+    min-width: auto;
     min-height: 250px;
 
     width: 100%;
     height: 100%;
-    padding: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
-    border-radius: 3px 3px;
-    margin-right: 15px;
-    margin-top: 10px;
-
 }
 
-.backCard:hover {
 
-    box-shadow: 0 20px 21px rgba(0, 0, 0, 0.5);
-    background-color: #FAFEFF;
+#statusBarCard {
+   
+    min-width: 350px;
+    min-height: 100px;
+
+    width: auto;
+    height: auto;
 }
 
 
@@ -168,9 +194,9 @@
 
     overflow: hidden;
 
-    max-width: 350px;
+    max-width: 300px;
     min-width: 150px;
-    width: 350px;
+    width: 300px;
 
     max-height: 30px;
     min-height: 20px;
@@ -187,9 +213,9 @@
 
 #statusBar {
 
-    max-width: 350px;
-    min-width: 150px;
-    width: 0%;
+    max-width: 300px;
+    min-width: auto;
+    width: 0;
 
     max-height: 30px;
     min-height: 20px;
@@ -198,8 +224,30 @@
     float: left;
     background-color: green;
     border-radius: 3px 3px;
-    -webkit-transition: width 1s;
-    transition: 1s;
+   
+    -webkit-transition: width .25s;
+    transition: .25s;
 
     margin: 0 auto;
 }
+
+
+#dayViewBtn {
+
+    min-width: 200px;
+    min-height: 80px;
+
+    width: auto;
+    height: auto;
+}
+
+
+#deleteBtn {
+
+    min-width: 100px;
+    min-height: 80px;
+
+    width: auto;
+    height: auto;
+}
+

@@ -22,7 +22,7 @@
 				AllDayEventColor : 'orange'		
 			},
 			uniqueId = 0,
-			canvas = document.getElementById('barCanvas');
+			canvas = document.getElementById('barCanvas');			
 
 
 		function getUniqueHoverActionId() { return uniqueHoverActionId++; }
@@ -131,13 +131,13 @@
 
 		function updateUI() {
 
-			vm.CurrentEvent.TotalHours = getEventDurationInMinutes(vm.CurrentEvent) / 60;
+			vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay = getEventDurationInMinutes(vm.CurrentEvent);
+
+			vm.CurrentEvent.TotalHours = vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay / 60;
 
 			updateUIEvents();
 
 			uiCalendarConfig.calendars.theCalendar.fullCalendar('rerenderEvents');
-
-			renderPieChart('Rank', 'chart');
 
 			updateStatusBar();
 		}
@@ -350,57 +350,6 @@
 
 			return  eventDurationPercentage;
 		}
-
-
-
-		function renderPieChart(title, elementId) {
-
-			var dataList = [],
-				crushedTimePercentage = getEventPercentageValue(vm.CurrentEvent),
-				slackedTimePercentage = 100 - crushedTimePercentage;
-
-			dataList.push(
-
-				['Crushed', crushedTimePercentage],
-				['Slacked', slackedTimePercentage]
-			);
-
-			new Highcharts.Chart({
-				chart: {
-					 renderTo: elementId,
-					 plotBackgroundColor: null,
-					 plotBorderWidth: null,
-					 plotShadow: false
-				},
-				title: {
-					 text: title
-				},
-				tooltip: {
-					 formatter: function() {
-						  return '<b>' + this.point.name + '</b>: ' + this.percentage + ' %';
-					 }
-				},
-				plotOptions: {
-					 pie: {
-						  allowPointSelect: true,
-						  cursor: 'pointer',
-						  dataLabels: {
-								enabled: true,
-								color: '#000000',
-								connectorColor: '#000000',
-								formatter: function() {
-									 return '<b>' + this.point.name + '</b>: ' + this.percentage + ' %';
-								}
-						  }
-					 }
-				},
-				series: [{
-					 type: 'pie',
-					 name: title,
-					 data: dataList
-				}]
-			});
-		 }
 
 
 

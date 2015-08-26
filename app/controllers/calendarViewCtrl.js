@@ -21,7 +21,8 @@
 				DefaultEventColor : '#337AB7',
 				AllDayEventColor : 'orange'		
 			},
-			uniqueId = 0;
+			uniqueId = 0,
+			canvas = document.getElementById('barCanvas');
 
 
 		function getUniqueHoverActionId() { return uniqueHoverActionId++; }
@@ -49,36 +50,12 @@
 
 		function eventClickHandler(_event, jsEvent, view) {
 
-			openEventOptionsPrompt(_event, jsEvent.clientX, jsEvent.clientY);
-		}
-
-
-
-		function openEventOptionsPrompt(_event, xCoordinate, yCoordinate) {
-
 			vm.CurrentEvent = _event;
-
-			var prompt = $('.popover'),
-				height = prompt.height(),
-				width = prompt.width(),
-				left = (xCoordinate) + 'px',
-				top = (yCoordinate + 2 * height) + 'px';
-
-		   	$('.popover').show();
-		    $('.popover').css('left', left);
-		    $('.popover').css('top', top);
-
-		    renderPieChart('Rank', 'chart');
-		    renderBarChart('Rank', 'barChart')
-
-		    vm.ShowEventOptionsPrompt = true;
 		}
 
 
 
 		function eventOptionsInput(userChoice) {
-
-			vm.ShowEventOptionsPrompt = false;
 
 			switch(userChoice) {
 
@@ -91,10 +68,10 @@
 					removeEvent(vm.CurrentEvent);
 					break;
 				case 'close':
-					vm.ShowEventOptionsPrompt = false;
+					// display default view stats card
 					break;
 				default:
-					vm.ShowEventOptionsPrompt = false;
+					// display default view for stats card
 					break;
 			}
 		}
@@ -109,7 +86,7 @@
 
 			updateEvents();
 
-			updateUIEvents();
+			updateUI();
 		}
 
 
@@ -119,7 +96,7 @@
 			_event.color = events.DefaultEventColor;
 			events.Collection[_event.id] = _event;
 			updateEvents();
-			updateUIEvents();
+			updateUI();
 
 		}
 
@@ -147,7 +124,32 @@
 			}
 
 			updateEvents();
+			updateUI();
+
+		}
+
+
+		function updateUI() {
+
+			vm.CurrentEvent.TotalHours = getEventDurationInMinutes(vm.CurrentEvent) / 60;
+
 			updateUIEvents();
+
+			uiCalendarConfig.calendars.theCalendar.fullCalendar('rerenderEvents');
+
+			renderPieChart('Rank', 'chart');
+
+			updateStatusBar();
+		}
+
+
+		function updateStatusBar() {
+
+			var bar = document.getElementById('statusBar'),
+				currentEventDurationPercentage = getEventPercentageValue(vm.CurrentEvent);
+
+			bar.style.width = currentEventDurationPercentage + '%';
+
 		}
 
 
@@ -181,12 +183,6 @@
 
 				vm.CurrentEvent = events.Collection[vm.CurrentEvent.id];
 			}
-
-			var cal = $('.theCalendar');
-			cal.fullCalendar('rerenderEvents');
-
-			renderPieChart('Rank', 'chart');
-			renderBarChart('Rank', 'barChart');
 		}
 
 
@@ -203,6 +199,8 @@
 
 				addAllDayEvent('Available', moment(start).add(i, 'days'), moment(start).add(i + 1, 'days'));
 			}
+
+			// TODO: set default view for stats card
 		}
 
 
@@ -277,6 +275,7 @@
 			};
 
 			events.Collection[newEvent.id] = newEvent;
+			vm.CurrentEvent = newEvent;
 		}
 
 
@@ -308,15 +307,18 @@
 
 		function addEvent(_title, _start, _end) {
 
-			var uniqueId = getUniqueId();
-			
-			events.Collection[uniqueId] = {
+			var uniqueId = getUniqueId(),
+				newEvent = {
 
-				id : uniqueId,
-				title : _title,
-				start : _start,
-				end : _end
-			};
+					id : uniqueId,
+					title : _title,
+					start : _start,
+					end : _end
+				};
+			
+			events.Collection[uniqueId] = newEvent;
+
+			vm.CurrentEvent = newEvent;
 		}
 
 
@@ -334,25 +336,33 @@
 
 			events.Collection[vm.CurrentEvent.id].color = events.DefaultEventColor;
 			updateEvents();
-			updateUIEvents();
+			updateUI();
 			
+		}
+
+
+
+		function getEventPercentageValue(_event) {
+
+			var workdayInMinutes = 8 * 60,
+				eventDurationInMinutes = getEventDurationInMinutes(_event),
+				eventDurationPercentage = eventDurationInMinutes / workdayInMinutes * 100; 		// 8-hour day
+
+			return  eventDurationPercentage;
 		}
 
 
 
 		function renderPieChart(title, elementId) {
 
-			var dataList = [];
-			var workdayInMinutes = 8 * 60;
-			var eventDurationInMinutes = getEventDurationInMinutes(vm.CurrentEvent);
-			var eventDurationPercentage = eventDurationInMinutes / workdayInMinutes * 100; 		// 8-hour day
-			vm.CurrentEventTotalHours = eventDurationInMinutes / 60;
-
+			var dataList = [],
+				crushedTimePercentage = getEventPercentageValue(vm.CurrentEvent),
+				slackedTimePercentage = 100 - crushedTimePercentage;
 
 			dataList.push(
 
-				['Crushed', eventDurationInMinutes / 60],
-				['Slacked', (workdayInMinutes / 60) - (eventDurationInMinutes / 60) ]
+				['Crushed', crushedTimePercentage],
+				['Slacked', slackedTimePercentage]
 			);
 
 			new Highcharts.Chart({
@@ -390,7 +400,7 @@
 					 data: dataList
 				}]
 			});
-		 };
+		 }
 
 
 
@@ -402,58 +412,11 @@
 		 	return differenceInMinutes;
 		 }
 
-
-		function renderBarChart(title, elementId) {
-
-			var dataSet = {};
-			var workdayInMinutes = 8 * 60;
-			var eventDurationInMinutes = getEventDurationInMinutes(vm.CurrentEvent);
-			var eventDurationPercentage = eventDurationInMinutes / workdayInMinutes * 100; 		// 8-hour day
-			vm.CurrentEventTotalHours = eventDurationInMinutes / 60;
-
-			dataSet.crushed = {name: 'Crushed', value: [eventDurationInMinutes / 60]};
-			dataSet.slacked = {name: 'Slacked', value: [(workdayInMinutes / 60) - (eventDurationInMinutes / 60)]};
-
-			$('#' + elementId).highcharts({
-		        chart: {
-		            type: 'bar'
-		        },
-		        title: {
-		            text: title
-		        },
-		        xAxis: {
-		            categories: ['WorkDay']
-		        },
-		        yAxis: {
-		            min: 0,
-		            title: {
-		                text: 'Hours Worked'
-		            }
-		        },
-		        legend: {
-		            reversed: true
-		        },
-		        plotOptions: {
-		            series: {
-		                stacking: 'normal'
-		            }
-		        },
-		        series: [{
-		            name: dataSet.slacked.name,
-		            data: dataSet.slacked.value
-		        }, {
-		            name: dataSet.crushed.name,
-		            data: dataSet.crushed.value
-		        }]
-		    });			
-		}
-
 		//////////////////////////// Setup vm's public interface ///////////////
 
 		vm.Events = [[]];
 		vm.UIEvents = [];
-		vm.ShowEventOptions = false;
-		vm.ShowEventOptionsPrompt = false;
+		vm.ShowEventOptions = false;		
 		vm.CurrentEvent = {};
 
 		vm.CalendarConfig = {

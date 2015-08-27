@@ -91,9 +91,12 @@ var CalendarSelectStrategy = (function() {
 
 
 	// Return the public interface.
-	return  {
+	var returnValue = {
 
 		Create : create
 	};
+
+	// but added to the scope manager
+	Using.Expose('CalendarSelectStrategy', returnValue);
 
 }());

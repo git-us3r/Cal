@@ -21,7 +21,9 @@
 				DefaultEventColor : '#337AB7',
 				AllDayEventColor : 'orange'		
 			},
-			uniqueId = 0;	
+			uniqueId = 0,
+			handlerStrategyFactory = Using.Require('HandlerStrategyFactory'),
+			calendarSelectStrategyKey = handlerStrategyFactory.Strategies.CalendarSelectStrategy;
 
 
 		//////////////////////////// Setup vm's public interface ///////////////
@@ -31,7 +33,7 @@
 		vm.UIEvents = [];
 		vm.ShowEventOptions = false;		
 		vm.CurrentEvent = {};
-		vm.calendarSelectStrategy = HandlerStrategyFactory.Create(HandlerStrategyFactory.Strategies.CalendarSelectStrategy, vm);
+		vm.calendarSelectStrategy = handlerStrategyFactory.Create(calendarSelectStrategyKey, vm);
 		vm.AddEvent = addEvent;
 		vm.AddAllDayEvent = addAllDayEvent;
 		vm.AddMultiDayEvent = addMultiDayEvent;

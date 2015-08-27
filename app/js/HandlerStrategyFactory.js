@@ -4,10 +4,11 @@ var HandlerStrategyFactory = (function(){
 
 	'use strict';
 	
-	var strategies = {
+	var calendarSelectStrategy = Using.Require('CalendarSelectStrategy'),
+		strategies = {
 
-		CalendarSelectStrategy : 'CalendarSelectStrategy'
-	};
+			CalendarSelectStrategy : 'CalendarSelectStrategy'
+		};
 
 
 	function create(Strategy, vm) {
@@ -15,16 +16,21 @@ var HandlerStrategyFactory = (function(){
 		switch(Strategy) {
 
 			case strategies.CalendarSelectStrategy:
-				return CalendarSelectStrategy.Create(vm);
+				return calendarSelectStrategy.Create(vm);
 			default:
 				return null;
 		}
 	}
 
 
-	return {
+	var returnValue = {
 
 		Create : create,
 		Strategies : strategies
 	};
+
+
+	Using.Expose('HandlerStrategyFactory', returnValue);
+
+
 }());

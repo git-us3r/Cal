@@ -100,7 +100,7 @@
 		}
 
 
-
+		// TODO: move to eventEventStrategy
 		function eventOptionsInput(userChoice) {
 
 			switch(userChoice) {
@@ -134,14 +134,12 @@
 		}
 
 
-
+		// TODO: move to eventEventStrategy
 		function eventResizeHandler(_event, delta, revertFunc) {
 
 			_event.color = events.DefaultEventColor;
-			events.Collection[_event.id] = _event;
-			updateEvents();
-			updateUI();
-
+			vm.EventManager.EditEvent(_event);
+			update();
 		}
 
 
@@ -195,109 +193,6 @@
 		}
 
 
-
-		function addMultiDayEvent(start, end) {
-
-			var startDay = start.date();
-			var endDay = end.date();
-			var daysInBetween = endDay - startDay;
-
-			addAllDayEvent('Available', start, moment(start).add(1, 'days'));	
-
-			for(var i = 1; i < daysInBetween; ++i) {
-
-				addAllDayEvent('Available', moment(start).add(i, 'days'), moment(start).add(i + 1, 'days'));
-			}
-
-			// TODO: set default view for stats card
-		}
-
-
-
-		function addAllDayEvent(_title, _start, _end) {
-
-			if(thisDayHasEvents(_start.date())) {
-
-				return;
-			}
-
-			var year = _start.year();
-			var month = _start.month();
-			var day = _start.date();
-			
-			var newEventStart = moment({
-				y : year,
-				M : month,
-				d : day,
-				h : 9,
-				m : 0,
-				s : 0,
-				ms : 0
-
-			});
-
-			var newEventEnd = moment({
-				y : year,
-				M : month,
-				d : day,
-				h : 18,
-				m : 0,
-				s : 0,
-				ms : 0
-			});
-			
-			var newEvent = {
-				id : getUniqueId(),
-				title : _title,
-				start : newEventStart,
-				end : newEventEnd,
-				isAllDay : true,
-				color : 'orange'
-			};
-
-			events.Collection[newEvent.id] = newEvent;
-			vm.CurrentEvent = newEvent;
-		}
-
-
-
-		function addEvent(_title, _start, _end) {
-
-			var uniqueId = getUniqueId(),
-				newEvent = {
-
-					id : uniqueId,
-					title : _title,
-					start : _start,
-					end : _end
-				};
-			
-			events.Collection[uniqueId] = newEvent;
-
-			vm.CurrentEvent = newEvent;
-		}
-
-
-
-		function addTimeToCurrentEvent(timeSection, time, timeUnit) {
-
-			if(timeSection === 'start') {
-
-				events.Collection[vm.CurrentEvent.id].start = events.Collection[vm.CurrentEvent.id].start.add(time, timeUnit);
-			}
-			else {
-
-				events.Collection[vm.CurrentEvent.id].end = events.Collection[vm.CurrentEvent.id].end.add(time, timeUnit);
-			}
-
-			events.Collection[vm.CurrentEvent.id].color = events.DefaultEventColor;
-			updateEvents();
-			updateUI();
-			
-		}
-
-
-
 		function getEventPercentageValue(_event) {
 
 			var workdayInMinutes = 8 * 60,
@@ -316,23 +211,6 @@
 				differenceInMinutes = endTimeInMinutesFromZero - startTimeInMinutesFromZero;	// greater than 0
 
 			return differenceInMinutes;
-		}
-
-
-
-		function thisDayHasEvents(day) {
-
-			for(var i =0; i < vm.Events[0].length; ++i) {
-
-				var evnt = vm.Events[0][i];
-
-				if(evnt.start.date() === day || evnt.end.date() === day) {
-
-					return true;
-				}
-			}
-
-			return false;
 		}
 
 		return vm;

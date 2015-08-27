@@ -16,6 +16,7 @@
 			GetEventById : getEventById,
 			GetEventsArray : getEvents,
 			SetCurrentEvent : setCurrentEvent,
+			EditEvent : editEvent,
 			RemoveEvent : removeEvent,
 			UndoRemove : recoverLastEventRemoved
 		};
@@ -40,61 +41,44 @@
 	}
 
 
-	function addMultiDayEvent(start, end) {
+	function addMultiDayEvent(start, end, calendarConfig) {
 
 		var startDay = start.date(),
 			endDay = end.date(),
-			daysInBetween = endDay - startDay;
+			daysInBetween = endDay - startDay;	
 
-		addAllDayEvent('Available', start, moment(start).add(1, 'days'));	
+		for(var i = 0; i < daysInBetween; ++i) {
 
-		for(var i = 1; i < daysInBetween; ++i) {
-
-			addAllDayEvent('Available', moment(start).add(i, 'days'), moment(start).add(i + 1, 'days'));
+			addAllDayEvent('Available', moment(start).add(i, 'days'), moment(start).add(i + 1, 'days'), calendarConfig);
 		}
 	}
 
 
-	function addAllDayEvent(_title, _start, _end) {
+	function addAllDayEvent(_title, _start, _end, calendarConfig) {
 
 		if(thisDayHasEvents(_start.date())) {
 
 			return;
 		}
 
-		var year = _start.year();
-		var month = _start.month();
-		var day = _start.date();
-		
-		var newEventStart = moment({
-			y : year,
-			M : month,
-			d : day,
-			h : 9,
-			m : 0,
-			s : 0,
-			ms : 0
+		var year = _start.year(),
+			month = _start.month(),
+			day = _start.date()
+			startDate = new Date(year, month, day, 9, 0, 0),
+			endDate = new Date(year, month, day, 18, 0, 0),
+			newEventStart = calendarConfig.calendars.theCalendar.fullCalendar('getCalendar').moment(startDate),
+			newEventEnd = calendarConfig.calendars.theCalendar.fullCalendar('getCalendar').moment(endDate),
+			newEvent = {
+				id : _start.unix() + '_' + _end.unix(),
+				title : _title,
+				start : newEventStart,
+				end : newEventEnd,
+				isAllDay : true,
+				color : 'orange'
+			};
 
-		});
-
-		var newEventEnd = moment({
-			y : year,
-			M : month,
-			d : day,
-			h : 18,
-			m : 0,
-			s : 0,
-			ms : 0
-		});
-		
-		var newEvent = {
-			id : _start.unix() + '_' + _end.unix(),
-			title : _title,
-			start : newEventStart,
-			end : newEventEnd,
-			isAllDay : true,
-			color : 'orange'
-		};
+			newEvent.start._d = startDate;
+			newEvent.end._d = endDate;
 
 		addEvent(newEvent);
 	}
@@ -103,6 +87,11 @@
 	function addTimeToCurrentEvent(timeSection, time, timeUnit) {
 
 		var currentEventIndex = eventsIndex[currentEvent.id];
+
+		if(currentEvent.isAllDay) {
+
+			currentEvent.isAllDay = false;
+		}
 
 		if(timeSection === 'start') {
 
@@ -123,7 +112,7 @@
 
 		eventsIndex[newEvent.id] = eventsArray.length;
 		eventsArray.push(newEvent);	
-		currentEvent = newEvent;
+		currentEvent = eventsArray[eventsArray.length - 1];
 	}
 
 
@@ -169,6 +158,16 @@
 	function setCurrentEvent(_event) {
 
 		currentEvent = _event;
+	}
+
+
+	function editEvent(_event) {
+
+		var index = eventsIndex[_event.id];
+
+		eventsArray[index] = _event;
+
+		currentEvent = eventsArray[index];
 	}
 
 

@@ -1,6 +1,6 @@
 // Requires app/js/CalendarSelectStrategy.js
 
-var HandlerStrategyFactory = (function(){
+(function(){
 
 	'use strict';
 	

@@ -1,4 +1,4 @@
-var CalendarSelectStrategy = (function() {
+(function() {
 
 	'use strict';
 

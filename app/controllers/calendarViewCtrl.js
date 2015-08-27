@@ -23,19 +23,19 @@
 			},
 			uniqueId = 0,
 			handlerStrategyFactory = Using.Require('HandlerStrategyFactory'),
-			calendarSelectStrategyKey = handlerStrategyFactory.Strategies.CalendarSelectStrategy;
+			calendarSelectStrategyKey = handlerStrategyFactory.Strategies.CalendarSelectStrategy,
+			calendarSelectStrategy = handlerStrategyFactory.Create(calendarSelectStrategyKey, vm),
+			eventManager = Using.Require('EventManager');
 
 
 		//////////////////////////// Setup vm's public interface ///////////////
 
 		vm.uiCalendarConfig = uiCalendarConfig;
 		vm.Events = [[]];
-		vm.UIEvents = [];
-		vm.ShowEventOptions = false;		
+		vm.UIEvents = [];		
 		vm.CurrentEvent = {};
-		vm.calendarSelectStrategy = handlerStrategyFactory.Create(calendarSelectStrategyKey, vm);
-		vm.AddEvent = addEvent;
-		vm.AddAllDayEvent = addAllDayEvent;
+		vm.AddEvent = eventManager.AddEvent;
+		vm.AddAllDayEvent = eventManager.AddAllDayEvent;
 		vm.AddMultiDayEvent = addMultiDayEvent;
 		vm.Update = update;
 		vm.GotoCalendarDayView = gotoCalendarDayView;
@@ -56,7 +56,7 @@
 			displayEventEnd : true,
 			defaultView : 'month',
 			businessHours : true,
-			select :vm.calendarSelectStrategy.ProcessEvent,
+			select : calendarSelectStrategy.ProcessEvent,
 			eventResize : eventResizeHandler,
 			eventClick : eventClickHandler
 		};
@@ -197,12 +197,12 @@
 
 		function updateEvents() {
 
-			vm.Events[events.DefaultEventCollection] = events.GetEventDefaultCollection();
+			vm.Events[events.DefaultEventCollection] = eventManager.GetEventsArray();
 
 			// Reset the current event, if any.
 			if(vm.CurrentEvent) {
 
-				vm.CurrentEvent = events.Collection[vm.CurrentEvent.id];
+				vm.CurrentEvent = eventManager.GetCurrentEvent();
 			}
 		}
 

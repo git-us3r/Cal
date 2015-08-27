@@ -9,7 +9,7 @@
 
 	function ctrl($scope, $state, uiCalendarConfig) {
 
-		var vm = this,
+		var vm = $scope,
 			events = {
 				DefaultEventCollection : 0,
 				CurrentEvent : {},
@@ -21,9 +21,48 @@
 				DefaultEventColor : '#337AB7',
 				AllDayEventColor : 'orange'		
 			},
-			uniqueId = 0,
-			canvas = document.getElementById('barCanvas');			
+			uniqueId = 0;	
 
+
+		//////////////////////////// Setup vm's public interface ///////////////
+
+		vm.uiCalendarConfig = uiCalendarConfig;
+		vm.Events = [[]];
+		vm.UIEvents = [];
+		vm.ShowEventOptions = false;		
+		vm.CurrentEvent = {};
+		vm.calendarSelectStrategy = HandlerStrategyFactory.Create(HandlerStrategyFactory.Strategies.CalendarSelectStrategy, vm);
+		vm.AddEvent = addEvent;
+		vm.AddAllDayEvent = addAllDayEvent;
+		vm.AddMultiDayEvent = addMultiDayEvent;
+		vm.Update = update;
+		vm.GotoCalendarDayView = gotoCalendarDayView;
+
+		vm.CalendarConfig = {
+
+			height : 450,
+			editable: true,
+			selectable : true,
+			header : {
+
+				left : 'month agendaDay',
+				center : 'title',
+				right : 'today prev,next'
+			},
+			eventColor : events.DefaultEventColor,
+			eventOverlap : false,
+			displayEventEnd : true,
+			defaultView : 'month',
+			businessHours : true,
+			select :vm.calendarSelectStrategy.ProcessEvent,
+			eventResize : eventResizeHandler,
+			eventClick : eventClickHandler
+		};
+
+		vm.EventOptionsInput = eventOptionsInput;
+		vm.AddTimeToCurrentEvent = addTimeToCurrentEvent;			
+
+		///////////////////////////////////////////////////////////////////////
 
 		function getUniqueHoverActionId() { return uniqueHoverActionId++; }
 
@@ -98,6 +137,13 @@
 			updateEvents();
 			updateUI();
 
+		}
+
+
+		function gotoCalendarDayView (start) {
+			
+			uiCalendarConfig.calendars.theCalendar.fullCalendar('changeView', 'agendaDay');
+			uiCalendarConfig.calendars.theCalendar.fullCalendar('gotoDate', moment(start));
 		}
 
 
@@ -183,6 +229,14 @@
 
 				vm.CurrentEvent = events.Collection[vm.CurrentEvent.id];
 			}
+		}
+
+
+
+		function update() {
+
+			updateEvents();
+			updateUI();
 		}
 
 
@@ -360,37 +414,6 @@
 		 	var differenceInMinutes = endTimeInMinutesFromZero - startTimeInMinutesFromZero;	// greater than 0
 		 	return differenceInMinutes;
 		 }
-
-		//////////////////////////// Setup vm's public interface ///////////////
-
-		vm.Events = [[]];
-		vm.UIEvents = [];
-		vm.ShowEventOptions = false;		
-		vm.CurrentEvent = {};
-
-		vm.CalendarConfig = {
-
-			height : 450,
-			editable: true,
-			selectable : true,
-			header : {
-
-				left : 'month agendaDay',
-				center : 'title',
-				right : 'today prev,next'
-			},
-			eventColor : events.DefaultEventColor,
-			eventOverlap : false,
-			displayEventEnd : true,
-			defaultView : 'month',
-			businessHours : true,
-			select : calendarSelect,
-			eventResize : eventResizeHandler,
-			eventClick : eventClickHandler
-		};
-
-		vm.EventOptionsInput = eventOptionsInput;
-		vm.AddTimeToCurrentEvent = addTimeToCurrentEvent;
 
 		return vm;
 	}

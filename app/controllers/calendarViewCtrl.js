@@ -30,7 +30,6 @@
 
 		vm.uiCalendarConfig = uiCalendarConfig;
 		vm.Events = [[]];
-		vm.UIEvents = [];
 		vm.ShowEventOptions = false;		
 		vm.CurrentEvent = {};
 		vm.calendarSelectStrategy = handlerStrategyFactory.Create(calendarSelectStrategyKey, vm);
@@ -134,11 +133,10 @@
 
 		function eventResizeHandler(_event, delta, revertFunc) {
 
-			_event.color = events.DefaultEventColor;
-			events.Collection[_event.id] = _event;
-			updateEvents();
-			updateUI();
-
+			events.Collection[_event.id].color = events.DefaultEventColor;
+			events.Collection[_event.id].start = _event.start;
+			events.Collection[_event.id].end = _event.end;
+			update();
 		}
 
 
@@ -154,11 +152,7 @@
 
 			vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay = getEventDurationInMinutes(vm.CurrentEvent);
 
-			vm.CurrentEvent.TotalHours = vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay / 60;
-
-			updateUIEvents();
-
-			uiCalendarConfig.calendars.theCalendar.fullCalendar('rerenderEvents');
+			vm.CurrentEvent.TotalHours = vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay / 60;		
 
 			updateStatusBar();
 		}
@@ -175,26 +169,6 @@
 
 
 
-		function updateUIEvents() {
-
-			vm.UIEvents = [];
-
-			for(var key in events.Collection) {
-
-				var evnt = events.Collection[key];
-
-				vm.UIEvents.push({
-					Title : evnt.title,
-					Start : evnt.start.format(),
-					End : evnt.end.format(),
-					AllDay : evnt.IsAllDay
-				});
-			}
-
-			vm.UIEvents.push(vm.CurrentEvent);
-		}
-
-
 		function updateEvents() {
 
 			vm.Events[events.DefaultEventCollection] = events.GetEventDefaultCollection();
@@ -203,7 +177,20 @@
 			if(vm.CurrentEvent) {
 
 				vm.CurrentEvent = events.Collection[vm.CurrentEvent.id];
+
+				var startHour = vm.CurrentEvent.start.hour();
+				var startMinute = vm.CurrentEvent.start.minute();
+
+				var endHour = vm.CurrentEvent.end.hour();
+				var endMinute = vm.CurrentEvent.end.minute();
+
+				vm.CurrentEvent.DisplayTime = {};
+
+				vm.CurrentEvent.DisplayTime.start = vm.CurrentEvent.start.toObject().toString();
+				vm.CurrentEvent.DisplayTime.end = vm.CurrentEvent.end.toObject().toString();
 			}
+
+			uiCalendarConfig.calendars.theCalendar.fullCalendar('refetchEvents');
 		}
 
 

@@ -32,14 +32,14 @@
 
 		vm.uiCalendarConfig = uiCalendarConfig;
 		vm.Events = [[]];
-		vm.UIEvents = [];		
 		vm.CurrentEvent = {};
 		vm.AddEvent = eventManager.AddEvent;
 		vm.AddAllDayEvent = eventManager.AddAllDayEvent;
 		vm.AddMultiDayEvent = eventManager.AddMultiDayEvent;
+		vm.AddTimeToCurrentEvent = addTimeToCurrentEventWrapper;
 		vm.Update = update;
 		vm.GotoCalendarDayView = gotoCalendarDayView;
-
+		vm.EventOptionsInput = eventOptionsInput;
 		vm.CalendarConfig = {
 
 			height : 450,
@@ -61,10 +61,14 @@
 			eventClick : eventClickHandler
 		};
 
-		vm.EventOptionsInput = eventOptionsInput;
-		vm.AddTimeToCurrentEvent = addTimeToCurrentEvent;			
-
 		///////////////////////////////////////////////////////////////////////
+
+		// TODO: Move to strategy asap
+		function addTimeToCurrentEventWrapper (timeSection, time, timeUnit) {
+			
+			eventManager.AddTimeToCurrentEvent(timeSection, time, timeUnit);
+			update();
+		}
 
 		function getUniqueHoverActionId() { return uniqueHoverActionId++; }
 
@@ -88,10 +92,11 @@
 
 
 
-
+		// TODO: move to eventEventStrategy
 		function eventClickHandler(_event, jsEvent, view) {
 
 			vm.CurrentEvent = _event;
+			eventManager.SetCurrentEvent(_event);			
 		}
 
 
@@ -101,12 +106,10 @@
 			switch(userChoice) {
 
 				case 'edit':
-					// Go to day view
-					uiCalendarConfig.calendars.theCalendar.fullCalendar('changeView', 'agendaDay');
-					uiCalendarConfig.calendars.theCalendar.fullCalendar('gotoDate', moment(vm.CurrentEvent.start));
+					gotoCalendarDayView(eventDurationInMinutes.CurrentEvent.start);
 					break;
 				case 'delete':
-					removeEvent(vm.CurrentEvent);
+					removeEvent(eventManager.GetCurrentEvent());
 					break;
 				case 'close':
 					// display default view stats card
@@ -118,16 +121,16 @@
 		}
 
 
-
+		// TODO: move to eventEventStrategy asap
 		function removeEvent(_event) {
+
+			eventManager.RemoveEvent(eventManager.GetCurrentEvent().id);
 
 			delete events.Collection[_event.id];
 
 			uiCalendarConfig.calendars.theCalendar.fullCalendar('removeEvents', [_event.id]);
 
-			updateEvents();
-
-			updateUI();
+			update();
 		}
 
 
@@ -156,8 +159,6 @@
 
 			vm.CurrentEvent.TotalHours = vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay / 60;
 
-			updateUIEvents();
-
 			uiCalendarConfig.calendars.theCalendar.fullCalendar('rerenderEvents');
 
 			updateStatusBar();
@@ -171,27 +172,6 @@
 
 			bar.style.width = currentEventDurationPercentage + '%';
 
-		}
-
-
-
-		function updateUIEvents() {
-
-			vm.UIEvents = [];
-
-			for(var key in events.Collection) {
-
-				var evnt = events.Collection[key];
-
-				vm.UIEvents.push({
-					Title : evnt.title,
-					Start : evnt.start.format(),
-					End : evnt.end.format(),
-					AllDay : evnt.IsAllDay
-				});
-			}
-
-			vm.UIEvents.push(vm.CurrentEvent);
 		}
 
 

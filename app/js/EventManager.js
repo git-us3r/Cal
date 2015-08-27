@@ -4,15 +4,19 @@
 		eventsIndex = {},		// key: eventId, value: event index in eventsArray
 		eventsRemoved = [],		// It's more like a stack
 		currentEvent = null,
+		defaultEventColor = '#337AB7',
+		allDayEventColor = 'orange',
 		publicInterface = {
 
 			AddEvent : addSingleEvent,
 			AddAllDayEvent : addAllDayEvent,
 			AddMultiDayEvent : addMultiDayEvent,
+			AddTimeToCurrentEvent : addTimeToCurrentEvent,
 			GetCurrentEvent : getCurrentEvent,
-			RemoveEvent : removeEvent,
 			GetEventById : getEventById,
 			GetEventsArray : getEvents,
+			SetCurrentEvent : setCurrentEvent,
+			RemoveEvent : removeEvent,
 			UndoRemove : recoverLastEventRemoved
 		};
 
@@ -23,7 +27,7 @@
 
 	function addSingleEvent (_title, _start, _end) {
 		
-		var eventId = start.id + end.id,
+		var eventId = start.unix() + '_' + end.unix(),
 			newEvent = {
 
 				id : eventId,
@@ -84,7 +88,7 @@
 		});
 		
 		var newEvent = {
-			id : _start.id + _end.id,
+			id : _start.unix() + '_' + _end.unix(),
 			title : _title,
 			start : newEventStart,
 			end : newEventEnd,
@@ -93,6 +97,25 @@
 		};
 
 		addEvent(newEvent);
+	}
+
+
+	function addTimeToCurrentEvent(timeSection, time, timeUnit) {
+
+		var currentEventIndex = eventsIndex[currentEvent.id];
+
+		if(timeSection === 'start') {
+
+			currentEvent.start = currentEvent.start.add(time, timeUnit);
+		}
+		else {
+
+			currentEvent.end = currentEvent.end.add(time, timeUnit);
+		}
+
+		currentEvent.color = defaultEventColor;
+		
+		eventsArray[currentEventIndex] = currentEvent;		
 	}
 
 
@@ -132,9 +155,20 @@
 			delete eventsIndex[id];
 			eventsArray.splice(eventIndex, 1);
 
+			if(currentEvent.id === id) {
+
+				currentEvent = null;
+			}
+
 			// keep it around for a while
 			sendToRetrievableGarbage(_event);
 		}
+	}
+
+
+	function setCurrentEvent(_event) {
+
+		currentEvent = _event;
 	}
 
 

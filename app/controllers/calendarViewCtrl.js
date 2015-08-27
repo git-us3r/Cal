@@ -148,33 +148,6 @@
 
 
 
-		function calendarSelect(start, end, jsEvent, view) {
-
-			if(eventIsMultiDay(start, end)) {
-
-				addMultiDayEvent(start, end);
-			}
-			else if(thisDayHasEvents(start.date()) && currentViewIsMonth()) {
-
-				// Go to day view
-				uiCalendarConfig.calendars.theCalendar.fullCalendar('changeView', 'agendaDay');
-				uiCalendarConfig.calendars.theCalendar.fullCalendar('gotoDate', moment(start));
-			}
-			else if(eventIsAllDay(start, end)) {
-
-				addAllDayEvent('Available', start, end);
-			}
-			else {
-
-				addEvent('Available', start, end);
-			}
-
-			updateEvents();
-			updateUI();
-
-		}
-
-
 		function updateUI() {
 
 			vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay = getEventDurationInMinutes(vm.CurrentEvent);
@@ -259,34 +232,6 @@
 
 
 
-		function eventIsMultiDay(start, end) {
-
-			if(end.date() - start.date() > 1) {
-
-				return true;
-			}
-			else {
-
-				return false;
-			}
-		}
-
-
-
-		function currentViewIsMonth() {
-
-			var view = uiCalendarConfig.calendars.theCalendar.fullCalendar('getView');
-
-			if(view.intervalUnit === 'month') {
-
-				return true;
-			}
-
-			return false;
-		}
-
-
-
 		function addAllDayEvent(_title, _start, _end) {
 
 			if(thisDayHasEvents(_start.date())) {
@@ -330,31 +275,6 @@
 
 			events.Collection[newEvent.id] = newEvent;
 			vm.CurrentEvent = newEvent;
-		}
-
-
-
-		function thisDayHasEvents(day) {
-
-			for(var key in events.Collection) {
-
-				var evnt = events.Collection[key];
-
-				if(evnt.start.date() === day || evnt.end.date() === day) {
-
-					return true;
-				}
-			}
-
-			return false;
-		}
-		
-
-
-		function eventIsAllDay(start, end) {
-
-			var diff = end.diff(start, 'hours');
-			return diff === 24;
 		}
 
 
@@ -407,13 +327,31 @@
 
 
 
-		 function getEventDurationInMinutes(_event) {
+		function getEventDurationInMinutes(_event) {
 
-		 	var startTimeInMinutesFromZero = _event.start.hour() * 60 + _event.start.minute();
-		 	var endTimeInMinutesFromZero = _event.end.hour() * 60 + _event.end.minute();
-		 	var differenceInMinutes = endTimeInMinutesFromZero - startTimeInMinutesFromZero;	// greater than 0
-		 	return differenceInMinutes;
-		 }
+			var startTimeInMinutesFromZero = _event.start.hour() * 60 + _event.start.minute(),
+				endTimeInMinutesFromZero = _event.end.hour() * 60 + _event.end.minute(),
+				differenceInMinutes = endTimeInMinutesFromZero - startTimeInMinutesFromZero;	// greater than 0
+
+			return differenceInMinutes;
+		}
+
+
+
+		function thisDayHasEvents(day) {
+
+			for(var i =0; i < vm.Events[0].length; ++i) {
+
+				var evnt = vm.Events[0][i];
+
+				if(evnt.start.date() === day || evnt.end.date() === day) {
+
+					return true;
+				}
+			}
+
+			return false;
+		}
 
 		return vm;
 	}

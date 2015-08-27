@@ -8,6 +8,7 @@
 
 			AddEvent : addSingleEvent,
 			AddAllDayEvent : addAllDayEvent,
+			AddMultiDayEvent : addMultiDayEvent,
 			GetCurrentEvent : getCurrentEvent,
 			RemoveEvent : removeEvent,
 			GetEventById : getEventById,
@@ -30,6 +31,66 @@
 				start : _start,
 				end : _end
 			};
+
+		addEvent(newEvent);
+	}
+
+
+	function addMultiDayEvent(start, end) {
+
+		var startDay = start.date(),
+			endDay = end.date(),
+			daysInBetween = endDay - startDay;
+
+		addAllDayEvent('Available', start, moment(start).add(1, 'days'));	
+
+		for(var i = 1; i < daysInBetween; ++i) {
+
+			addAllDayEvent('Available', moment(start).add(i, 'days'), moment(start).add(i + 1, 'days'));
+		}
+	}
+
+
+	function addAllDayEvent(_title, _start, _end) {
+
+		if(thisDayHasEvents(_start.date())) {
+
+			return;
+		}
+
+		var year = _start.year();
+		var month = _start.month();
+		var day = _start.date();
+		
+		var newEventStart = moment({
+			y : year,
+			M : month,
+			d : day,
+			h : 9,
+			m : 0,
+			s : 0,
+			ms : 0
+
+		});
+
+		var newEventEnd = moment({
+			y : year,
+			M : month,
+			d : day,
+			h : 18,
+			m : 0,
+			s : 0,
+			ms : 0
+		});
+		
+		var newEvent = {
+			id : _start.id + _end.id,
+			title : _title,
+			start : newEventStart,
+			end : newEventEnd,
+			isAllDay : true,
+			color : 'orange'
+		};
 
 		addEvent(newEvent);
 	}
@@ -100,51 +161,6 @@
 
 			addEvent(_event.title, _event.start, _event.end);
 		}
-	}
-
-
-	function addAllDayEvent(_title, _start, _end) {
-
-		if(thisDayHasEvents(_start.date())) {
-
-			return;
-		}
-
-		var year = _start.year();
-		var month = _start.month();
-		var day = _start.date();
-		
-		var newEventStart = moment({
-			y : year,
-			M : month,
-			d : day,
-			h : 9,
-			m : 0,
-			s : 0,
-			ms : 0
-
-		});
-
-		var newEventEnd = moment({
-			y : year,
-			M : month,
-			d : day,
-			h : 18,
-			m : 0,
-			s : 0,
-			ms : 0
-		});
-		
-		var newEvent = {
-			id : _start.id + _end.id,
-			title : _title,
-			start : newEventStart,
-			end : newEventEnd,
-			isAllDay : true,
-			color : 'orange'
-		};
-
-		addEvent(newEvent);
 	}
 
 

@@ -36,7 +36,7 @@
 		vm.CurrentEvent = {};
 		vm.AddEvent = eventManager.AddEvent;
 		vm.AddAllDayEvent = eventManager.AddAllDayEvent;
-		vm.AddMultiDayEvent = addMultiDayEvent;
+		vm.AddMultiDayEvent = eventManager.AddMultiDayEvent;
 		vm.Update = update;
 		vm.GotoCalendarDayView = gotoCalendarDayView;
 

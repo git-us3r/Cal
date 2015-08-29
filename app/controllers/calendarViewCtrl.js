@@ -51,18 +51,15 @@
 
 		function calendarUpdateCallback(eventsArray, currentEvent) {
 
-			update();
+			update();			
 		}
 
 
 		function eventClickHandler(_event, jsEvent, view) {
 
-			$scope.$apply(function(){
-
-				eventManager.SetCurrentEvent(_event);
-				vm.CurrentEvent = eventManager.GetCurrentEvent();
-				update();
-			});			
+			eventManager.SetCurrentEvent(_event);
+			vm.CurrentEvent = eventManager.GetCurrentEvent();
+			update();
 		}
 
 
@@ -139,8 +136,22 @@
 
 		function update() {
 
-			updateEvents();
-			updateUI();			
+			if(!$scope.$$phase) {
+
+				// If not inside $apply execution, call $apply to update gui
+				$scope.$apply(function(){
+
+					updateEvents();
+					updateUI();	
+				});
+			}
+			else {
+
+				// .. must be inside an apply loop, just update.
+				updateEvents();
+				updateUI();	
+			}
+					
 		}
 
 

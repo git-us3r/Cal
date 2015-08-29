@@ -31,12 +31,22 @@
 			businessHours : true,
 			lazyFetching : false,
 			select : functions.select,				// vm.calendarSelectStrategy.ProcessEvent,
-			eventResize : eventResize, 				// eventResizeHandler,
-			eventClick : functions.eventClick 				// eventClickHandler
+			eventResize : eventResize,
+			eventClick : functions.eventClick,
+			eventDrop : eventDrop,
+
 		});
 
 		calendar = $('#theCalendar').fullCalendar('getCalendar');
 		calendar.addEventSource(eventsArray);
+	}
+
+	function eventDrop(_event) {
+
+		// There isn't much to be done, as the calendar does the work.
+		// We just notify to update the gui
+		// TODO
+		eventResize(_event);
 	}
 
 
@@ -45,7 +55,7 @@
 		if(events.hasOwnProperty(_event.id)) {
 
 			_event.color = defaultEventColor;
-			events[_event.id] = _event;
+			setCurrentEvent(_event);
 		}
 
 		refreshCalendar();
@@ -225,19 +235,15 @@
 
 		if(events.hasOwnProperty(_event.id)) {
 
-			currentEvent = _event;
+			events[_event.id] = _event;
+			currentEvent = events[_event.id];
 		}
 	}
 
 
 	function editEvent(_event) {
 
-		if(events.hasOwnProperty(_event.id)) {
-
-			currentEvent = _event;
-
-			events[_event.id] = _event;
-		}
+		setCurrentEvent(_event);
 
 		refreshCalendar();
 	}

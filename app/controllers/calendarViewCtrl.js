@@ -20,35 +20,45 @@
 		
 		vm.CurrentEvent = {};
 		vm.Events = [];
+		
 		vm.calendarSelectStrategy = handlerStrategyFactory.Create(calendarSelectStrategyKey, vm);
+		
 		vm.AddEvent = eventManager.AddEvent;
 		vm.AddAllDayEvent = eventManager.AddAllDayEvent;
 		vm.AddMultiDayEvent = eventManager.AddMultiDayEvent;
-		vm.Update = update;
 		vm.GotoCalendarDayView = eventManager.GotoCalendarDayView;
-		vm.EventOptionsInput = eventOptionsInput;
-		vm.AddTimeToCurrentEvent = addTimeToCurrentEvent;
 		vm.ThisDayHasEvents = eventManager.ThisDayHasEvent;
+
+		vm.Update = update;
+		
+		vm.EventOptionsInput = eventOptionsInput;
+		vm.AddTimeToCurrentEvent = addTimeToCurrentEvent;		
 
 		// Setup calendar
 
 		eventManager.Init({
 
 			select: vm.calendarSelectStrategy.ProcessEvent,
-			eventResize : eventResizeHandler,
 			eventClick : eventClickHandler
 		 });
 
+		vm.ForceRefresh = false;
+
+		eventManager.AddListenerToCalendarUpdateEvent(calendarUpdateCallback);
+
 		///////////////////////////////////////////////////////////////////////
 
+		function calendarUpdateCallback(eventsArray, currentEvent) {
 
-		function getUniqueId() { return uniqueId++; }
-
+			update();
+		}
 
 
 		function eventClickHandler(_event, jsEvent, view) {
 
-			vm.CurrentEvent = _event;
+			eventManager.SetCurrentEvent(_event);
+			vm.CurrentEvent = eventManager.GetCurrentEvent();
+			update();
 		}
 
 
@@ -58,9 +68,7 @@
 			switch(userChoice) {
 
 				case 'edit':
-					// Go to day view
-					uiCalendarConfig.calendars.theCalendar.fullCalendar('changeView', 'agendaDay');
-					uiCalendarConfig.calendars.theCalendar.fullCalendar('gotoDate', moment(vm.CurrentEvent.start));
+					eventManager.GotoCalendarDayView(vm.CurrentEvent.start);
 					break;
 				case 'delete':
 					removeEvent(vm.CurrentEvent);
@@ -75,40 +83,27 @@
 		}
 
 
-
-		function removeEvent(_event) {
-
-			if(_event) {
-
-				delete events.Collection[_event.id];
-
-				vm.CurrentEvent = null;
-
-				uiCalendarConfig.calendars.theCalendar.fullCalendar('removeEvents', [_event.id]);
-				
-				update(); 
-			}
-		}
-
-
-
-		function eventResizeHandler(_event, delta, revertFunc) {
-
-			events.Collection[_event.id].color = events.DefaultEventColor;
-			events.Collection[_event.id].start = _event.start;
-			events.Collection[_event.id].end = _event.end;
-			update();
-		}
-
-
-
 		function updateUI() {
 
 			if(vm.CurrentEvent) {
 
 				vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay = getEventDurationInMinutes(vm.CurrentEvent);
 
-				vm.CurrentEvent.TotalHours = vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay / 60;		
+				vm.CurrentEvent.TotalHours = vm.CurrentEvent.end.hour() - vm.CurrentEvent.start.hour();
+
+				vm.CurrentEvent.DisplayTime = {
+
+					start : moment({
+
+						hour: vm.CurrentEvent.start.hour(),
+						minute : vm.CurrentEvent.start.minute()
+					}).format('h:mmA'),
+					end : moment({
+
+						hour: vm.CurrentEvent.end.hour(),
+						minute : vm.CurrentEvent.end.minute()
+					}).format('h:mmA')
+				};
 
 				updateStatusBar();
 			}
@@ -129,33 +124,22 @@
 		}
 
 
-
 		function updateEvents() {
 
 			vm.Events = eventManager.GetEvents();
 
-			// Reset the current event, if any.
-			if(vm.CurrentEvent) {
-
-				for(var i = 0; i < vm.Events.length; ++i) {
-
-					if(vm.Events[i].id === vm.CurrentEvent.id) {
-
-						vm.CurrentEvent = vm.Events[i];
-					}
-				}
-
-				// not found
-				vm.CurrentEvent = null;
-			}
+			vm.CurrentEvent = eventManager.GetCurrentEvent();
 		}
 
 
 
 		function update() {
 
-			updateEvents();
-			updateUI();
+			$scope.$apply(function(){
+
+				updateEvents();
+				updateUI();
+			});
 		}
 
 
@@ -163,24 +147,23 @@
 
 			if(timeSection === 'start') {
 
-				events.Collection[vm.CurrentEvent.id].start = events.Collection[vm.CurrentEvent.id].start.add(time, timeUnit);
+				vm.CurrentEvent.start = vm.CurrentEvent.start.add(time, timeUnit);
 			}
 			else {
 
-				events.Collection[vm.CurrentEvent.id].end = events.Collection[vm.CurrentEvent.id].end.add(time, timeUnit);
+				vm.CurrentEvent.end = vm.CurrentEvent.end.add(time, timeUnit);
 			}
 
-			events.Collection[vm.CurrentEvent.id].color = events.DefaultEventColor;
-			updateEvents();
-			updateUI();
-			
+			vm.CurrentEvent.color = eventManager.DefaultEventColor;
+
+			eventManager.EditEvent(vm.CurrentEvent);			
 		}
 
 
 
 		function getEventPercentageValue(_event) {
 
-			var workdayInMinutes = 8 * 60,
+			var workdayInMinutes = 9 * 60,
 				eventDurationInMinutes = getEventDurationInMinutes(_event),
 				eventDurationPercentage = eventDurationInMinutes / workdayInMinutes * 100; 		// 8-hour day
 

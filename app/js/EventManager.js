@@ -2,8 +2,12 @@
 
 	'use strict';
 
-	var events = [],
+	var events = {},
+		eventsArray = [],
+		retrievableGarbage = [],
 		calendar = null,
+		listeners = {CalendarUpdate : []},
+		currentEvent = null,
 		defaultEventColor = '#337AB7',
 		allDayEventColor = 'orange';
 
@@ -27,31 +31,48 @@
 			businessHours : true,
 			lazyFetching : false,
 			select : functions.select,				// vm.calendarSelectStrategy.ProcessEvent,
-			eventResize : functions.eventResize, 	// eventResizeHandler,
-			eventClick : functions.eventClick 		// eventClickHandler
+			eventResize : eventResize, 				// eventResizeHandler,
+			eventClick : functions.eventClick 				// eventClickHandler
 		});
 
 		calendar = $('#theCalendar').fullCalendar('getCalendar');
-		calendar.addEventSource(events);
+		calendar.addEventSource(eventsArray);
+	}
+
+
+	function eventResize(_event, delta, revertFunc) {
+
+		if(events.hasOwnProperty(_event.id)) {
+
+			_event.color = defaultEventColor;
+			events[_event.id] = _event;
+		}
+
+		refreshCalendar();
 	}
 
 
 	function getEvents() {
 
-		return events;
+		updateEventsArray();
+
+		return eventsArray;
 	}
 
 
 	function thisDayHasEvent(day) {
 
-		for(var i =0; i < events.length; ++i) {
+		for(var key in events) {
 
-			var evnt = events[i];
+			if(events.hasOwnProperty(key)) {
 
-			if(evnt.start.date() === day || evnt.end.date() === day) {
+				var evnt = events[key];
 
-				return true;
-			}
+				if(evnt.start.date() === day || evnt.end.date() === day) {
+
+					return true;
+				}
+			}			
 		}
 
 		return false;
@@ -136,22 +157,95 @@
 
 	function storeEvent(newEvent) {
 
-		events.push(newEvent);
+		if(events.hasOwnProperty(newEvent.id)) {
+
+			return; 	// event exists ?!
+		}
+
+		currentEvent = newEvent;
+		events[newEvent.id] = newEvent;
 		refreshCalendar();
 	}
 
 
 	function refreshCalendar() {
 
-		calendar.removeEventSource(events);
-		calendar.addEventSource(events);
+		calendar.removeEvents();
+		calendar.removeEventSource(eventsArray);
+		updateEventsArray();
+		calendar.addEventSource(eventsArray);
+		notifyListenersToCalendarUpdate();
+
+	}
+
+
+	function notifyListenersToCalendarUpdate() {
+
+		for(var i = 0; i < listeners.CalendarUpdate.length; ++i) {
+
+			listeners.CalendarUpdate[i](eventsArray, currentEvent);
+		}
+	}
+
+
+	function updateEventsArray() {
+
+		eventsArray = [];
+
+		for(var key in events) {
+
+			if(events.hasOwnProperty(key)) {
+
+				eventsArray.push(events[key]);
+			}
+		}
 	}
 
 
 	function gotoCalendarDayView (start) {
 			
-		calendar.fullCalendar('changeView', 'agendaDay');
-		calendar.fullCalendar('gotoDate', $('theCalendar').moment(start));
+		calendar.changeView('agendaDay');
+		calendar.gotoDate(calendar.moment(start));
+	}
+
+
+	function getCurrentEvent() {
+
+		return currentEvent;
+	}
+
+
+	function hasEvent(_event) {
+
+		return events.hasOwnProperty(_event.id);
+	}
+
+
+	function setCurrentEvent(_event) {
+
+		if(events.hasOwnProperty(_event.id)) {
+
+			currentEvent = _event;
+		}
+	}
+
+
+	function editEvent(_event) {
+
+		if(events.hasOwnProperty(_event.id)) {
+
+			currentEvent = _event;
+
+			events[_event.id] = _event;
+		}
+
+		refreshCalendar();
+	}
+
+
+	function addListenerToCalendarUpdateEvent(listener) {
+
+		listeners.CalendarUpdate.push(listener);
 	}
 
 
@@ -164,6 +258,14 @@
 		AddAllDayEvent : addAllDayEvent,
 		AddMultiDayEvent : addMultiDayEvent,
 		GotoCalendarDayView : gotoCalendarDayView,
+		GetCurrentEvent : getCurrentEvent,
+		HasEvent : hasEvent,
+		SetCurrentEvent : setCurrentEvent,
+		DefaultEventColor : defaultEventColor,
+		AllDayEventColor : allDayEventColor,
+		EditEvent : editEvent,
+		AddListenerToCalendarUpdateEvent : addListenerToCalendarUpdateEvent
+
 	});
 
 }());

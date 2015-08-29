@@ -28,11 +28,12 @@
 		vm.AddMultiDayEvent = eventManager.AddMultiDayEvent;
 		vm.GotoCalendarDayView = eventManager.GotoCalendarDayView;
 		vm.ThisDayHasEvents = eventManager.ThisDayHasEvent;
+		vm.AddTimeToCurrentEvent = eventManager.AddTimeToEvent;
 
 		vm.Update = update;
 		
 		vm.EventOptionsInput = eventOptionsInput;
-		vm.AddTimeToCurrentEvent = addTimeToCurrentEvent;		
+		
 
 		// Setup calendar
 
@@ -90,7 +91,7 @@
 
 			if(vm.CurrentEvent) {
 
-				vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay = getEventDurationInMinutes(vm.CurrentEvent);
+				vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay = eventManager.GetEventDurationInMinutes(vm.CurrentEvent);
 
 				vm.CurrentEvent.TotalHours = vm.CurrentEvent.end.hour() - vm.CurrentEvent.start.hour();
 
@@ -120,7 +121,7 @@
 		function updateStatusBar() {
 
 			var bar = document.getElementById('statusBar'),
-				currentEventDurationPercentage = getEventPercentageValue(vm.CurrentEvent);
+				currentEventDurationPercentage = eventManager.GetEventPercentageValue(vm.CurrentEvent);
 
 			bar.style.width = currentEventDurationPercentage + '%';
 
@@ -142,44 +143,6 @@
 			updateUI();			
 		}
 
-
-		function addTimeToCurrentEvent(timeSection, time, timeUnit) {
-
-			if(timeSection === 'start') {
-
-				vm.CurrentEvent.start = vm.CurrentEvent.start.add(time, timeUnit);
-			}
-			else {
-
-				vm.CurrentEvent.end = vm.CurrentEvent.end.add(time, timeUnit);
-			}
-
-			vm.CurrentEvent.color = eventManager.DefaultEventColor;
-
-			eventManager.EditEvent(vm.CurrentEvent);			
-		}
-
-
-
-		function getEventPercentageValue(_event) {
-
-			var workdayInMinutes = 9 * 60,
-				eventDurationInMinutes = getEventDurationInMinutes(_event),
-				eventDurationPercentage = eventDurationInMinutes / workdayInMinutes * 100; 		// 8-hour day
-
-			return  eventDurationPercentage;
-		}
-
-
-
-		function getEventDurationInMinutes(_event) {
-
-			var startTimeInMinutesFromZero = _event.start.hour() * 60 + _event.start.minute(),
-				endTimeInMinutesFromZero = _event.end.hour() * 60 + _event.end.minute(),
-				differenceInMinutes = endTimeInMinutesFromZero - startTimeInMinutesFromZero;	// greater than 0
-
-			return differenceInMinutes;
-		}
 
 		return vm;
 	}

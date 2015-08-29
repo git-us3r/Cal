@@ -259,6 +259,47 @@
 	}
 
 
+	function addTimeToEvent(_event, timeSection, time, timeUnit) {
+
+		if(events.hasOwnProperty(_event.id)) {
+
+			if(timeSection === 'start') {
+
+				_event.start = _event.start.add(time, timeUnit);
+			}
+			else {
+
+				_event.end = _event.end.add(time, timeUnit);
+			}
+
+			_event.color = defaultEventColor;
+
+			editEvent(_event);
+		}
+	}
+
+
+	function getEventPercentageValue(_event) {
+
+		var workdayInMinutes = 9 * 60,
+			eventDurationInMinutes = getEventDurationInMinutes(_event),
+			eventDurationPercentage = eventDurationInMinutes / workdayInMinutes * 100; 		// 8-hour day
+
+		return  eventDurationPercentage;
+	}
+
+
+
+	function getEventDurationInMinutes(_event) {
+
+		var startTimeInMinutesFromZero = _event.start.hour() * 60 + _event.start.minute(),
+			endTimeInMinutesFromZero = _event.end.hour() * 60 + _event.end.minute(),
+			differenceInMinutes = endTimeInMinutesFromZero - startTimeInMinutesFromZero;	// greater than 0
+
+		return differenceInMinutes;
+	}
+ 
+
 	Using.Expose('EventManager', { 
 
 		Init : init,
@@ -275,7 +316,10 @@
 		AllDayEventColor : allDayEventColor,
 		EditEvent : editEvent,
 		AddListenerToCalendarUpdateEvent : addListenerToCalendarUpdateEvent,
-		RemoveEvent : removeEvent
+		RemoveEvent : removeEvent,
+		AddTimeToEvent : addTimeToEvent,
+		GetEventPercentageValue: getEventPercentageValue,
+		GetEventDurationInMinutes: getEventDurationInMinutes
 
 	});
 

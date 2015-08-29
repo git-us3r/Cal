@@ -48,12 +48,12 @@
 						<h4 class="text-center">{{vm.CurrentEvent.DisplayTime.end}}</h4>
 					</div>
 					<div class="col-xs-4 col-sm-4 col-md-4">
-						<div class="btn btn-sm btn-success" ng-click="vm.AddTimeToCurrentEvent('end', -15, 'minutes');">
+						<div class="btn btn-sm btn-success" ng-click="vm.AddTimeToCurrentEvent(vm.CurrentEvent, 'end', -15, 'minutes');">
 							<span aria-hidden="true">
 				    			&minus;
 				    		</span>
 			    		</div>
-						<div class="btn btn-sm btn-danger" ng-click="vm.AddTimeToCurrentEvent('end', 15, 'minutes');">
+						<div class="btn btn-sm btn-danger" ng-click="vm.AddTimeToCurrentEvent(vm.CurrentEvent, 'end', 15, 'minutes');">
 							<span aria-hidden="true">
 				    			&plus;
 				    		</span>

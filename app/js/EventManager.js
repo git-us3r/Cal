@@ -19,23 +19,36 @@
 			EditEvent : editEvent,
 			RemoveEvent : removeEvent,
 			UndoRemove : recoverLastEventRemoved
-		};
+		},
+		_uid = 0;
 
 
 	Using.Expose('EventManager', publicInterface);	
 	
 	//////////////////////////////////////////////////////////////////////////////
 
-	function addSingleEvent (_title, _start, _end) {
+	function getUID() {
+
+		var ret = _uid;
+		_uid++;
+		return ret;
+	}
+
+
+	function addSingleEvent (_title, theStart, theEnd) {
 		
 		var eventId = start.unix() + '_' + end.unix(),
 			newEvent = {
 
 				id : eventId,
+				_id : eventId,
 				title : _title,
-				start : _start,
-				end : _end
+				start : theStart,
+				_start : theStart,
+				end : thEnd,
+				_end : theEnd
 			};
+
 
 		addEvent(newEvent);
 	}
@@ -54,37 +67,36 @@
 	}
 
 
-	function addAllDayEvent(_title, _start, _end, calendarConfig) {
+	function addAllDayEvent(_title, theStart, theEnd, calendarConfig) {
 
-		if(thisDayHasEvents(_start.date())) {
+		if(thisDayHasEvents(theStart.date())) {
 
 			return;
 		}
 
-		var year = _start.year(),
-			month = _start.month(),
-			day = _start.date()
-			startDate = new Date(year, month, day, 9, 0, 0),
-			endDate = new Date(year, month, day, 18, 0, 0),
-			newEventStart = calendarConfig.calendars.theCalendar.fullCalendar('getCalendar').moment(startDate),
-			newEventEnd = calendarConfig.calendars.theCalendar.fullCalendar('getCalendar').moment(endDate),
+		var year = theStart.year(),
+			month = theStart.month(),
+			day = theStart.date(),
+			uid = getUID(),
+			startDate = calendarConfig.calendars.theCalendar.fullCalendar('getCalendar').moment({ y: year, M: month, d: day, h: 9, m: 0, s: 0, ms: 0 }),
+			endDate = calendarConfig.calendars.theCalendar.fullCalendar('getCalendar').moment({ y: year, M: month, d: day, h: 18, m: 0, s: 0, ms: 0 }),
 			newEvent = {
-				id : _start.unix() + '_' + _end.unix(),
+				id : uid,
+				_id : uid,
 				title : _title,
-				start : newEventStart,
-				end : newEventEnd,
+				start : startDate,
+				_start : startDate,
+				end : endDate,
+				_end : endDate,
 				isAllDay : true,
 				color : 'orange'
 			};
-
-			newEvent.start._d = startDate;
-			newEvent.end._d = endDate;
 
 		addEvent(newEvent);
 	}
 
 
-	function addTimeToCurrentEvent(timeSection, time, timeUnit) {
+	function addTimeToCurrentEvent(timeSection, time, timeUnit, calendarConfig) {
 
 		var currentEventIndex = eventsIndex[currentEvent.id];
 
@@ -104,7 +116,9 @@
 
 		currentEvent.color = defaultEventColor;
 		
-		eventsArray[currentEventIndex] = currentEvent;		
+		eventsArray[currentEventIndex] = currentEvent;	
+
+		// calendarConfig.fullCalendar('updateEvent', eventsArray[currentEventIndex]);	
 	}
 
 
@@ -118,13 +132,27 @@
 
 	function getEventById(id) {
 
-		return eventsIndex[id];
+		if(eventsIndex.hasOwnProperty(id)) {
+
+			return eventsArray[eventsIndex[id]];
+		}
+		else {
+
+			return null;
+		}
 	}
 
 
 	function getCurrentEvent() {
 
-		return currentEvent;
+		if(currentEvent) {
+
+			return eventsArray[eventsIndex[currentEvent.id]];
+		}
+		else {
+
+			return null;
+		}
 	}
 
 

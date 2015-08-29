@@ -30,7 +30,7 @@
 
 		//////////////////////////// Setup vm's public interface ///////////////
 
-		vm.uiCalendarConfig = uiCalendarConfig;
+		vm.UICalendarConfig = uiCalendarConfig;
 		vm.Events = [[]];
 		vm.CurrentEvent = {};
 		vm.AddEvent = eventManager.AddEvent;
@@ -66,7 +66,7 @@
 		// TODO: Move to strategy asap
 		function addTimeToCurrentEventWrapper (timeSection, time, timeUnit) {
 			
-			eventManager.AddTimeToCurrentEvent(timeSection, time, timeUnit);
+			eventManager.AddTimeToCurrentEvent(timeSection, time, timeUnit, uiCalendarConfig.calendars.theCalendar);
 			update();
 		}
 
@@ -106,7 +106,7 @@
 			switch(userChoice) {
 
 				case 'edit':
-					gotoCalendarDayView(eventDurationInMinutes.CurrentEvent.start);
+					// gotoCalendarDayView(eventDurationInMinutes.CurrentEvent.start);
 					break;
 				case 'delete':
 					removeEvent(eventManager.GetCurrentEvent());
@@ -130,7 +130,7 @@
 
 			uiCalendarConfig.calendars.theCalendar.fullCalendar('removeEvents', [_event.id]);
 
-			update();
+			update();			
 		}
 
 
@@ -153,13 +153,16 @@
 
 		function updateUI() {
 
-			vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay = getEventDurationInMinutes(vm.CurrentEvent);
+			if(vm.CurrentEvent) {
 
-			vm.CurrentEvent.TotalHours = vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay / 60;
+				vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay = getEventDurationInMinutes(vm.CurrentEvent);
+				vm.CurrentEvent.TotalHours = vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay / 60;
+				updateStatusBar();
+			}
+			else {
 
-			uiCalendarConfig.calendars.theCalendar.fullCalendar('rerenderEvents');
-
-			updateStatusBar();
+				// Setup default card
+			}
 		}
 
 
@@ -175,13 +178,23 @@
 
 		function updateEvents() {
 
-			vm.Events[events.DefaultEventCollection] = eventManager.GetEventsArray();
+			var iterator = 0;
+			vm.Events[events.DefaultEventCollection].slice(0, vm.Events[events.DefaultEventCollection].length);
 
-			// Reset the current event, if any.
-			if(vm.CurrentEvent) {
+			var latestEventsArray = eventManager.GetEventsArray();
 
-				vm.CurrentEvent = eventManager.GetCurrentEvent();
+			for(iterator = 0; iterator < latestEventsArray.length; ++iterator) {
+
+				vm.Events[events.DefaultEventCollection][iterator] = latestEventsArray[iterator];
 			}
+
+			// Sometimes the splice operation fails, Google !?
+			for(/* iterator */; iterator < vm.Events[events.DefaultEventCollection].length; ++iterator) {
+
+				vm.Events[events.DefaultEventCollection][iterator] = null;
+			}
+
+			vm.CurrentEvent = eventManager.GetCurrentEvent();
 		}
 
 
@@ -190,6 +203,7 @@
 
 			updateEvents();
 			updateUI();
+
 		}
 
 

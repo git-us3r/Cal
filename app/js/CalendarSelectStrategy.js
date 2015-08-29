@@ -20,7 +20,7 @@
 
 		if(multiday) {
 
-			vm.AddMultiDayEvent(start, end, vm.uiCalendarConfig);
+			vm.AddMultiDayEvent(start, end, vm.UICalendarConfig);
 		}
 		else if(dayHasEvents && viewIsMonth) {
 
@@ -28,11 +28,11 @@
 		}
 		else if(allDayEvent) {
 
-			vm.AddAllDayEvent('Available', start, end, vm.uiCalendarConfig);
+			vm.AddAllDayEvent('Available', start, end, vm.UICalendarConfig);
 		}
 		else {
 
-			vm.AddEvent('Available', start, end, vm.uiCalendarConfig);
+			vm.AddEvent('Available', start, end, vm.UICalendarConfig);
 		}
 
 		vm.Update();

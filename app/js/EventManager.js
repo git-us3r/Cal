@@ -1,13 +1,15 @@
 (function(){
 
-	var eventsArray = [],
-		eventsIndex = {},		// key: eventId, value: event index in eventsArray
+	var eventsIndex = {},		// key: eventId, value: event index in publicInterface.Events[0]
 		eventsRemoved = [],		// It's more like a stack
 		currentEvent = null,
 		defaultEventColor = '#337AB7',
 		allDayEventColor = 'orange',
 		publicInterface = {
 
+			Events : [[]],
+			CalendarConfig : null,
+			Init : init,
 			AddEvent : addSingleEvent,
 			AddAllDayEvent : addAllDayEvent,
 			AddMultiDayEvent : addMultiDayEvent,
@@ -20,12 +22,55 @@
 			RemoveEvent : removeEvent,
 			UndoRemove : recoverLastEventRemoved
 		},
+		uiCalendarConfig  = null,
 		_uid = 0;
 
 
 	Using.Expose('EventManager', publicInterface);	
 	
 	//////////////////////////////////////////////////////////////////////////////
+
+	function init(calConfig, functions) {
+
+		uiCalendarConfig = calConfig;
+
+		publicInterface.CalendarConfig = {
+
+			height : 450,
+			editable: true,
+			selectable : true,
+			header : {
+
+				left : 'month agendaDay',
+				center : 'title',
+				right : 'today prev,next'
+			},
+			eventColor : '#337AB7',
+			eventOverlap : false,
+			displayEventEnd : true,
+			defaultView : 'month',
+			businessHours : true,
+			select : functions.select, 			// calendarSelectStrategy.ProcessEvent
+			eventResize : eventResizeHandler,
+			eventClick : eventClickHandler
+		};
+	}
+
+
+	// TODO: move to eventEventStrategy
+	function eventClickHandler(_event, jsEvent, view) {
+
+		setCurrentEvent(_event);	
+	}
+
+
+	// TODO: move to eventEventStrategy
+	function eventResizeHandler(_event, delta, revertFunc) {
+
+		_event.color = '#337AB7';
+		editEvent(_event);
+	}
+
 
 	function getUID() {
 
@@ -78,8 +123,8 @@
 			month = theStart.month(),
 			day = theStart.date(),
 			uid = getUID(),
-			startDate = calendarConfig.calendars.theCalendar.fullCalendar('getCalendar').moment({ y: year, M: month, d: day, h: 9, m: 0, s: 0, ms: 0 }),
-			endDate = calendarConfig.calendars.theCalendar.fullCalendar('getCalendar').moment({ y: year, M: month, d: day, h: 18, m: 0, s: 0, ms: 0 }),
+			startDate = uiCalendarConfig.calendars.theCalendar.fullCalendar('getCalendar').moment({ y: year, M: month, d: day, h: 9, m: 0, s: 0, ms: 0 }),
+			endDate = uiCalendarConfig.calendars.theCalendar.fullCalendar('getCalendar').moment({ y: year, M: month, d: day, h: 18, m: 0, s: 0, ms: 0 }),
 			newEvent = {
 				id : uid,
 				_id : uid,
@@ -116,17 +161,17 @@
 
 		currentEvent.color = defaultEventColor;
 		
-		eventsArray[currentEventIndex] = currentEvent;	
+		publicInterface.Events[0][currentEventIndex] = currentEvent;	
 
-		// calendarConfig.fullCalendar('updateEvent', eventsArray[currentEventIndex]);	
+		// calendarConfig.fullCalendar('updateEvent', publicInterface.Events[0][currentEventIndex]);	
 	}
 
 
 	function addEvent(newEvent) {
 
-		eventsIndex[newEvent.id] = eventsArray.length;
-		eventsArray.push(newEvent);	
-		currentEvent = eventsArray[eventsArray.length - 1];
+		eventsIndex[newEvent.id] = publicInterface.Events[0].length;
+		publicInterface.Events[0].push(newEvent);	
+		currentEvent = publicInterface.Events[0][publicInterface.Events[0].length - 1];
 	}
 
 
@@ -134,7 +179,7 @@
 
 		if(eventsIndex.hasOwnProperty(id)) {
 
-			return eventsArray[eventsIndex[id]];
+			return publicInterface.Events[0][eventsIndex[id]];
 		}
 		else {
 
@@ -147,7 +192,7 @@
 
 		if(currentEvent) {
 
-			return eventsArray[eventsIndex[currentEvent.id]];
+			return publicInterface.Events[0][eventsIndex[currentEvent.id]];
 		}
 		else {
 
@@ -158,7 +203,7 @@
 
 	function getEvents() {
 
-		return eventsArray;
+		return publicInterface.Events[0];
 	}
 
 
@@ -167,10 +212,10 @@
 		if(eventsIndex.hasOwnProperty(id)) {
 
 			var eventIndex = eventsIndex[id],
-				_event = eventsArray[eventIndex];
+				_event = publicInterface.Events[0][eventIndex];
 
 			delete eventsIndex[id];
-			eventsArray.splice(eventIndex, 1);
+			publicInterface.Events[0].splice(eventIndex, 1);
 
 			if(currentEvent.id === id) {
 
@@ -193,9 +238,9 @@
 
 		var index = eventsIndex[_event.id];
 
-		eventsArray[index] = _event;
+		publicInterface.Events[0][index] = _event;
 
-		currentEvent = eventsArray[index];
+		currentEvent = publicInterface.Events[0][index];
 	}
 
 
@@ -227,9 +272,9 @@
 
 	function thisDayHasEvents(day) {
 
-		for(var i = 0; i < eventsArray.length; ++i) {
+		for(var i = 0; i < publicInterface.Events[0].length; ++i) {
 
-			var evnt = eventsArray[i];
+			var evnt = publicInterface.Events[0][i];
 
 			if(evnt.start.date() === day || evnt.end.date() === day) {
 

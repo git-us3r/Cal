@@ -56,9 +56,9 @@
 
 	function thisDayHasEvents(day) {
 
-		for(var i =0; i < vm.Events[0].length; ++i) {
+		for(var i =0; i < vm.Events.length; ++i) {
 
-			var evnt = vm.Events[0][i];
+			var evnt = vm.Events[i];
 
 			if(evnt.start.date() === day || evnt.end.date() === day) {
 

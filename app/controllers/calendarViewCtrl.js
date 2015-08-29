@@ -10,17 +10,6 @@
 	function ctrl($scope, $state, uiCalendarConfig) {
 
 		var vm = $scope,
-			events = {
-				DefaultEventCollection : 0,
-				CurrentEvent : {},
-				Collection : { 
-
-					// The properties of this collection are the events.
-				},
-				GetEventDefaultCollection : events_getDefaultCollection,
-				DefaultEventColor : '#337AB7',
-				AllDayEventColor : 'orange'		
-			},
 			uniqueId = 0,
 			handlerStrategyFactory = Using.Require('HandlerStrategyFactory'),
 			calendarSelectStrategyKey = handlerStrategyFactory.Strategies.CalendarSelectStrategy,
@@ -29,9 +18,13 @@
 
 
 		//////////////////////////// Setup vm's public interface ///////////////
-
-		vm.UICalendarConfig = uiCalendarConfig;
-		vm.Events = [[]];
+		eventManager.Init(uiCalendarConfig,
+			{
+				select : calendarSelectStrategy.ProcessEvent
+			}
+		);
+		vm.Events = [];
+		vm.EventManager = eventManager
 		vm.CurrentEvent = {};
 		vm.AddEvent = eventManager.AddEvent;
 		vm.AddAllDayEvent = eventManager.AddAllDayEvent;
@@ -40,26 +33,7 @@
 		vm.Update = update;
 		vm.GotoCalendarDayView = gotoCalendarDayView;
 		vm.EventOptionsInput = eventOptionsInput;
-		vm.CalendarConfig = {
-
-			height : 450,
-			editable: true,
-			selectable : true,
-			header : {
-
-				left : 'month agendaDay',
-				center : 'title',
-				right : 'today prev,next'
-			},
-			eventColor : events.DefaultEventColor,
-			eventOverlap : false,
-			displayEventEnd : true,
-			defaultView : 'month',
-			businessHours : true,
-			select : calendarSelectStrategy.ProcessEvent,
-			eventResize : eventResizeHandler,
-			eventClick : eventClickHandler
-		};
+		
 
 		///////////////////////////////////////////////////////////////////////
 
@@ -70,34 +44,10 @@
 			update();
 		}
 
-		function getUniqueHoverActionId() { return uniqueHoverActionId++; }
-
 
 
 		function getUniqueId() { return uniqueId++; }
 
-
-
-		function events_getDefaultCollection() {
-
-			var eventArray = [];
-
-			for(var key in events.Collection) {
-
-				eventArray.push(events.Collection[key]);
-			}
-
-			return eventArray;
-		}
-
-
-
-		// TODO: move to eventEventStrategy
-		function eventClickHandler(_event, jsEvent, view) {
-
-			vm.CurrentEvent = _event;
-			eventManager.SetCurrentEvent(_event);			
-		}
 
 
 		// TODO: move to eventEventStrategy
@@ -118,19 +68,6 @@
 					// display default view for stats card
 					break;
 			}
-		}
-
-
-		// TODO: move to eventEventStrategy asap
-		function removeEvent(_event) {
-
-			eventManager.RemoveEvent(eventManager.GetCurrentEvent().id);
-
-			delete events.Collection[_event.id];
-
-			uiCalendarConfig.calendars.theCalendar.fullCalendar('removeEvents', [_event.id]);
-
-			update();			
 		}
 
 
@@ -178,21 +115,7 @@
 
 		function updateEvents() {
 
-			var iterator = 0;
-			vm.Events[events.DefaultEventCollection].slice(0, vm.Events[events.DefaultEventCollection].length);
-
-			var latestEventsArray = eventManager.GetEventsArray();
-
-			for(iterator = 0; iterator < latestEventsArray.length; ++iterator) {
-
-				vm.Events[events.DefaultEventCollection][iterator] = latestEventsArray[iterator];
-			}
-
-			// Sometimes the splice operation fails, Google !?
-			for(/* iterator */; iterator < vm.Events[events.DefaultEventCollection].length; ++iterator) {
-
-				vm.Events[events.DefaultEventCollection][iterator] = null;
-			}
+			vm.Events = eventManager.GetEventsArray();
 
 			vm.CurrentEvent = eventManager.GetCurrentEvent();
 		}

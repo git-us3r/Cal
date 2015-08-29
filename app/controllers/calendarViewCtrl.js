@@ -5,83 +5,44 @@
 	angular
 		.module("Calendar")
 		.controller("calendarViewCtrl",
-					['$scope', '$state', 'uiCalendarConfig', ctrl]);
+					['$scope', '$state', ctrl]);
 
-	function ctrl($scope, $state, uiCalendarConfig) {
+	function ctrl($scope, $state) {
 
 		var vm = $scope,
-			events = {
-				DefaultEventCollection : 0,
-				CurrentEvent : {},
-				Collection : { 
-
-					// The properties of this collection are the events.
-				},
-				GetEventDefaultCollection : events_getDefaultCollection,
-				DefaultEventColor : '#337AB7',
-				AllDayEventColor : 'orange'		
-			},
 			uniqueId = 0,
 			handlerStrategyFactory = Using.Require('HandlerStrategyFactory'),
-			calendarSelectStrategyKey = handlerStrategyFactory.Strategies.CalendarSelectStrategy;
+			calendarSelectStrategyKey = handlerStrategyFactory.Strategies.CalendarSelectStrategy,
+			eventManager = Using.Require('EventManager');
 
 
-		//////////////////////////// Setup vm's public interface ///////////////
-
-		vm.uiCalendarConfig = uiCalendarConfig;
-		vm.Events = [[]];
-		vm.ShowEventOptions = false;		
+		// Setup vm's public interface 
+		
 		vm.CurrentEvent = {};
+		vm.Events = [];
 		vm.calendarSelectStrategy = handlerStrategyFactory.Create(calendarSelectStrategyKey, vm);
-		vm.AddEvent = addEvent;
-		vm.AddAllDayEvent = addAllDayEvent;
-		vm.AddMultiDayEvent = addMultiDayEvent;
+		vm.AddEvent = eventManager.AddEvent;
+		vm.AddAllDayEvent = eventManager.AddAllDayEvent;
+		vm.AddMultiDayEvent = eventManager.AddMultiDayEvent;
 		vm.Update = update;
-		vm.GotoCalendarDayView = gotoCalendarDayView;
+		vm.GotoCalendarDayView = eventManager.GotoCalendarDayView;
+		vm.EventOptionsInput = eventOptionsInput;
+		vm.AddTimeToCurrentEvent = addTimeToCurrentEvent;
+		vm.ThisDayHasEvents = eventManager.ThisDayHasEvent;
 
-		vm.CalendarConfig = {
+		// Setup calendar
 
-			height : 450,
-			editable: true,
-			selectable : true,
-			header : {
+		eventManager.Init({
 
-				left : 'month agendaDay',
-				center : 'title',
-				right : 'today prev,next'
-			},
-			eventColor : events.DefaultEventColor,
-			eventOverlap : false,
-			displayEventEnd : true,
-			defaultView : 'month',
-			businessHours : true,
-			lazyFetching : false,
-			select :vm.calendarSelectStrategy.ProcessEvent,
+			select: vm.calendarSelectStrategy.ProcessEvent,
 			eventResize : eventResizeHandler,
 			eventClick : eventClickHandler
-		};
-
-		vm.EventOptionsInput = eventOptionsInput;
-		vm.AddTimeToCurrentEvent = addTimeToCurrentEvent;			
+		 });
 
 		///////////////////////////////////////////////////////////////////////
 
 
 		function getUniqueId() { return uniqueId++; }
-
-
-
-		function events_getDefaultCollection() {
-
-			var eventArray = [];
-
-			for(var key in events.Collection) {
-
-				eventArray.push(events.Collection[key]);
-			}
-
-			return eventArray;
-		}
 
 
 
@@ -124,10 +85,8 @@
 				vm.CurrentEvent = null;
 
 				uiCalendarConfig.calendars.theCalendar.fullCalendar('removeEvents', [_event.id]);
-
-				updateEvents();
-
-				updateUI(); 
+				
+				update(); 
 			}
 		}
 
@@ -139,13 +98,6 @@
 			events.Collection[_event.id].start = _event.start;
 			events.Collection[_event.id].end = _event.end;
 			update();
-		}
-
-
-		function gotoCalendarDayView (start) {
-			
-			uiCalendarConfig.calendars.theCalendar.fullCalendar('changeView', 'agendaDay');
-			uiCalendarConfig.calendars.theCalendar.fullCalendar('gotoDate', moment(start));
 		}
 
 
@@ -180,26 +132,22 @@
 
 		function updateEvents() {
 
-			vm.Events[events.DefaultEventCollection] = events.GetEventDefaultCollection();
+			vm.Events = eventManager.GetEvents();
 
 			// Reset the current event, if any.
 			if(vm.CurrentEvent) {
 
-				vm.CurrentEvent = events.Collection[vm.CurrentEvent.id];
+				for(var i = 0; i < vm.Events.length; ++i) {
 
-				var startHour = vm.CurrentEvent.start.hour();
-				var startMinute = vm.CurrentEvent.start.minute();
+					if(vm.Events[i].id === vm.CurrentEvent.id) {
 
-				var endHour = vm.CurrentEvent.end.hour();
-				var endMinute = vm.CurrentEvent.end.minute();
+						vm.CurrentEvent = vm.Events[i];
+					}
+				}
 
-				vm.CurrentEvent.DisplayTime = {};
-
-				vm.CurrentEvent.DisplayTime.start = vm.CurrentEvent.start.toObject().toString();
-				vm.CurrentEvent.DisplayTime.end = vm.CurrentEvent.end.toObject().toString();
+				// not found
+				vm.CurrentEvent = null;
 			}
-
-			uiCalendarConfig.calendars.theCalendar.fullCalendar('refetchEvents');
 		}
 
 
@@ -209,90 +157,6 @@
 			updateEvents();
 			updateUI();
 		}
-
-
-
-		function addMultiDayEvent(start, end) {
-
-			var startDay = start.date();
-			var endDay = end.date();
-			var daysInBetween = endDay - startDay;
-
-			addAllDayEvent('Available', start, moment(start).add(1, 'days'));	
-
-			for(var i = 1; i < daysInBetween; ++i) {
-
-				addAllDayEvent('Available', moment(start).add(i, 'days'), moment(start).add(i + 1, 'days'));
-			}
-
-			// TODO: set default view for stats card
-		}
-
-
-
-		function addAllDayEvent(_title, _start, _end) {
-
-			if(thisDayHasEvents(_start.date())) {
-
-				return;
-			}
-
-			var year = _start.year();
-			var month = _start.month();
-			var day = _start.date();
-			
-			var newEventStart = moment({
-				y : year,
-				M : month,
-				d : day,
-				h : 9,
-				m : 0,
-				s : 0,
-				ms : 0
-
-			});
-
-			var newEventEnd = moment({
-				y : year,
-				M : month,
-				d : day,
-				h : 18,
-				m : 0,
-				s : 0,
-				ms : 0
-			});
-			
-			var newEvent = {
-				id : getUniqueId(),
-				title : _title,
-				start : newEventStart,
-				end : newEventEnd,
-				isAllDay : true,
-				color : 'orange'
-			};
-
-			events.Collection[newEvent.id] = newEvent;
-			vm.CurrentEvent = newEvent;
-		}
-
-
-
-		function addEvent(_title, _start, _end) {
-
-			var uniqueId = getUniqueId(),
-				newEvent = {
-
-					id : uniqueId,
-					title : _title,
-					start : _start,
-					end : _end
-				};
-			
-			events.Collection[uniqueId] = newEvent;
-
-			vm.CurrentEvent = newEvent;
-		}
-
 
 
 		function addTimeToCurrentEvent(timeSection, time, timeUnit) {
@@ -332,23 +196,6 @@
 				differenceInMinutes = endTimeInMinutesFromZero - startTimeInMinutesFromZero;	// greater than 0
 
 			return differenceInMinutes;
-		}
-
-
-
-		function thisDayHasEvents(day) {
-
-			for(var i =0; i < vm.Events[0].length; ++i) {
-
-				var evnt = vm.Events[0][i];
-
-				if(evnt.start.date() === day || evnt.end.date() === day) {
-
-					return true;
-				}
-			}
-
-			return false;
 		}
 
 		return vm;

@@ -14,7 +14,7 @@ var CalendarSelectStrategy = (function() {
 	function processEvent(start, end, jsEvent, view) {
 
 		var multiday = eventIsMultiDay(start, end),
-			dayHasEvents = thisDayHasEvents(start.date()),
+			dayHasEvents = vm.ThisDayHasEvents(start.date()),
 			viewIsMonth = currentViewIsMonth(view),
 			allDayEvent = eventIsAllDay(start, end);
 
@@ -50,23 +50,6 @@ var CalendarSelectStrategy = (function() {
 
 			return false;
 		}
-	}
-
-
-
-	function thisDayHasEvents(day) {
-
-		for(var i =0; i < vm.Events[0].length; ++i) {
-
-			var evnt = vm.Events[0][i];
-
-			if(evnt.start.date() === day || evnt.end.date() === day) {
-
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 

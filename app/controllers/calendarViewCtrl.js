@@ -43,7 +43,8 @@
 			eventClick : eventClickHandler
 		 });
 
-		vm.ForceRefresh = false;
+		vm.StatsCardTaskVisible = true;
+		vm.StatsCardWeekTVisible = false;
 
 		eventManager.AddListenerToCalendarUpdateEvent(calendarUpdateCallback);
 

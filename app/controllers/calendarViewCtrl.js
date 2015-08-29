@@ -5,61 +5,73 @@
 	angular
 		.module("Calendar")
 		.controller("calendarViewCtrl",
-					['$scope', '$state', 'uiCalendarConfig', ctrl]);
+					['$scope', '$state', ctrl]);
 
-	function ctrl($scope, $state, uiCalendarConfig) {
+	function ctrl($scope, $state) {
 
 		var vm = $scope,
 			uniqueId = 0,
 			handlerStrategyFactory = Using.Require('HandlerStrategyFactory'),
 			calendarSelectStrategyKey = handlerStrategyFactory.Strategies.CalendarSelectStrategy,
-			calendarSelectStrategy = handlerStrategyFactory.Create(calendarSelectStrategyKey, vm),
 			eventManager = Using.Require('EventManager');
 
 
-		//////////////////////////// Setup vm's public interface ///////////////
-		eventManager.Init(uiCalendarConfig,
-			{
-				select : calendarSelectStrategy.ProcessEvent
-			}
-		);
-		vm.Events = [];
-		vm.EventManager = eventManager
+		// Setup vm's public interface 
+		
 		vm.CurrentEvent = {};
+		vm.Events = [];
+		
+		vm.calendarSelectStrategy = handlerStrategyFactory.Create(calendarSelectStrategyKey, vm);
+		
 		vm.AddEvent = eventManager.AddEvent;
 		vm.AddAllDayEvent = eventManager.AddAllDayEvent;
 		vm.AddMultiDayEvent = eventManager.AddMultiDayEvent;
-		vm.AddTimeToCurrentEvent = addTimeToCurrentEventWrapper;
+		vm.GotoCalendarDayView = eventManager.GotoCalendarDayView;
+		vm.ThisDayHasEvents = eventManager.ThisDayHasEvent;
+
 		vm.Update = update;
-		vm.GotoCalendarDayView = gotoCalendarDayView;
-		vm.EventOptionsInput = eventOptionsInput;
 		
+		vm.EventOptionsInput = eventOptionsInput;
+		vm.AddTimeToCurrentEvent = addTimeToCurrentEvent;		
+
+		// Setup calendar
+
+		eventManager.Init({
+
+			select: vm.calendarSelectStrategy.ProcessEvent,
+			eventClick : eventClickHandler
+		 });
+
+		vm.ForceRefresh = false;
+
+		eventManager.AddListenerToCalendarUpdateEvent(calendarUpdateCallback);
 
 		///////////////////////////////////////////////////////////////////////
 
-		// TODO: Move to strategy asap
-		function addTimeToCurrentEventWrapper (timeSection, time, timeUnit) {
-			
-			eventManager.AddTimeToCurrentEvent(timeSection, time, timeUnit, uiCalendarConfig.calendars.theCalendar);
+		function calendarUpdateCallback(eventsArray, currentEvent) {
+
+			update();
+		}
+
+
+		function eventClickHandler(_event, jsEvent, view) {
+
+			eventManager.SetCurrentEvent(_event);
+			vm.CurrentEvent = eventManager.GetCurrentEvent();
 			update();
 		}
 
 
 
-		function getUniqueId() { return uniqueId++; }
-
-
-
-		// TODO: move to eventEventStrategy
 		function eventOptionsInput(userChoice) {
 
 			switch(userChoice) {
 
 				case 'edit':
-					// gotoCalendarDayView(eventDurationInMinutes.CurrentEvent.start);
+					eventManager.GotoCalendarDayView(vm.CurrentEvent.start);
 					break;
 				case 'delete':
-					removeEvent(eventManager.GetCurrentEvent());
+					removeEvent(vm.CurrentEvent);
 					break;
 				case 'close':
 					// display default view stats card
@@ -71,34 +83,33 @@
 		}
 
 
-		// TODO: move to eventEventStrategy
-		function eventResizeHandler(_event, delta, revertFunc) {
-
-			_event.color = events.DefaultEventColor;
-			vm.EventManager.EditEvent(_event);
-			update();
-		}
-
-
-		function gotoCalendarDayView (start) {
-			
-			uiCalendarConfig.calendars.theCalendar.fullCalendar('changeView', 'agendaDay');
-			uiCalendarConfig.calendars.theCalendar.fullCalendar('gotoDate', moment(start));
-		}
-
-
-
 		function updateUI() {
 
 			if(vm.CurrentEvent) {
 
 				vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay = getEventDurationInMinutes(vm.CurrentEvent);
-				vm.CurrentEvent.TotalHours = vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay / 60;
+
+				vm.CurrentEvent.TotalHours = vm.CurrentEvent.end.hour() - vm.CurrentEvent.start.hour();
+
+				vm.CurrentEvent.DisplayTime = {
+
+					start : moment({
+
+						hour: vm.CurrentEvent.start.hour(),
+						minute : vm.CurrentEvent.start.minute()
+					}).format('h:mmA'),
+					end : moment({
+
+						hour: vm.CurrentEvent.end.hour(),
+						minute : vm.CurrentEvent.end.minute()
+					}).format('h:mmA')
+				};
+
 				updateStatusBar();
 			}
 			else {
 
-				// Setup default card
+				// Implement default stats card behavior
 			}
 		}
 
@@ -115,7 +126,7 @@
 
 		function updateEvents() {
 
-			vm.Events = eventManager.GetEventsArray();
+			vm.Events = eventManager.GetEvents();
 
 			vm.CurrentEvent = eventManager.GetCurrentEvent();
 		}
@@ -124,15 +135,35 @@
 
 		function update() {
 
-			updateEvents();
-			updateUI();
+			$scope.$apply(function(){
 
+				updateEvents();
+				updateUI();
+			});
 		}
+
+
+		function addTimeToCurrentEvent(timeSection, time, timeUnit) {
+
+			if(timeSection === 'start') {
+
+				vm.CurrentEvent.start = vm.CurrentEvent.start.add(time, timeUnit);
+			}
+			else {
+
+				vm.CurrentEvent.end = vm.CurrentEvent.end.add(time, timeUnit);
+			}
+
+			vm.CurrentEvent.color = eventManager.DefaultEventColor;
+
+			eventManager.EditEvent(vm.CurrentEvent);			
+		}
+
 
 
 		function getEventPercentageValue(_event) {
 
-			var workdayInMinutes = 8 * 60,
+			var workdayInMinutes = 9 * 60,
 				eventDurationInMinutes = getEventDurationInMinutes(_event),
 				eventDurationPercentage = eventDurationInMinutes / workdayInMinutes * 100; 		// 8-hour day
 

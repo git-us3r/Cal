@@ -1,4 +1,4 @@
-(function() {
+var CalendarSelectStrategy = (function() {
 
 	'use strict';
 
@@ -14,13 +14,13 @@
 	function processEvent(start, end, jsEvent, view) {
 
 		var multiday = eventIsMultiDay(start, end),
-			dayHasEvents = thisDayHasEvents(start.date()),
+			dayHasEvents = vm.ThisDayHasEvents(start.date()),
 			viewIsMonth = currentViewIsMonth(view),
 			allDayEvent = eventIsAllDay(start, end);
 
 		if(multiday) {
 
-			vm.AddMultiDayEvent(start, end, vm.UICalendarConfig);
+			vm.AddMultiDayEvent(start, end);
 		}
 		else if(dayHasEvents && viewIsMonth) {
 
@@ -28,11 +28,11 @@
 		}
 		else if(allDayEvent) {
 
-			vm.AddAllDayEvent('Available', start, end, vm.UICalendarConfig);
+			vm.AddAllDayEvent('Available', start, end);
 		}
 		else {
 
-			vm.AddEvent('Available', start, end, vm.UICalendarConfig);
+			vm.AddEvent('Available', start, end);
 		}
 
 		vm.Update();
@@ -50,23 +50,6 @@
 
 			return false;
 		}
-	}
-
-
-
-	function thisDayHasEvents(day) {
-
-		for(var i =0; i < vm.Events.length; ++i) {
-
-			var evnt = vm.Events[i];
-
-			if(evnt.start.date() === day || evnt.end.date() === day) {
-
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 

@@ -56,9 +56,12 @@
 
 		function eventClickHandler(_event, jsEvent, view) {
 
-			eventManager.SetCurrentEvent(_event);
-			vm.CurrentEvent = eventManager.GetCurrentEvent();
-			update();
+			$scope.$apply(function(){
+
+				eventManager.SetCurrentEvent(_event);
+				vm.CurrentEvent = eventManager.GetCurrentEvent();
+				update();
+			});			
 		}
 
 
@@ -71,7 +74,7 @@
 					eventManager.GotoCalendarDayView(vm.CurrentEvent.start);
 					break;
 				case 'delete':
-					removeEvent(vm.CurrentEvent);
+					eventManager.RemoveEvent(vm.CurrentEvent);
 					break;
 				case 'close':
 					// display default view stats card
@@ -135,11 +138,8 @@
 
 		function update() {
 
-			$scope.$apply(function(){
-
-				updateEvents();
-				updateUI();
-			});
+			updateEvents();
+			updateUI();			
 		}
 
 

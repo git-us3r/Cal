@@ -13,29 +13,32 @@ var CalendarSelectStrategy = (function() {
 
 	function processEvent(start, end, jsEvent, view) {
 
-		var multiday = eventIsMultiDay(start, end),
-			dayHasEvents = vm.ThisDayHasEvents(start.date()),
-			viewIsMonth = currentViewIsMonth(view),
-			allDayEvent = eventIsAllDay(start, end);
+		vm.$apply(function(){
 
-		if(multiday) {
+			var multiday = eventIsMultiDay(start, end),
+				dayHasEvents = vm.ThisDayHasEvents(start.date()),
+				viewIsMonth = currentViewIsMonth(view),
+				allDayEvent = eventIsAllDay(start, end);
 
-			vm.AddMultiDayEvent(start, end);
-		}
-		else if(dayHasEvents && viewIsMonth) {
+			if(multiday) {
 
-			vm.GotoCalendarDayView(start);
-		}
-		else if(allDayEvent) {
+				vm.AddMultiDayEvent(start, end);
+			}
+			else if(dayHasEvents && viewIsMonth) {
 
-			vm.AddAllDayEvent('Available', start, end);
-		}
-		else {
+				vm.GotoCalendarDayView(start);
+			}
+			else if(allDayEvent) {
 
-			vm.AddEvent('Available', start, end);
-		}
+				vm.AddAllDayEvent('Available', start, end);
+			}
+			else {
 
-		vm.Update();
+				vm.AddEvent('Available', start, end);
+			}
+
+			vm.Update();
+			});	
 	}
 
 

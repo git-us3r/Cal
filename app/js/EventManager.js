@@ -249,6 +249,16 @@
 	}
 
 
+	function removeEvent(_event) {
+
+		if(events.hasOwnProperty(_event.id)) {
+			delete events[_event.id];
+
+			refreshCalendar();
+		}
+	}
+
+
 	Using.Expose('EventManager', { 
 
 		Init : init,
@@ -264,7 +274,8 @@
 		DefaultEventColor : defaultEventColor,
 		AllDayEventColor : allDayEventColor,
 		EditEvent : editEvent,
-		AddListenerToCalendarUpdateEvent : addListenerToCalendarUpdateEvent
+		AddListenerToCalendarUpdateEvent : addListenerToCalendarUpdateEvent,
+		RemoveEvent : removeEvent
 
 	});
 

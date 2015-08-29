@@ -4,7 +4,7 @@
 		    <div id="theCalendar"></div>
 		</div>
 		<div class="col-md-4">
-			<div class="row container-fluid card animated" id="statsCard" ng-show="vm.StatsCardTaskVisible">
+			<div class="row container-fluid card statsCard" id="statsCardDay" ng-show="vm.StatsCardTaskVisible">
 			    <div class="row">
 				    <div class="col-xs-3 col-sm-3 col-md-3 col-xm-push-9 col-sm-push-9 col-md-push-9">	
 				    	<button type="button" class="close" ng-click="vm.StatsCardTaskVisible = false; vm.StatsCardWeekVisible = true;">
@@ -61,7 +61,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="row container-fluid card animated" id="statsCardWeek" ng-show="vm.StatsCardWeekVisible">
+			<div class="row container-fluid card statsCard" id="statsCardWeek" ng-show="vm.StatsCardWeekVisible">
 			    <div class="row">
 				    <div class="col-xs-3 col-sm-3 col-md-3 col-xm-push-9 col-sm-push-9 col-md-push-9">	
 				    	<button type="button" class="close" ng-click="vm.StatsCardWeekVisible = false; vm.StatsCardTaskVisible = true;">

@@ -139,7 +139,7 @@
 }
 
 
-#statsCard {
+.statsCard {
     
     min-width: 350px;
     min-height: 250px;
@@ -258,12 +258,4 @@
     height: auto;
 }
 
-.animated {
 
-  -webkit-transition:all linear 0.5s;
-  transition:all linear 0.5s;
-}
-
-.animated.ng-hide {
-  opacity:0;
-}

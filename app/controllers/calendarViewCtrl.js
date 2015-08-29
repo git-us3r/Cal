@@ -55,6 +55,7 @@
 			displayEventEnd : true,
 			defaultView : 'month',
 			businessHours : true,
+			lazyFetching : false,
 			select :vm.calendarSelectStrategy.ProcessEvent,
 			eventResize : eventResizeHandler,
 			eventClick : eventClickHandler
@@ -64,9 +65,6 @@
 		vm.AddTimeToCurrentEvent = addTimeToCurrentEvent;			
 
 		///////////////////////////////////////////////////////////////////////
-
-		function getUniqueHoverActionId() { return uniqueHoverActionId++; }
-
 
 
 		function getUniqueId() { return uniqueId++; }
@@ -84,7 +82,6 @@
 
 			return eventArray;
 		}
-
 
 
 
@@ -120,13 +117,18 @@
 
 		function removeEvent(_event) {
 
-			delete events.Collection[_event.id];
+			if(_event) {
 
-			uiCalendarConfig.calendars.theCalendar.fullCalendar('removeEvents', [_event.id]);
+				delete events.Collection[_event.id];
 
-			updateEvents();
+				vm.CurrentEvent = null;
 
-			updateUI();
+				uiCalendarConfig.calendars.theCalendar.fullCalendar('removeEvents', [_event.id]);
+
+				updateEvents();
+
+				updateUI(); 
+			}
 		}
 
 
@@ -150,11 +152,18 @@
 
 		function updateUI() {
 
-			vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay = getEventDurationInMinutes(vm.CurrentEvent);
+			if(vm.CurrentEvent) {
 
-			vm.CurrentEvent.TotalHours = vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay / 60;		
+				vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay = getEventDurationInMinutes(vm.CurrentEvent);
 
-			updateStatusBar();
+				vm.CurrentEvent.TotalHours = vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay / 60;		
+
+				updateStatusBar();
+			}
+			else {
+
+				// Implement default stats card behavior
+			}
 		}
 
 

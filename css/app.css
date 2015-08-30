@@ -116,12 +116,22 @@
 
 	margin: 0;
 	min-width: 350px;
-    min-height: 250px;
-    max-width: 350px;
-    max-height: 250px;
-    width: 100%;
-    height: 100%;
-    float: left;
+	min-height: 250px;
+	max-width: 350px;
+	max-height: 250px;
+	width: 100%;
+	height: 100%;
+	float: left;
+}
+
+.backImg {
+
+	margin: 0;
+	min-width: 250px;
+	min-height: 250px;
+	width: 100%;
+	height: 100%;
+	float: left;
 }
 
 #eventOptionsPrompt {
@@ -237,13 +247,15 @@
 
 #backCard {
 
-    min-width: auto;
-    min-height: 250px;
+	min-width: 250px;
+	min-height: 250px;
 
-    width: 100%;
-    height: 100%;
+	width: 100%;
+	height: 100%;
 
-    float: left;
+   padding: 0;
+	overflow: hidden;
+
 }
 
 
@@ -271,5 +283,7 @@
 	padding: 0;
 	overflow: hidden;
 }
+
+
 
 

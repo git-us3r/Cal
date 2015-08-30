@@ -47,9 +47,7 @@
 		 });
 
 		// Setup default behavior
-		vm.StatsCardTaskVisible = false;
-		vm.StatsCardDayVisible = false;
-		vm.StatsCardDefault = true;
+		loadDefaultUIElements();
 
 		eventManager.AddListenerToCalendarUpdateEvent(calendarUpdateCallback);
 
@@ -122,15 +120,16 @@
 
 			// TODO
 			vm.StatsCardTaskVisible = true;
-			vm.StatusBarTaskVisible = true;
+			vm.StatusBarTaskCardVisible = true;
 			
-			vm.StatsCardDefault = false;
-			vm.StatsCardDayVisible = false;
-			vm.StatsCardMonthVisible = false;
+			vm.StatsCardDefaultVisible = false;
+			vm.StatusBarDefaultVisible = false;
 
+			vm.StatsCardDayVisible = false;
 			vm.StatusBarDayVisible = false;
-			vm.StatusBarDayVisible = false;
-			vm.StatusBarDefault = false;
+
+			vm.StatsCardMonthVisible = false;
+			vm.StatusBarMonthVisible = false;
 
 			updateTaskStatusBar();
 		}
@@ -142,13 +141,14 @@
 			vm.StatsCardDayVisible = true;
 			vm.StatusBarDayVisible = true;
 			
-			vm.StatsCardDefault = false;
-			vm.StatsCardTaskVisible = false;
-			vm.StatsCardMonthVisible = false;
+			vm.StatsCardDefaultVisible = false;
+			vm.StatusBarDefaultVisible = false;
 
-			vm.StatusBarDayVisible = false;
-			vm.StatusBarDayVisible = false;
-			vm.StatusBarDefault = false;
+			vm.StatsCardTaskVisible = false;
+			vm.StatusBarTaskCardVisible = false;
+
+			vm.StatsCardMonthVisible = false;
+			vm.StatusBarMonthVisibile = false;			
 
 			updateDayStatusBar();
 		}
@@ -158,22 +158,23 @@
 
 			// TODO
 			vm.StatsCardMonthVisible = true;
-			vm.StatusBarMonth = true;
+			vm.StatusBarMonthVisibile = true;
 		}
 
 
 		function loadDefaultUIElements() {
 
-			vm.StatsCardDefault = true;
-			vm.StatusBarDefault = true;
+			vm.StatsCardDefaultVisible = true;
+			vm.StatusBarDefaultVisible = true;
 
 			vm.StatsCardMonthVisible = false;
-			vm.StatsCardDayVisible = false;
-			vm.StatsCardTaskVisible = false;
-			vm.StatusBarMonth = false;
-			vm.StatusBarDayVisible = false;
-			vm.StatusBarTaskVisible = false;
+			vm.StatusBarMonthVisibile = false;
 
+			vm.StatsCardDayVisible = false;
+			vm.StatusBarDayVisible = false;
+
+			vm.StatsCardTaskVisible = false;
+			vm.StatusBarTaskVisible = false;
 		}
 
 
@@ -186,9 +187,11 @@
 
 		function updateTaskStatsCard() {
 
-			vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay = eventManager.GetEventDurationInMinutes(vm.CurrentEvent);
+			var eventDurationInMinutes = eventManager.GetEventDurationInMinutes(vm.CurrentEvent);
 
-			vm.CurrentEvent.TotalHours = vm.CurrentEvent.end.hour() - vm.CurrentEvent.start.hour();
+			vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay = eventDurationInMinutes / (8 * 60);
+
+			vm.CurrentEvent.TotalHours = eventDurationInMinutes / 60;
 
 			vm.CurrentEvent.DisplayTime = {
 
@@ -208,10 +211,17 @@
 
 		function updateTaskStatusBar() {
 
-			var bar = document.getElementById('taskStatusBar'),
-				currentEventDurationPercentage = eventManager.GetEventPercentageValue(vm.CurrentEvent);
+			var	currentEventDurationPercentage = eventManager.GetEventPercentageValue(vm.CurrentEvent);
 
-			bar.style.width = currentEventDurationPercentage + '%';
+			if(currentEventDurationPercentage > 0) {
+
+				vm.StatuBarTaskVisible = true;
+				vm.StatusBarTaskWidth = currentEventDurationPercentage + '%';
+			}
+			else {
+
+				vm.StatuBarTaskVisible = false;
+			}
 
 		}
 
@@ -317,7 +327,15 @@
 			var bar = document.getElementById('dayStatusBar'),
 				dayHoursAsPercentage = vm.DayStats.TotalHoursAsPercentageOfWorkDay;
 
-			bar.style.width = dayHoursAsPercentage + '%';
+			if(dayHoursAsPercentage > 0) {
+
+				bar.style.visibility = 'show';
+				bar.style.width = dayHoursAsPercentage + '%';
+			}
+			else {
+
+				bar.style.visibility = 'hidden';
+			}
 		}
 
 
@@ -334,6 +352,11 @@
 					HasEvents : true,
 					Day: vm.CurrentEvent.start.date()
 				};
+			}
+			else if(vm.CurrentDay) {
+
+				vm.CurrentDay.HasEvents = false;
+				vm.CurrentDay.Day = null;
 			}
 		}
 

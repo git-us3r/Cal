@@ -1,10 +1,10 @@
 <div class="container container-fluid dynamicView">
 	<div class="row">
-		<div class="col-md-6" id="clendarCard">
+		<div id="clendarCard" class="col-md-6">
 		    <div id="theCalendar"></div>
 		</div>
 		<div class="col-md-4">
-			<div class="row container-fluid card statsCard" id="statsCardDay" ng-show="vm.StatsCardTaskVisible">
+			<div id="statsCardDay" class="row container-fluid card statsCard" ng-show="vm.StatsCardTaskVisible">
 			    <div class="row">
 				    <div class="col-xs-3 col-sm-3 col-md-3 col-xm-push-9 col-sm-push-9 col-md-push-9">	
 				    	<button type="button" class="close" ng-click="vm.StatsCardTaskVisible = false; vm.StatsCardWeekVisible = true;">
@@ -61,40 +61,21 @@
 					</div>
 				</div>
 			</div>
-			<div class="row container-fluid card statsCard" id="statsCardWeek" ng-show="vm.StatsCardWeekVisible">
+			<div id="statsCardDefault" class="row container-fluid card statsCard" ng-show="vm.StatsCardDefault">
 			    <div class="row">
 				    <div class="col-xs-3 col-sm-3 col-md-3 col-xm-push-9 col-sm-push-9 col-md-push-9">	
-				    	<button type="button" class="close" ng-click="vm.StatsCardWeekVisible = false; vm.StatsCardTaskVisible = true;">
+				    	<button type="button" class="close" ng-click="vm.StatsCardDefault = false; vm.StatsCardTaskVisible = true;">
 				    		<span aria-hidden="true">
 				    			&times;
 				    		</span>
 				    	</button>
 				    </div>	
 			    </div>
-			    <div class="row">
-			    	<div class="col-xs-12 col-sm-12 col-md-12"><h3 class="text-center">Week Stats</h3></div>
-				</div>
-				<div class="row">
-			    	<div class="col-xs-12 col-sm-12 col-md-12"><h4 class="text-center">Week Range (09/21/2015 - 09/28/2015)</h4></div>
-				</div>
-				<div class="row" ng-show="vm.CurrentEvent.DisplayTime.start">
-			    	<div class="col-xs-4 col-sm-4 col-md-4">
-			    		<h4 class="text-right">Label:</h4>
-					</div>
-					<div class="col-xs-4 col-sm-4 col-md-4">
-						<h4 class="text-center">Data</h4>
-					</div>
+			    <div class="container-fluid">
+		    		<img src="img/stats-logo.png" class="img-responsive" alt="Create events to see stats">
 			    </div>
-			    <div class="row" ng-show="vm.vm.CurrentEvent.DisplayTime.end">
-			    	<div class="col-xs-4 col-sm-4 col-md-4">
-			    		<h4 class="text-right">Label:</h4>
-			    	</div>
-			    	<div class="col-xs-4 col-sm-4 col-md-4">
-						<h4 class="text-center">Data</h4>
-					</div>
-				</div>
 			</div>
-			<div class="row container-fluid card" id="statusBarCard">
+			<div id="taskStatusBarCard" class="row container-fluid card" ng-show="vm.StatsCardDayVisible">
 				<div class="row container-fluid">
 					<div class="col-xs-4 col-sm-4 col-md-4">
 			    		<h4 class="text-right">Total:</h4>
@@ -105,8 +86,27 @@
 				</div>
 				<div class="container-fluid row">
 					<div class="col-md-12">
-						<div id="statusBarWrapper">
-							<div id="statusBar">
+						<div id="taskStatusBarWrapper">
+							<div id="taskStatusBar">
+								<!-- element css manipulated in vm to achieve effect -->
+							</div>
+						</div>
+					</div>		
+			    </div>
+			</div>
+			<div id="dayStatusBarCard" class="row container-fluid card" ng-show="vm.StatusBarDayVisible">
+				<div class="row container-fluid">
+					<div class="col-xs-4 col-sm-4 col-md-4">
+			    		<h4 class="text-right">Total:</h4>
+			    	</div>
+			    	<div class="col-xs-7 col-sm-7 col-md-7">
+						<h4 class="text-left">{{vm.DayStats.TotalHours}} hours</h4>
+					</div>
+				</div>
+				<div class="container-fluid row">
+					<div class="col-md-12">
+						<div id="dayStatusBarWrapper">
+							<div id="dayStatusBar">
 								<!-- element css manipulated in vm to achieve effect -->
 							</div>
 						</div>
@@ -125,13 +125,29 @@
 	</div>
 	<div class="row">
 		<div class="col-md-3">
-			<div class="container-fluid card card-link" id="backCard" ui-sref="landing">
+			<div id="backCard" class="container-fluid card card-link" ui-sref="landing">
 				<h1 class="text-center">To Dashboard</h1>
 			</div>			
 		</div>
-		<div class="col-md-9">
-			<div class="container-fluid" id="pieChartCard">
-				<h1 class="text-center">More stats to come</h1>
+		<div id="monthStatsCard" class="col-md-9 container-fluid" ng-show="vm.StatsCardMonthVisible">
+			<div class="row container-fluid card" id="monthStatusBarCard">
+				<div class="row container-fluid">
+					<div class="col-xs-4 col-sm-4 col-md-4">
+			    		<h4 class="text-right">Total:</h4>
+			    	</div>
+			    	<div class="col-xs-7 col-sm-7 col-md-7">
+						<h4 class="text-left">{{vm.MonthSats.TotalHours}} hours</h4>
+					</div>
+				</div>
+				<div class="container-fluid row">
+					<div class="col-md-12">
+						<div id="monthStatusBarWrapper">
+							<div id="monthStatusBar">
+								<!-- element css manipulated in vm to achieve effect -->
+							</div>
+						</div>
+					</div>		
+			    </div>
 			</div>
 		</div>
 	</div>

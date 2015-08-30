@@ -258,7 +258,13 @@
 	function removeEvent(_event) {
 
 		if(events.hasOwnProperty(_event.id)) {
+			
 			delete events[_event.id];
+
+			if(currentEvent.id === _event.id) {
+
+				currentEvent = null;
+			}
 
 			refreshCalendar();
 		}
@@ -304,6 +310,48 @@
 
 		return differenceInMinutes;
 	}
+
+
+	function getTasksInCurrentMonth() {
+
+		var currentMonth = calendar.getDate().month(),
+			returnArray = [],
+			iterationEvent = null;
+
+		for(var key in events) {
+
+			if(events.hasOwnProperty(key)) {
+
+				iterationEvent = events[key];
+
+				if(iterationEvent.start.month() === currentMonth) {
+
+					returnArray.push(iterationEvent);
+				}
+			}
+		}
+
+		return returnArray;
+	}
+
+
+	function getTasksInDay(day) {
+
+		var returnArray = [],
+			iterationEvent = null;
+
+		for(var key in events) {
+
+			iterationEvent = events[key];
+
+			if(iterationEvent.start.date() === day) {
+
+				returnArray.push(iterationEvent);
+			}
+		}
+
+		return returnArray;
+	}
  
 
 	Using.Expose('EventManager', { 
@@ -325,7 +373,9 @@
 		RemoveEvent : removeEvent,
 		AddTimeToEvent : addTimeToEvent,
 		GetEventPercentageValue: getEventPercentageValue,
-		GetEventDurationInMinutes: getEventDurationInMinutes
+		GetEventDurationInMinutes: getEventDurationInMinutes,
+		GetTasksInCurrentMonth : getTasksInCurrentMonth,
+		GetTasksInDay : getTasksInDay
 
 	});
 

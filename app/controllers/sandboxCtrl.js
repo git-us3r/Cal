@@ -4,10 +4,10 @@
 
     angular
         .module("Calendar")
-        .controller("canvasChartViewCtrl",
+        .controller("sandboxCtrl",
                     ['$scope', '$state', ctrl]);
 
-    function ctrl($scope, $state, uiCalendarConfig) {
+    function ctrl($scope, $state) {
 
     	var vm = this;
 

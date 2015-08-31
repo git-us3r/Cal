@@ -20,10 +20,10 @@
                     templateUrl: "app/views/calendar.html",
                     controller: "calendarViewCtrl as vm"
                 })
-                .state("canvasChart", {
-                    url: "/canvasChart",
-                    templateUrl: "app/views/canvasChart.html",
-                    controller: "canvasChartViewCtrl as vm"
+                .state("sandbox", {
+                    url: "/sandbox",
+                    templateUrl: "app/views/sandbox.html",
+                    controller: "sandboxCtrl as vm"
                 });
         }]
     );

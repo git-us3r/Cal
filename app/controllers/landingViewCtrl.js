@@ -7,7 +7,7 @@
         .controller("landingViewCtrl",
                     ['$scope', '$state', ctrl]);
 
-    function ctrl($scope, $state, uiCalendarConfig) {
+    function ctrl($scope, $state) {
 
     	// TODO
     }

@@ -1,12 +1,14 @@
 <div class="container container-fluid dynamicView">
-	<div class="row">
-		<div id="clendarCard" class="col-md-6">
-		    <div id="theCalendar"></div>
+	<div id="mainRow" class="row container-fluid">
+		<div class="col-md-8 container-fluid">
+			<div class="row container-fluid">
+				<div id="clendarCard" class="col-md-6 container-fluid card">
+				    <div id="theCalendar"></div>
+				</div>
+			</div>
 		</div>
-		<div class="col-md-4">
+		<div class="col-md-4 container-fluid">
 			<div id="statsCardTask" class="row container-fluid card statsCard" ng-show="vm.StatsCardTaskVisible">
-			    <div class="row">	
-			    </div>
 			    <div class="row">
 			    	<div class="col-xs-12 col-sm-12 col-md-12"><h3 class="text-center">{{vm.CurrentEvent.title}}</h3></div>
 				</div>
@@ -101,17 +103,17 @@
 			    </div>
 			</div>
 			<div class="row container-fluid">
-				<div class="col-md-5 container-fluid card card-link" id="dayViewBtn" ng-click="vm.EventOptionsInput('edit')">
+				<div id="dayViewBtn" class="col-md-5 container-fluid card card-link" ng-click="vm.EventOptionsInput('edit')">
 					<h3 class="text-center">Day View</h3>
 				</div>
-				<div class="col-md-2 col-md-push-1 container-fluid card card-link" id="deleteBtn" ng-click="vm.EventOptionsInput('delete')">
+				<div id="deleteBtn" class="col-md-3 container-fluid card card-link" ng-click="vm.EventOptionsInput('delete')">
 					<h3 class="text-center">Delete</h3>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-md-3">
+	<div class="row container-fluid">
+		<div class="col-md-2 container-fluid">
 			<div id="backCard" class="container-fluid card card-link" ui-sref="landing">
 				<img src="img/back-logo-metro.jpg" class="img-responsive backImg" alt="Back to Dashboard">
 			</div>			
@@ -135,6 +137,11 @@
 						</div>
 					</div>		
 			    </div>
+			</div>
+		</div>
+		<div id="monthDefaultStatsContainer" class="col-md-9 container-fluid">
+			<div  id="monthDefaultStatsCard" class="container-fluid card">
+				<img id="monthStatsDefaultImg" src="img/defaultMonthStatsIcon.jpg" class="img-responsive" alt="Month Stats">
 			</div>
 		</div>
 	</div>

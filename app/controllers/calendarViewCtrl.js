@@ -19,8 +19,23 @@
 		// Setup vm's public interface 
 		
 		vm.CurrentEvent = {};
-		vm.CurrentDay = {};
-		vm.CurrentMonth = {};
+		
+		vm.DayStats = {
+
+			HasDay : false,
+			Day : null,
+			TotalHours : 0,
+			HoursPerTask : {}
+		};
+		
+		vm.MonthStats = {
+
+			TotalHours : 0,
+			TotalHoursAsPercentageOfWorkMonth : null,
+			HoursPerDay : {},
+			HasStats : false,
+
+		};
 
 		vm.Events = [];
 		
@@ -52,6 +67,21 @@
 		eventManager.AddListenerToCalendarUpdateEvent(calendarUpdateCallback);
 
 		///////////////////////////////////////////////////////////////////////
+
+		function loadDefaultUIElements() {
+
+			vm.StatsCardDayVisible = false;
+			vm.StatusBarDayVisible = false;
+
+			vm.StatsCardTaskVisible = false;
+			vm.StatusBarTaskCardVisible = false;
+
+			vm.StatsCardMonthVisible = false;
+
+			vm.StatsCardDefaultVisible = true;
+			vm.StatsCardMonthDefaultVisible = true;
+		}
+
 
 		function calendarUpdateCallback(eventsArray, currentEvent) {
 
@@ -90,91 +120,9 @@
 
 		function updateUI() {
 
-			if(vm.CurrentEvent) {
-
-				updateTaskStats();
-				updateMonthStats();
-
-				loadTaskUIElements();
-				loadMonthUIElement();
-
-			}
-			else if (vm.CurrentDay.HasEvents) {
-
-				updateDayStats();
-				updateMonthStats();
-
-				loadDayUIElements();
-				loadMonthUIElement();
-
-			}
-			else {
-
-				loadDefaultUIElements();
-			}
-			
-		}
-
-
-		function loadTaskUIElements() {
-
-			// TODO
-			vm.StatsCardTaskVisible = true;
-			vm.StatusBarTaskCardVisible = true;
-			
-			vm.StatsCardDefaultVisible = false;
-			vm.StatusBarDefaultVisible = false;
-
-			vm.StatsCardDayVisible = false;
-			vm.StatusBarDayVisible = false;
-
-			vm.StatsCardMonthVisible = false;
-			vm.StatusBarMonthVisible = false;
-
-			updateTaskStatusBar();
-		}
-
-
-		function loadDayUIElements() {
-
-			// TODO
-			vm.StatsCardDayVisible = true;
-			vm.StatusBarDayVisible = true;
-			
-			vm.StatsCardDefaultVisible = false;
-			vm.StatusBarDefaultVisible = false;
-
-			vm.StatsCardTaskVisible = false;
-			vm.StatusBarTaskCardVisible = false;
-
-			vm.StatsCardMonthVisible = false;
-			vm.StatusBarMonthVisibile = false;			
-
-			updateDayStatusBar();
-		}
-
-
-		function loadMonthUIElement() {
-
-			// TODO
-			vm.StatsCardMonthVisible = true;
-			vm.StatusBarMonthVisibile = true;
-		}
-
-
-		function loadDefaultUIElements() {
-
-			vm.StatsCardDefaultVisible = true;
-			vm.StatusBarDefaultVisible = true;
-
-			vm.StatsCardMonthVisible = false;
-			vm.StatusBarMonthVisibile = false;
-
-			vm.StatsCardDayVisible = false;
-			vm.StatusBarDayVisible = false;
-
-			vm.StatsCardTaskVisible = false;
-			vm.StatusBarTaskVisible = false;
+			updateTaskStats();
+			updateDayStats();		
+			updateMonthStats();			
 		}
 
 
@@ -187,25 +135,47 @@
 
 		function updateTaskStatsCard() {
 
-			var eventDurationInMinutes = eventManager.GetEventDurationInMinutes(vm.CurrentEvent);
+			if(vm.CurrentEvent) {
 
-			vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay = eventDurationInMinutes / (8 * 60);
+				var eventDurationInMinutes = eventManager.GetEventDurationInMinutes(vm.CurrentEvent);
 
-			vm.CurrentEvent.TotalHours = eventDurationInMinutes / 60;
+				vm.CurrentEvent.TotalHoursAsPercentageOfWorkDay = eventDurationInMinutes / (8 * 60);
 
-			vm.CurrentEvent.DisplayTime = {
+				vm.CurrentEvent.TotalHours = eventDurationInMinutes / 60;
 
-				start : moment({
+				vm.CurrentEvent.DisplayTime = {
 
-					hour: vm.CurrentEvent.start.hour(),
-					minute : vm.CurrentEvent.start.minute()
-				}).format('h:mmA'),
-				end : moment({
+					start : moment({
 
-					hour: vm.CurrentEvent.end.hour(),
-					minute : vm.CurrentEvent.end.minute()
-				}).format('h:mmA')
-			};
+						hour: vm.CurrentEvent.start.hour(),
+						minute : vm.CurrentEvent.start.minute()
+					}).format('h:mmA'),
+					end : moment({
+
+						hour: vm.CurrentEvent.end.hour(),
+						minute : vm.CurrentEvent.end.minute()
+					}).format('h:mmA')
+				};
+
+				vm.StatsCardTaskVisible = true;
+				vm.StatusBarTaskCardVisible = true;
+				
+				vm.StatsCardDefaultVisible = false;
+				vm.StatusBarDefaultVisible = false;
+
+				// Day and task cards are exclusive
+				vm.StatsCardDayVisible = false;
+				vm.StatusBarDayVisible = false;
+			}
+			else {
+
+				vm.StatsCardTaskVisible = false;
+				vm.StatusBarTaskCardVisible = false;
+				
+				vm.StatsCardDefaultVisible = true;
+				vm.StatusBarDefaultVisible = true;
+			}
+
 		}
 
 
@@ -237,37 +207,41 @@
 
 			var tasksInCurrentMonth = null,
 				task = null,
-				iterator = 0,
-				monthStats = {
-
-					TotalHours : 0,
-					TotalHoursAsPercentageOfWorkMonth : null,
-					HoursPerDay : {},
-				};
+				iterator = 0;
 
 			tasksInCurrentMonth = eventManager.GetTasksInCurrentMonth();
 
-			// Compute hours per day
-			for(var iterator = 0; iterator < tasksInCurrentMonth.length; ++iterator) {
+			if(tasksInCurrentMonth.length > 0) {
 
-				task = tasksInCurrentMonth[iterator];
+				// Compute hours per day
+				for(var iterator = 0; iterator < tasksInCurrentMonth.length; ++iterator) {
 
-				monthStats.TotalHours += eventManager.GetEventDurationInMinutes(task) / 60;
+					task = tasksInCurrentMonth[iterator];
 
-				if(monthStats.HoursPerDay.hasOwnProperty(task.start.date())) {
+					vm.MonthStats.TotalHours += eventManager.GetEventDurationInMinutes(task) / 60;
 
-					monthStats.HoursPerDay[task.start.date()] += eventManager.GetEventDurationInMinutes(task) / 60;
+					if(vm.MonthStats.HoursPerDay.hasOwnProperty(task.start.date())) {
+
+						vm.MonthStats.HoursPerDay[task.start.date()] += eventManager.GetEventDurationInMinutes(task) / 60;
+					}
+					else {
+
+						vm.MonthStats.HoursPerDay[task.start.date()] = eventManager.GetEventDurationInMinutes(task) / 60;
+					}
 				}
-				else {
 
-					monthStats.HoursPerDay[task.start.date()] = eventManager.GetEventDurationInMinutes(task) / 60;
-				}
+				vm.MonthStats.TotalHoursAsPercentageOfWorkMonth = vm.MonthStats.TotalHours / 160;
+
+				vm.StatsCardMonthVisible = true;
+				vm.StatsCardMonthDefaultVisible = false;
 			}
+			else {
 
-			monthStats.TotalHoursAsPercentageOfWorkMonth = monthStats.TotalHours / 160;
+				vm.MonthStats.HasStats = false;
 
-			// Expose the data to the model
-			vm.MonthStats = monthStats;
+				vm.StatsCardMonthVisible = false;
+				vm.StatsCardMonthDefaultVisible = true;
+			}
 		}
 		
 
@@ -290,35 +264,49 @@
 
 		function updateDayStatsCard() {
 
-			var tasksInDay = eventManager.GetTasksInDay(vm.CurrentDay.Day),
+			var tasksInDay = eventManager.GetTasksInDay(vm.DayStats.Day),
 				iterator = 0,
-				iterationTask = null,
-				dayStats = {
+				iterationTask = null;
 
-					TotalHours : 0,
-					TotalHoursAsPercentageOfWorkDay : null,
-					HoursPerTask : {},
-				};
+			if(tasksInDay.length > 0 && !vm.StatsCardTaskVisible) {
 
-			for(iterator = 0; iterator < tasksInDay.length; ++iterator) {
+				for(iterator = 0; iterator < tasksInDay.length; ++iterator) {
 
-				iterationTask = tasksInDay[iterator];
+					iterationTask = tasksInDay[iterator];
 
-				dayStats.TotalHours += eventManager.GetEventDurationInMinutes(iterationTask) / 60;
+					vm.DayStats.TotalHours += eventManager.GetEventDurationInMinutes(iterationTask) / 60;
 
-				if(dayStats.HoursPerTask.hasOwnProperty(iterationTask)) {
+					if(vm.DayStats.HoursPerTask.hasOwnProperty(iterationTask.id)) {
 
-					dayStats.HoursPerTask[iterationTask] += eventManager.GetEventDurationInMinutes(iterationTask) / 60;
+						vm.DayStats.HoursPerTask[iterationTask.id] += eventManager.GetEventDurationInMinutes(iterationTask) / 60;
+					}
+					else {
+
+						vm.DayStats.HoursPerTask[iterationTask.id] = eventManager.GetEventDurationInMinutes(iterationTask) / 60;	
+					}
 				}
-				else {
 
-					dayStats.HoursPerTask[iterationTask] = eventManager.GetEventDurationInMinutes(iterationTask) / 60;	
-				}
+				vm.DayStats.TotalHoursAsPercentageOfWorkDay = vm.DayStats.TotalHours / 8;
+
+				vm.StatsCardDayVisible = true;
+				vm.StatusBarDayVisible = true;
+				
+				vm.StatsCardDefaultVisible = false;
+				vm.StatusBarDefaultVisible = false;
+
+				vm.StatsCardTaskVisible = false;
+				vm.StatusBarTaskCardVisible = false;		
 			}
+			else if(vm.StatsCardTaskVisible) {
 
-			dayStats.TotalHoursAsPercentageOfWorkDay = dayStats.TotalHours / 8;
+				vm.StatsCardDayVisible = false;
+				vm.StatusBarDayVisible = false;
+			}
+			else {
 
-			vm.DayStats = dayStats;
+				vm.StatsCardDefaultVisible = true;
+				vm.StatusBarDefaultVisible = true;
+			}
 		}
 
 
@@ -347,16 +335,13 @@
 
 			if(vm.CurrentEvent) {
 				
-				vm.CurrentDay = {
-
-					HasEvents : true,
-					Day: vm.CurrentEvent.start.date()
-				};
+				vm.DayStats.HasEvents = true;
+				vm.DayStats.Day = vm.CurrentEvent.start.date();
 			}
-			else if(vm.CurrentDay) {
+			else if(vm.DayStats) {
 
-				vm.CurrentDay.HasEvents = false;
-				vm.CurrentDay.Day = null;
+				vm.DayStats.HasEvents = false;
+				vm.DayStats.Day = null;
 			}
 		}
 

@@ -1,49 +1,81 @@
-<div id="sandbox_mainContainer" class="container-fluid">
-	<div id="sandbox_mainRow" class="row">
-		<div id="sandbox_mainRow_mainCol" class="col-md-8 container-fluid">
-			<div id="sandbox_mainRow_mainCol_mainCard" class="card">
-				<!-- Main card -->
-			</div>			
+<div id="sandbox_mainContainer" class="container-fluid" ng-switch on="vm.CurrentView">
+	<div id="sandbox_largeView" class="container-fluid" ng-switch-when="largeView">
+		<div id="sandbox_mainRow" class="row">
+			<div id="sandbox_mainRow_mainCol" class="col-md-8 container-fluid">
+				<div id="sandbox_mainRow_mainCol_mainCard" class="card container-fluid">
+					<!-- Main card -->
+					<h3 class="text-center">Width: {{vm.VisibleWidth}}</h3>
+					<h3 class="text-center">Height: {{vm.VisibleHeight}}</h3>
+				</div>			
+			</div>
+			<div id="sandbox_mainRow_sideCol" class="col-md-3 container-fluid">
+				<div id="sandbox_mainRow_sideCol_topRow" class="row">
+					<div id="sandbox_mainRow_sideCol_topRow_singleCol" class="col-md-12 container-fluid">
+						<div id="sandbox_mainRow_sideCol_topRow_card" class="card">
+							<!-- Main stats card -->
+						</div>
+					</div>
+				</div>
+				<div id="sandbox_mainRow_sideCol_midRow" class="row">
+					<div id="sandbox_mainRow_sideCol_midRow_col" class="col-md-12 container-fluid">
+						<div id="sandbox_mainRow_sideCol_midRow_card" class="card">
+							<!-- Status bar card -->
+						</div>
+					</div>
+				</div>
+				<div id="sandbox_mainRow_sideCol_bottomRow" class="row">
+					<div id="sandbox_mainRow_sideCol_bottomRow_mainCol" class="col-md-9 container-fluid">
+						<div id="sandbox_mainRow_sideCol_bottomRow_mainCard" class="card">
+							<!-- View Button -->
+						</div>
+					</div>
+					<div id="sandbox_mainRow_sideCol_bottomRow_secondaryCol" class="col-md-3 container-fluid">
+						<div id="sandbox_mainRow_sideCol_bottomRow_secondaryCard" class="card">
+							<!-- Delete Button -->
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
-		<div id="sandbox_mainRow_sideCol" class="col-md-3 container-fluid">
-			<div id="sandbox_mainRow_sideCol_topRow" class="row">
-				<div id="sandbox_mainRow_sideCol_topRow_singleCol" class="col-md-12 container-fluid">
-					<div id="sandbox_mainRow_sideCol_topRow_card" class="card">
-						<!-- Main stats card -->
-					</div>
+		<div id="sandbox_midRow" class="row">
+			<!-- Mid Row -->	
+			<div id="sandbox_midRow_leftCol" class="col-md-9 container-fluid">
+				<div id="sandbox_midRow_leftCol_card" class="card">
+					<!-- Mid Row Left Card -->
 				</div>
 			</div>
-			<div id="sandbox_mainRow_sideCol_midRow" class="row">
-				<div id="sandbox_mainRow_sideCol_midRow_col" class="col-md-12 container-fluid">
-					<div id="sandbox_mainRow_sideCol_midRow_card" class="card">
-						<!-- Status bar card -->
-					</div>
-				</div>
-			</div>
-			<div id="sandbox_mainRow_sideCol_bottomRow" class="row">
-				<div id="sandbox_mainRow_sideCol_bottomRow_mainCol" class="col-md-9 container-fluid">
-					<div id="sandbox_mainRow_sideCol_bottomRow_mainCard" class="card">
-						<!-- View Button -->
-					</div>
-				</div>
-				<div id="sandbox_mainRow_sideCol_bottomRow_secondaryCol" class="col-md-3 container-fluid">
-					<div id="sandbox_mainRow_sideCol_bottomRow_secondaryCard" class="card">
-						<!-- Delete Button -->
-					</div>
+			<div id="sandbox_midRow_rigtCol" class="col-md-3 container-fluid">
+				<div id="sandbox_midRow_rigtCol_card" class="card">
+					<!-- Mid Row Right Card -->
 				</div>
 			</div>
 		</div>
 	</div>
-	<div id="sandbox_midRow" class="row">
-		<!-- Mid Row -->	
-		<div id="sandbox_midRow_leftCol" class="col-md-9 container-fluid">
-			<div id="sandbox_midRow_leftCol_card" class="card">
-				<!-- Mid Row Left Card -->
+	<div id="sandbox_smallView" class="container-fluid" ng-switch-when="smallView">
+		<div id="sandbox_smallView_mainRow" class="row">
+			<div id="sandbox_smallView_mainRow_card" class="card">
+				
 			</div>
 		</div>
-		<div id="sandbox_midRow_rigtCol" class="col-md-3 container-fluid">
-			<div id="sandbox_midRow_rigtCol_card" class="card">
-				<!-- Mid Row Right Card -->
+		<div id="sandbox_smallView_statsRow" class="row">
+			<div id="sandbox_smallView_statsRow_card" class="col-md-6 card col-fixed">
+				
+			</div>
+			<div id="sandbox_smallView_secondarySatsRow_card" class="col-md-6 col-fixed card">
+				
+			</div>
+		</div>
+		<div id="sandbox_smallView_buttonsRow" class="row">
+			<div id="sandbox_smallView_buttonsRow_viewButton_card" class="col-md-3 card">
+				
+			</div>
+			<div id="sandbox_smallView_buttonsRow_deleteButton_card" class="col-md-3 card">
+				
+			</div>
+		</div>
+		<div id="sandbox_smallView_bottomRow" class="row">
+			<div id="sandbox_smallView_bottomRow_card" class="col-md-3 card">
+				
 			</div>
 		</div>
 	</div>

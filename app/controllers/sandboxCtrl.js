@@ -5,14 +5,43 @@
     angular
         .module("Calendar")
         .controller("sandboxCtrl",
-                    ['$scope', '$state', ctrl]);
+                    ['$scope', '$state', '$window', ctrl]);
 
-    function ctrl($scope, $state) {
+    function ctrl($scope, $state, $window) {
 
-    	var vm = this;
+    	var vm = this,
+            minHeight = 500,
+            minWidth = 1100;
+
+        (function init(){
+
+            window.onresize = function() {
+
+                $scope.$apply(function(){
+
+                    updateDimensions();
+                });   
+            };
+
+            updateDimensions();
+
+        }());
 
 
-    	// todo
+        function updateDimensions() {
+
+            vm.VisibleHeight = $window.innerHeight;        
+            vm.VisibleWidth = $window.innerWidth;
+
+            if(vm.VisibleWidth < minWidth) {
+
+                vm.CurrentView = 'smallView';
+            } 
+            else {
+
+                vm.CurrentView = 'largeView';
+            }
+        }
 
 
     	return vm;

@@ -11,7 +11,7 @@
 
     	var vm = this,
             minHeight = 500,
-            minWidth = 1100;
+            minWidth = 1205;
 
         (function init(){
 

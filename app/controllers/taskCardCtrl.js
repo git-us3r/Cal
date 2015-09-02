@@ -9,7 +9,11 @@
 
     function ctrl($scope, $state, $window) {
 
-    	var vm = this;
+    	var vm = this,
+            pageContainer = document.getElementById("taskCardMainContainer");
+
+        // make the page unselectable to avoid the anoying text-like select on user clicks.
+        pageContainer.onselectstart = function(){ return false; };
 
         vm.meterBarTop = 0;
         vm.meterBarBottom = 0;

@@ -1,0 +1,92 @@
+#taskCardMainContainer {
+
+	min-width: 500px;
+	min-height: 200px;
+	max-width: 1400px;
+	max-height: 900px;
+
+	width: 100%;
+
+	position: fixed;
+	top: 0;
+	left:0;
+
+	background: #f3f3f3;
+}
+
+.button_adjustTask {
+
+	min-width: 50px;
+	min-height: 40px;
+	max-width: 50px;
+	max-height: 40px;
+
+
+	margin: 5px;
+	position: relative;
+
+	width: 10%;
+	height: 100%;
+
+	float: left;
+}
+
+#meterCard {
+
+	min-width: 110px;
+	max-width: 110px;
+	min-height: 250px;
+	max-height: 250px;
+
+	margin-left: 20px;
+	
+	position: relative;
+
+	width: 20%;
+	height: 100%;
+
+	padding: 0;
+	overflow: hidden;
+}
+
+#meterWrapper {
+
+	overflow: hidden;
+
+	min-width: 120px;
+	max-width: 120px;
+	max-height: 250px;
+	min-height: 250px;
+
+    width: 90px;
+    height: 130px;
+
+    background: grey;
+
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+    border-radius: 3px 3px;
+
+    padding-top: 20%;
+    padding-right: 0;
+    padding-left: 0;
+    padding-bottom: 20%;
+}
+
+#meter {
+
+	min-width: 120px;
+	max-width: 120px;
+	max-height: 250px;
+	min-height: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background: green;
+    border-radius: 3px 3px;
+   
+    -webkit-transition: width .25s;
+    transition: .25s;
+
+    margin: 0;
+}

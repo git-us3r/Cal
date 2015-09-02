@@ -1,0 +1,27 @@
+<div id="taskCardMainContainer">
+	<div id="mainRow" class="container-fluid row">
+		<div id="minusButton_top_card" class="col-md-1 card card-link button_adjustTask" ng-click="vm.AddTime('top', -15)">
+			-
+		</div>
+		<div id="plusButton_top_card" class="col-md-1 card card-link button_adjustTask" ng-click="vm.AddTime('top', 15)">
+			+
+		</div>
+	</div>
+	<div id="meterRow" class="row">
+		<div id="meterCard" class="col-md-2 card container-fluid">
+			<div id="meterWrapper" class="container-fluid" style="padding-top : {{vm.meterBarTop}}%; padding-bottom : {{vm.meterBarBottom}}%;">
+				<div id="meter" class="container-fluid">
+					<!-- Meter -->
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="bottomRow" class="container-fluid row">
+		<div id="minusButton_bottom_card" class="col-md-1 card card-link button_adjustTask" ng-click="vm.AddTime('bottom', -15)">
+			-
+		</div>
+		<div id="plusButton_bottom_card" class="col-md-1 card card-link button_adjustTask" ng-click="vm.AddTime('bottom', 15)">
+			+
+		</div>
+	</div>
+</div>

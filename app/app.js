@@ -24,6 +24,11 @@
                     url: "/sandbox",
                     templateUrl: "app/views/sandbox.html",
                     controller: "sandboxCtrl as vm"
+                })
+                .state("taskCard", {
+                    url: "/taskCard",
+                    templateUrl: "app/views/taskCard.html",
+                    controller: "taskCardCtrl as vm"
                 });
         }]
     );

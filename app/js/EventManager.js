@@ -30,6 +30,7 @@
 			defaultView : 'month',
 			businessHours : true,
 			lazyFetching : false,
+			slotDuration : '01:00:00',
 			select : functions.select,				// vm.calendarSelectStrategy.ProcessEvent,
 			eventResize : eventResize,
 			eventClick : functions.eventClick,

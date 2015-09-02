@@ -16,6 +16,8 @@
 
 .button_adjustTask {
 
+	overflow: hidden;
+
 	min-width: 50px;
 	min-height: 40px;
 	max-width: 50px;
@@ -23,12 +25,28 @@
 
 
 	margin: 5px;
-	position: relative;
-
-	width: 10%;
-	height: 100%;
+	padding-left: 0;
 
 	float: left;
+
+	border-radius: 20px 20px;
+}
+
+#minusButtonImg {
+
+	min-width: 50px;
+	min-height: 40px;
+	max-width: 50px;
+	max-height: 40px;
+}
+
+
+#plusButtonImg {
+
+	min-width: 50px;
+	min-height: 40px;
+	max-width: 50px;
+	max-height: 40px;
 }
 
 #meterCard {

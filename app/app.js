@@ -2,7 +2,7 @@
 
     'use strict';
 
-    var app = angular.module("Calendar", ["ui.router", "ngRoute", "ngAnimate"]);
+    var app = angular.module("Calendar", ["ui.router", "ngRoute", "ngAnimate", "ngTouch"]);
 
     app.config(["$stateProvider", "$urlRouterProvider",
         function($stateProvider, $urlRouterProvider){

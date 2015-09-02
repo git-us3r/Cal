@@ -109,3 +109,15 @@
 
     margin: 0;
 }
+
+#startHourDisplayCard {
+
+	min-width: 110px;
+	max-width: 110px;
+	min-height: 40px;
+	max-height: 40px;
+	
+	position: relative;
+
+	margin-left: 5px;
+}

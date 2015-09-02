@@ -5,9 +5,9 @@
     angular
         .module("Calendar")
         .controller("taskCardCtrl",
-                    ['$scope', '$state', '$window', ctrl]);
+                    ['$scope', '$state', '$window', '$swipe', ctrl]);
 
-    function ctrl($scope, $state, $window) {
+    function ctrl($scope, $state, $window, $swipe) {
 
     	var vm = this,
             pageContainer = document.getElementById("taskCardMainContainer");
@@ -17,6 +17,28 @@
 
         vm.meterBarTop = 0;
         vm.meterBarBottom = 0;
+        vm.startTime = moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0});
+        vm.endTime = moment({y: 2015, M: 9, d:2, H:0, m:0, s:0, ms:0});
+
+        $swipe.bind($('#meterWrapper'), {
+
+            'start': function(coords) {
+
+                vm.startX = coords.x;
+                vm.pointX = coords.y;
+            },
+            'move': function(coords) {
+
+                vm.delta = coords.x - vm.pointX;
+            
+            },
+            'end': function(coords) {
+                // ...
+            },
+            'cancel': function(coords) {
+                // ...
+          }
+        });
 
 
         function addTime(element, time) {
@@ -44,6 +66,7 @@
 
                 case 'top':
                     addTime('meterBarTop', time);
+                    vm.startTime.add(time, 'minutes');
                     break;
                 case 'bottom':
                     addTime('meterBarBottom', time);

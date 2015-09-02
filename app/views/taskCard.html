@@ -1,4 +1,9 @@
 <div id="taskCardMainContainer">
+	<div id="startHourDisplay" class="row container-fluid">
+		<div id="startHourDisplayCard" class="card container-fluid">
+			<h5 class="text-center">Start: {{vm.startTime.toDate() | date : 'h:mma'}} </h3>
+		</div>
+	</div>
 	<div id="mainRow" class="container-fluid row">
 		<div id="minusButton_top_card" class="col-md-1 card card-link button_adjustTask container-fluid" ng-click="vm.AddTime('top', -15)">
 		</div>

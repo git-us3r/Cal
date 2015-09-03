@@ -5,13 +5,15 @@
 	max-width: 1400px;
 	max-height: 900px;
 
-	width: 100%;
+	width: 500px;
 
 	position: fixed;
 	top: 0;
 	left:0;
 
 	background: '#f3f3f3';
+
+	overflow: hidden;
 }
 
 .button_adjustTask {

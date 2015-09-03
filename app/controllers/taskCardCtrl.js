@@ -15,11 +15,14 @@
         // make the page unselectable to avoid the anoying text-like select on user clicks.
         pageContainer.onselectstart = function(){ return false; };
 
+        document.getElementById('meterWrapper').onmousewheel = processMeterScroll;
+
         // ---------------------------------------- END OF HACK
 
         vm.MeterBar = {
 
             ShortInterval : 250 / (17 * 4),
+            LongInterval : 250 / 17,
             MaxHeight : 250,
             Start : 0,
             End : 0,
@@ -55,12 +58,58 @@
         });
 
 
+        function processMeterScroll (scrollEvent) {
+            
+            $scope.$apply(function(){
+
+                var meterHeight = document.getElementById('meter').offsetHeight,
+                    scrollCordinates = {x: scrollEvent.offsetX, y: scrollEvent.offsetY},
+                    meterCenterHeight = meterHeight/2;
+
+                if(scrollCordinates.y < meterCenterHeight) {
+
+                    // scroll on top-half: modify start time
+                    if(scrollEvent.deltaY > 0) {
+
+                        updateStartTime(60);
+                    }
+                    else {
+
+                        updateStartTime(-60);   
+                    }
+                }
+                else if (scrollCordinates.y > meterCenterHeight) {
+
+                    // scroll on bottom-half: modify start time
+                    if(scrollEvent.deltaY > 0) {
+
+                        updateEndTime(60);
+                    }
+                    else {
+
+                        updateEndTime(-60);   
+                    }
+                }
+            });
+
+        }
+
+
         function incrementStartTime(time) {
 
             if(vm.MeterBar.Time.Start.isBefore(vm.MeterBar.Time.MaxStartTime)) {
 
                 vm.MeterBar.Time.Start.add(time, 'minutes');
-                vm.MeterBar.Start += vm.MeterBar.ShortInterval;
+
+                if(time === 15) {
+
+                    vm.MeterBar.Start += vm.MeterBar.ShortInterval;    
+                }
+                else {
+
+                    vm.MeterBar.Start += vm.MeterBar.LongInterval;   
+                }
+                
             }
         }
 

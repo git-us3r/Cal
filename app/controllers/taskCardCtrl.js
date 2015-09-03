@@ -27,10 +27,10 @@
 
                 Start : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
                 End : moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0}),
-                MinStartTime : moment({H:7, m:0}),
-                MaxStartTime : moment({H:23, m:0}),
-                MinEndTime : moment({H:8, m:0}),
-                MaxEndTime : moment({H:0, m:0})
+                MinStartTime : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
+                MaxStartTime : moment({y: 2015, M: 9, d:2, H:23, m:0, s:0, ms:0}),
+                MinEndTime : moment({y: 2015, M: 9, d:2, H:8, m:0, s:0, ms:0}),
+                MaxEndTime :moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0})
             }
         };
 
@@ -57,18 +57,7 @@
 
         function incrementStartTime(time) {
 
-            var maxStartTimeForThisDay = moment({
-
-                y: vm.MeterBar.Time.Start.year(),
-                M: vm.MeterBar.Time.Start.month(),
-                d: vm.MeterBar.Time.Start.date(),
-                H: vm.MeterBar.Time.MaxStartTime.hour(),
-                m: vm.MeterBar.Time.MaxStartTime.minute(),
-                s: 0,
-                ms: 0
-            });
-
-            if(vm.MeterBar.Time.Start.isBefore(maxStartTimeForThisDay)) {
+            if(vm.MeterBar.Time.Start.isBefore(vm.MeterBar.Time.MaxStartTime)) {
 
                 vm.MeterBar.Time.Start.add(time, 'minutes');
                 vm.MeterBar.Start += vm.MeterBar.ShortInterval;
@@ -78,18 +67,7 @@
 
         function decrementStartTime(time) {
 
-            var minStartTimeForThisDay = moment({
-
-                y: vm.MeterBar.Time.Start.year(),
-                M: vm.MeterBar.Time.Start.month(),
-                d: vm.MeterBar.Time.Start.date(),
-                H: vm.MeterBar.Time.MinStartTime.hour(),
-                m: vm.MeterBar.Time.MinStartTime.minute(),
-                s: 0,
-                ms: 0
-            });
-
-            if(vm.MeterBar.Time.Start.isAfter(minStartTimeForThisDay)) {
+            if(vm.MeterBar.Time.Start.isAfter(vm.MeterBar.Time.MinStartTime)) {
 
                 vm.MeterBar.Time.Start.add(time, 'minutes');
                 vm.MeterBar.Start -=  vm.MeterBar.ShortInterval;
@@ -99,11 +77,11 @@
 
         function updateStartTime(time) {
 
-            if(time > 0) {
+            if(time > 0 && shiftCanGetSmaller()) {
 
                 incrementStartTime(time);
             }
-            else {
+            else if (time < 0) {
 
                 decrementStartTime(time);
             }
@@ -112,18 +90,7 @@
 
         function incrementEndTime(time) {
 
-            var maxEndTimeForThisDay = moment({
-
-                y: vm.MeterBar.Time.End.year(),
-                M: vm.MeterBar.Time.End.month(),
-                d: vm.MeterBar.Time.End.date(),
-                H: vm.MeterBar.Time.MaxEndTime.hour(),
-                m: vm.MeterBar.Time.MaxEndTime.minute(),
-                s: 0,
-                ms: 0
-            });
-
-            if(vm.MeterBar.Time.End.isBefore(maxEndTimeForThisDay)) {
+            if(vm.MeterBar.Time.End.isBefore(vm.MeterBar.Time.MaxEndTime)) {
 
                 vm.MeterBar.Time.End.add(time, 'minutes');
                 vm.MeterBar.End -= vm.MeterBar.ShortInterval;
@@ -133,18 +100,7 @@
 
         function decrementEndTime(time) {
 
-            var minEndTimeForThisDay = moment({
-
-                y: vm.MeterBar.Time.End.year(),
-                M: vm.MeterBar.Time.End.month(),
-                d: vm.MeterBar.Time.Start.date(),
-                H: vm.MeterBar.Time.MinEndTime.hour(),
-                m: vm.MeterBar.Time.MinEndTime.minute(),
-                s: 0,
-                ms: 0
-            });
-
-            if(vm.MeterBar.Time.End.isAfter(minEndTimeForThisDay)) {
+            if(vm.MeterBar.Time.End.isAfter(vm.MeterBar.Time.MinEndTime)) {
 
                 vm.MeterBar.Time.End.add(time, 'minutes');
                 vm.MeterBar.End +=  vm.MeterBar.ShortInterval;
@@ -158,10 +114,21 @@
 
                 incrementEndTime(time);
             }
-            else {
+            else if(shiftCanGetSmaller()) {
 
                 decrementEndTime(time);
             }
+        }
+
+        function shiftCanGetSmaller() {
+
+            var startDay = vm.MeterBar.Time.Start.date(),
+                endDay = vm.MeterBar.Time.End.date(),
+                startHourInMinutes = vm.MeterBar.Time.Start.hour() * 60 + vm.MeterBar.Time.Start.minutes(),
+                endHourInMinutes = vm.MeterBar.Time.End.hour() * 60 + vm.MeterBar.Time.End.minutes(),
+                answer = startDay < endDay || (endHourInMinutes - startHourInMinutes > 60);
+
+            return answer;
         }
 
         vm.AddTime = function(position, time) {

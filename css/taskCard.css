@@ -115,7 +115,7 @@
 	min-width: 110px;
 	max-width: 110px;
 	min-height: 40px;
-	max-height: 40px;
+	max-height: auto;
 	
 	position: relative;
 

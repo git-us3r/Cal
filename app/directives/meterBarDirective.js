@@ -3,26 +3,16 @@
 	'use strict';
 
 	angular.module('Calendar')
-	.directive('meterBarDirective' [directiveFunction]);
+	.directive('meterBarDirective', function() {
 
-	function directiveFunction() {
-
-		// Private members
-		var directiveObject = {},
-			template = 'app/views/meterDirective.html',
-			restrict = 'E',
-			scope = {
-
-				start : '=',
-				end : '='
-			},
-			pageContainer = document.getElementById("taskCardMainContainer"),
+		var pageContainer = angular.element(document.querySelector('#taskCardMainContainer')),
+			meterWrapper = angular.element(document.querySelector('#meterWrapper')),
             meterBar = {
 
                 Start : 0,
                 End : 0,
-                TopHalf : (document.getElementById('meterWrapper').offsetHeight / 2) + 30,
-                BottomHalf : (document.getElementById('meterWrapper').offsetHeight / 2) + 40
+                TopHalf : (meterWrapper.offsetHeight / 2) + 30,
+                BottomHalf : (meterWrapper.offsetHeight / 2) + 40
             },
             meterBarInterval = {
 
@@ -37,15 +27,32 @@
             },
             meterTime = {
 
-                Start : scope.start,
-                End : scope.end,
+                Start : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
+                End : moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0}),
                 MinStart : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
                 MaxStart : moment({y: 2015, M: 9, d:2, H:23, m:0, s:0, ms:0}),
                 MinEnd : moment({y: 2015, M: 9, d:2, H:8, m:0, s:0, ms:0}),
                 MaxEnd :moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0})
             };
 
-        // Private Functions
+    // ---------------- HACK
+        // make the page unselectable to avoid the anoying text-like select on user clicks.
+        pageContainer.onselectstart = function(){ return false; };
+
+        meterWrapper.onmousewheel = processMeterScroll; 
+    // ---------------------------------------- END OF HACK
+
+
+		function linkFunction(scope, element, attrs) {
+	        
+
+			// TODO
+			scope.StartTime = scope.vm.CurrentEvent.Start;
+			scope.EndTime = scope.vm.CurrentEvent.End;
+		}
+
+
+		// Private Functions
 
         function processMeterScroll (scrollEvent) {
             
@@ -145,57 +152,17 @@
 
         function updatePublicProperties() {
 
-            scope.StartTime = meterTime.Start;
-            scope.EndTime = meterTime.End;
-            scope.MeterTop = meterBar.Start;
-            scope.MeterBottom = meterBar.End;
-        }    
+            vm.StartTime = meterTime.Start;
+            vm.EndTime = meterTime.End;
+            vm.MeterTop = meterBar.Start;
+            vm.MeterBottom = meterBar.End;
+        }   
 
-        // ---------------- HACK
+		return {
 
-        // make the page unselectable to avoid the anoying text-like select on user clicks.
-        pageContainer.onselectstart = function(){ return false; };
-
-        document.getElementById('meterWrapper').onmousewheel = processMeterScroll; // ---------------------------------------- END OF HACK
-
-        // Public interface
-
-        scope.IncrementStartTime = incrementStartTime;
-        scope.DecrementStartTime = decrementStartTime;
-        scope.IncrementEndTime = incrementEndTime;
-        scope.DecrementEndTime = decrementEndTime;
-
-
-        // Touch
-
-        $swipe.bind($('#meterWrapper'), {
-
-            'start': function(coords) {
-
-            	// ...
-            },
-            'move': function(coords) {
-
-                // ...
-            
-            },
-            'end': function(coords) {
-                // ...
-            },
-            'cancel': function(coords) {
-                // ...
-          }
-        });
-
-
-        // Update before returning
-
-        updatePublicProperties();
-
-		// Public interface
-
-		// todo
-
-		return dir;
-	}
+			restrict : 'E',
+			templateUrl : 'app/views/meterDirective.html',
+			link : linkFunction
+		};
+	});
 }());

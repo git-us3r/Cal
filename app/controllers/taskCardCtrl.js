@@ -10,14 +10,45 @@
     function ctrl($scope, $state, $window, $swipe) {
 
     	var vm = this,
-            pageContainer = document.getElementById("taskCardMainContainer");
+            pageContainer = document.getElementById("taskCardMainContainer"),
+            meterBar = {
+
+                Start : 0,
+                End : 0
+            },
+            meterBarInterval = {
+
+                Short : 250 / (17 * 4),
+                Long : 250 / 17,
+
+            },
+            timeInterval = {
+
+                Short : 15,
+                Long : 60
+            },
+            meterTime = {
+
+                Start : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
+                End : moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0}),
+                MinStart : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
+                MaxStart : moment({y: 2015, M: 9, d:2, H:23, m:0, s:0, ms:0}),
+                MinEnd : moment({y: 2015, M: 9, d:2, H:8, m:0, s:0, ms:0}),
+                MaxEnd :moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0})
+            };
 
         // make the page unselectable to avoid the anoying text-like select on user clicks.
         pageContainer.onselectstart = function(){ return false; };
 
         document.getElementById('meterWrapper').onmousewheel = processMeterScroll;
+            
 
         // ---------------------------------------- END OF HACK
+
+        vm.IncrementStartTime = incrementStartTime;
+        vm.DecrementStartTime = decrementStartTime;
+        vm.IncrementEndTime = incrementEndTime;
+        vm.DecrementEndTime = decrementEndTime;
 
         vm.MeterBar = {
 
@@ -62,7 +93,7 @@
             
             $scope.$apply(function(){
 
-                var meterHeight = document.getElementById('meter').offsetHeight,
+                var meterHeight = document.getElementById('meterWrapper').offsetHeight,
                     scrollCordinates = {x: scrollEvent.offsetX, y: scrollEvent.offsetY},
                     meterCenterHeight = meterHeight/2;
 
@@ -71,11 +102,11 @@
                     // scroll on top-half: modify start time
                     if(scrollEvent.deltaY > 0) {
 
-                        updateStartTime(60);
+                        incrementStartTime('Long');
                     }
                     else {
 
-                        updateStartTime(-60);   
+                        decrementStartTime('Long');   
                     }
                 }
                 else if (scrollCordinates.y > meterCenterHeight) {
@@ -83,11 +114,11 @@
                     // scroll on bottom-half: modify start time
                     if(scrollEvent.deltaY > 0) {
 
-                        updateEndTime(60);
+                        incrementEndTime('Long');
                     }
                     else {
 
-                        updateEndTime(-60);   
+                        decrementEndTime('Long');
                     }
                 }
             });
@@ -95,103 +126,77 @@
         }
 
 
-        function incrementStartTime(time) {
+        function incrementStartTime(duration) {
 
-            if(vm.MeterBar.Time.Start.isBefore(vm.MeterBar.Time.MaxStartTime)) {
+            if(meterTime.Start.isBefore(meterTime.MaxStart) && shiftCanGetSmaller()) {
 
-                vm.MeterBar.Time.Start.add(time, 'minutes');
+                meterTime.Start.add(timeInterval[duration], 'minutes');
 
-                if(time === 15) {
+                meterBar.Start += meterBarInterval[duration];
 
-                    vm.MeterBar.Start += vm.MeterBar.ShortInterval;    
-                }
-                else {
-
-                    vm.MeterBar.Start += vm.MeterBar.LongInterval;   
-                }
-                
+                updatePublicProperties();
             }
         }
 
 
-        function decrementStartTime(time) {
+        function decrementStartTime(duration) {
 
-            if(vm.MeterBar.Time.Start.isAfter(vm.MeterBar.Time.MinStartTime)) {
+            if(meterTime.Start.isAfter(meterTime.MinStart)) {
 
-                vm.MeterBar.Time.Start.add(time, 'minutes');
-                vm.MeterBar.Start -=  vm.MeterBar.ShortInterval;
+                meterTime.Start.add(-timeInterval[duration], 'minutes');
+                meterBar.Start -=  meterBarInterval[duration];
+
+                updatePublicProperties();
             }
         }
 
 
-        function updateStartTime(time) {
+        function incrementEndTime(duration) {
 
-            if(time > 0 && shiftCanGetSmaller()) {
+            if(meterTime.End.isBefore(meterTime.MaxEnd)) {
 
-                incrementStartTime(time);
-            }
-            else if (time < 0) {
+                meterTime.End.add(timeInterval[duration], 'minutes');
+                meterBar.End -= meterBarInterval[duration];
 
-                decrementStartTime(time);
-            }
-        }
-
-
-        function incrementEndTime(time) {
-
-            if(vm.MeterBar.Time.End.isBefore(vm.MeterBar.Time.MaxEndTime)) {
-
-                vm.MeterBar.Time.End.add(time, 'minutes');
-                vm.MeterBar.End -= vm.MeterBar.ShortInterval;
+                updatePublicProperties();
             }
         }
 
 
-        function decrementEndTime(time) {
+        function decrementEndTime(duration) {
 
-            if(vm.MeterBar.Time.End.isAfter(vm.MeterBar.Time.MinEndTime)) {
+            if(meterTime.End.isAfter(meterTime.MinEnd) && shiftCanGetSmaller()) {
 
-                vm.MeterBar.Time.End.add(time, 'minutes');
-                vm.MeterBar.End +=  vm.MeterBar.ShortInterval;
+                meterTime.End.add(-timeInterval[duration], 'minutes');
+                meterBar.End +=  meterBarInterval[duration];
+
+                updatePublicProperties();
             }
         }
 
-
-        function updateEndTime(time) {
-
-            if(time > 0) {
-
-                incrementEndTime(time);
-            }
-            else if(shiftCanGetSmaller()) {
-
-                decrementEndTime(time);
-            }
-        }
 
         function shiftCanGetSmaller() {
 
-            var startDay = vm.MeterBar.Time.Start.date(),
-                endDay = vm.MeterBar.Time.End.date(),
-                startHourInMinutes = vm.MeterBar.Time.Start.hour() * 60 + vm.MeterBar.Time.Start.minutes(),
-                endHourInMinutes = vm.MeterBar.Time.End.hour() * 60 + vm.MeterBar.Time.End.minutes(),
+            var startDay = meterTime.Start.date(),
+                endDay = meterTime.End.date(),
+                startHourInMinutes = meterTime.Start.hour() * 60 + meterTime.Start.minutes(),
+                endHourInMinutes = meterTime.End.hour() * 60 + meterTime.End.minutes(),
                 answer = startDay < endDay || (endHourInMinutes - startHourInMinutes > 60);
 
             return answer;
         }
 
-        vm.AddTime = function(position, time) {
 
-            switch(position) {
+        function updatePublicProperties() {
 
-                case 'Start':
-                    updateStartTime(time);
-                    break;
-                case 'End':
-                    updateEndTime(time);
-                    break;
-            }
+            vm.StartTime = meterTime.Start;
+            vm.EndTime = meterTime.End;
+            vm.MeterTop = meterBar.Start;
+            vm.MeterBottom = meterBar.End;
         }
+
+        // Update before returning
+        updatePublicProperties();
 
     	return vm;
     }

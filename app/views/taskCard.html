@@ -1,19 +1,19 @@
 <div id="taskCardMainContainer">
 	<div id="startHourDisplay" class="row container-fluid">
 		<div id="startHourDisplayCard" class="card container-fluid">
-			<h5 class="text-center">Start: {{vm.MeterBar.Time.Start.toDate() | date : 'h:mma'}} </h5>
-			<h5 class="text-center">End: {{vm.MeterBar.Time.End.toDate() | date : 'h:mma'}} </h5>
+			<h5 class="text-center">Start: {{vm.StartTime.toDate() | date : 'h:mma'}} </h5>
+			<h5 class="text-center">End: {{vm.EndTime.toDate() | date : 'h:mma'}} </h5>
 		</div>
 	</div>
 	<div id="mainRow" class="container-fluid row">
-		<div id="minusButton_top_card" class="col-md-1 card card-link button_adjustTask container-fluid" ng-click="vm.AddTime('Start', -15)">
+		<div id="minusButton_top_card" class="col-md-1 card card-link button_adjustTask container-fluid" ng-click="vm.DecrementStartTime('Short')">
 		</div>
-		<div id="plusButton_top_card" class="col-md-1 card card-link button_adjustTask" ng-click="vm.AddTime('Start', 15)">
+		<div id="plusButton_top_card" class="col-md-1 card card-link button_adjustTask" ng-click="vm.IncrementStartTime('Short')">
 		</div>
 	</div>
 	<div id="meterRow" class="row">
 		<div id="meterCard" class="col-md-2 card container-fluid">
-			<div id="meterWrapper" class="container-fluid" style="padding-top : {{vm.MeterBar.Start}}px; padding-bottom : {{vm.MeterBar.End}}px;">
+			<div id="meterWrapper" class="container-fluid" style="padding-top : {{vm.MeterTop}}px; padding-bottom : {{vm.MeterBottom}}px;">
 				<div id="meter" class="container-fluid">
 					<!-- Meter -->
 				</div>
@@ -21,9 +21,9 @@
 		</div>
 	</div>
 	<div id="bottomRow" class="container-fluid row">
-		<div id="minusButton_bottom_card" class="col-md-1 card card-link button_adjustTask container-fluid" ng-click="vm.AddTime('End', -15)">
+		<div id="minusButton_bottom_card" class="col-md-1 card card-link button_adjustTask container-fluid" ng-click="vm.DecrementEndTime('Short')">
 		</div>
-		<div id="plusButton_bottom_card" class="col-md-1 card card-link button_adjustTask container-fluid" ng-click="vm.AddTime('End', 15)">
+		<div id="plusButton_bottom_card" class="col-md-1 card card-link button_adjustTask container-fluid" ng-click="vm.IncrementEndTime('Short')">
 		</div>
 	</div>
 </div>

@@ -15,8 +15,8 @@
 
                 Start : 0,
                 End : 0,
-                TopHalf : (document.getElementById('meterWrapper').clientHeight / 2) - 30,
-                BottomHalf : (document.getElementById('meterWrapper').clientHeight / 2) + 30
+                TopHalf : (document.getElementById('meterWrapper').offsetHeight / 2) + 30,
+                BottomHalf : (document.getElementById('meterWrapper').offsetHeight / 2) + 40
             },
             meterBarInterval = {
 
@@ -95,7 +95,7 @@
             
             $scope.$apply(function(){
 
-                var scrollCordinates = {x: scrollEvent.offsetX, y: scrollEvent.offsetY};
+                var scrollCordinates = {x: scrollEvent.layerX, y: scrollEvent.layerY};
 
                 if(scrollCordinates.y < meterBar.TopHalf) {
 

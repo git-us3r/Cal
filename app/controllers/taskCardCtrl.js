@@ -14,7 +14,9 @@
             meterBar = {
 
                 Start : 0,
-                End : 0
+                End : 0,
+                TopHalf : (document.getElementById('meterWrapper').clientHeight / 2) - 30,
+                BottomHalf : (document.getElementById('meterWrapper').clientHeight / 2) + 30
             },
             meterBarInterval = {
 
@@ -93,32 +95,30 @@
             
             $scope.$apply(function(){
 
-                var meterHeight = document.getElementById('meterWrapper').offsetHeight,
-                    scrollCordinates = {x: scrollEvent.offsetX, y: scrollEvent.offsetY},
-                    meterCenterHeight = meterHeight/2;
+                var scrollCordinates = {x: scrollEvent.offsetX, y: scrollEvent.offsetY};
 
-                if(scrollCordinates.y < meterCenterHeight) {
+                if(scrollCordinates.y < meterBar.TopHalf) {
 
                     // scroll on top-half: modify start time
                     if(scrollEvent.deltaY > 0) {
 
-                        incrementStartTime('Long');
+                        incrementStartTime('Short');
                     }
                     else {
 
-                        decrementStartTime('Long');   
+                        decrementStartTime('Short');   
                     }
                 }
-                else if (scrollCordinates.y > meterCenterHeight) {
+                else if (scrollCordinates.y > meterBar.BottomHalf) {
 
                     // scroll on bottom-half: modify start time
                     if(scrollEvent.deltaY > 0) {
 
-                        incrementEndTime('Long');
+                        incrementEndTime('Short');
                     }
                     else {
 
-                        decrementEndTime('Long');
+                        decrementEndTime('Short');
                     }
                 }
             });

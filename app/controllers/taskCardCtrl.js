@@ -9,6 +9,8 @@
 
     function ctrl($scope, $state, $window, $swipe) {
 
+        // Private Members
+
     	var vm = this,
             pageContainer = document.getElementById("taskCardMainContainer"),
             meterBar = {
@@ -39,57 +41,7 @@
                 MaxEnd :moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0})
             };
 
-        // make the page unselectable to avoid the anoying text-like select on user clicks.
-        pageContainer.onselectstart = function(){ return false; };
-
-        document.getElementById('meterWrapper').onmousewheel = processMeterScroll;
-            
-
-        // ---------------------------------------- END OF HACK
-
-        vm.IncrementStartTime = incrementStartTime;
-        vm.DecrementStartTime = decrementStartTime;
-        vm.IncrementEndTime = incrementEndTime;
-        vm.DecrementEndTime = decrementEndTime;
-
-        vm.MeterBar = {
-
-            ShortInterval : 250 / (17 * 4),
-            LongInterval : 250 / 17,
-            MaxHeight : 250,
-            Start : 0,
-            End : 0,
-            Time : {
-
-                Start : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
-                End : moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0}),
-                MinStartTime : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
-                MaxStartTime : moment({y: 2015, M: 9, d:2, H:23, m:0, s:0, ms:0}),
-                MinEndTime : moment({y: 2015, M: 9, d:2, H:8, m:0, s:0, ms:0}),
-                MaxEndTime :moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0})
-            }
-        };
-
-        $swipe.bind($('#meterWrapper'), {
-
-            'start': function(coords) {
-
-                vm.startX = coords.x;
-                vm.pointX = coords.y;
-            },
-            'move': function(coords) {
-
-                vm.delta = coords.x - vm.pointX;
-            
-            },
-            'end': function(coords) {
-                // ...
-            },
-            'cancel': function(coords) {
-                // ...
-          }
-        });
-
+        // Private Functions
 
         function processMeterScroll (scrollEvent) {
             
@@ -193,11 +145,69 @@
             vm.EndTime = meterTime.End;
             vm.MeterTop = meterBar.Start;
             vm.MeterBottom = meterBar.End;
-        }
+        }    
+
+        // ---------------- HACK
+
+        // make the page unselectable to avoid the anoying text-like select on user clicks.
+        pageContainer.onselectstart = function(){ return false; };
+
+        document.getElementById('meterWrapper').onmousewheel = processMeterScroll; // ---------------------------------------- END OF HACK
+
+        // Public interface
+
+        vm.IncrementStartTime = incrementStartTime;
+        vm.DecrementStartTime = decrementStartTime;
+        vm.IncrementEndTime = incrementEndTime;
+        vm.DecrementEndTime = decrementEndTime;
+
+        vm.MeterBar = {
+
+            ShortInterval : 250 / (17 * 4),
+            LongInterval : 250 / 17,
+            MaxHeight : 250,
+            Start : 0,
+            End : 0,
+            Time : {
+
+                Start : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
+                End : moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0}),
+                MinStartTime : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
+                MaxStartTime : moment({y: 2015, M: 9, d:2, H:23, m:0, s:0, ms:0}),
+                MinEndTime : moment({y: 2015, M: 9, d:2, H:8, m:0, s:0, ms:0}),
+                MaxEndTime :moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0})
+            }
+        };
+
+        // Touch
+
+        $swipe.bind($('#meterWrapper'), {
+
+            'start': function(coords) {
+
+                vm.startX = coords.x;
+                vm.pointX = coords.y;
+            },
+            'move': function(coords) {
+
+                vm.delta = coords.x - vm.pointX;
+            
+            },
+            'end': function(coords) {
+                // ...
+            },
+            'cancel': function(coords) {
+                // ...
+          }
+        });
+
 
         // Update before returning
+
         updatePublicProperties();
 
+        // Return public interface
+        
     	return vm;
     }
 

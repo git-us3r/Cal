@@ -29,6 +29,11 @@
                     url: "/taskCard",
                     templateUrl: "app/views/taskCard.html",
                     controller: "taskCardCtrl as vm"
+                })
+                .state("meterDirectiveTest", {
+                    url: "/meterDirectiveTest",
+                    templateUrl: "app/views/meterDirectiveTest.html",
+                    controller: "meterDirectiveTestCtrl as vm"
                 });
         }]
     );

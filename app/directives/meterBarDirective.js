@@ -3,22 +3,21 @@
 	'use strict';
 
 	angular.module('Calendar')
-	.directive('meterBarDirective', function() {
+	.directive('meterBarDirective', ['$document', directiveFunction]);
 
-		var pageContainer = angular.element(document.querySelector('#taskCardMainContainer')),
-			meterWrapper = angular.element(document.querySelector('#meterWrapper')),
-            meterBar = {
+	function directiveFunction ($document) {
 
-                Start : 0,
-                End : 0,
-                TopHalf : (meterWrapper.offsetHeight / 2) + 30,
-                BottomHalf : (meterWrapper.offsetHeight / 2) + 40
+		var meterBar = {
+
+                Start : null,
+                End : null,
+                TopHalf : null,
+                BottomHalf : null
             },
             meterBarInterval = {
 
-                Short : 250 / (17 * 4),
-                Long : 250 / 17,
-
+                Short : null,
+                Long : null
             },
             timeInterval = {
 
@@ -33,58 +32,93 @@
                 MaxStart : moment({y: 2015, M: 9, d:2, H:23, m:0, s:0, ms:0}),
                 MinEnd : moment({y: 2015, M: 9, d:2, H:8, m:0, s:0, ms:0}),
                 MaxEnd :moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0})
-            };
-
-    // ---------------- HACK
-        // make the page unselectable to avoid the anoying text-like select on user clicks.
-        pageContainer.onselectstart = function(){ return false; };
-
-        meterWrapper.onmousewheel = processMeterScroll; 
-    // ---------------------------------------- END OF HACK
+            },
+            processMeterScroll = null;											// This will actually be a function!
 
 
 		function linkFunction(scope, element, attrs) {
-	        
+	       	
+	       	var jQmeterWrapper = element.find('#meterWrapper');
 
-			// TODO
-			scope.StartTime = scope.vm.CurrentEvent.Start;
-			scope.EndTime = scope.vm.CurrentEvent.End;
+	       	// Bind the onmousewheel event of the meterWrapper element to the processMeterScroll function
+	       	bindScrollingToWrapper(scope, jQmeterWrapper)
+
+	       	// Make the whole directive unselectable
+			element.on('selectstart', function(){ return false; });
+
+			setupMeterBarObjectProperties(jQmeterWrapper[0]);
+
+			// Setup scope public properties
+	       	scope.IncrementStartTime = incrementStartTime;
+	        scope.DecrementStartTime = decrementStartTime;
+	        scope.IncrementEndTime = incrementEndTime;
+	        scope.DecrementEndTime = decrementEndTime;
+	        scope.StartTime = scope.$parent.vm.CurrentEvent.Start;
+	        scope.EndTime = scope.$parent.vm.CurrentEvent.End;
+
+	        updatePublicProperties(scope);	        
 		}
 
 
 		// Private Functions
 
-        function processMeterScroll (scrollEvent) {
+		function setupMeterBarObjectProperties(meterWrapper) {
+
+			var workDayDuration = 17,
+				centerOffset = 30;
+
+
+			meterBar.Start = 0;
+			meterBar.End = 0;
+			meterBar.TopHalf = (meterWrapper.offsetHeight / 2) - 10;			// the middle aint what it seems
+			meterBar.BottomHalf = (meterWrapper.offsetHeight / 2) + 10;	// the bottom section starts 10px below the 'middle'
+
+			meterBarInterval.Short = meterWrapper.offsetHeight / (workDayDuration * 4); // map the height to 15-min intervals
+			meterBarInterval.Long = meterWrapper.offsetHeight / workDayDuration;		// map the height to 1-hour intervals			
+
+		}
+
+
+        function bindScrollingToWrapper (scope, wrapper) {
+
+      		// Gotta love clousures!
             
-            $scope.$apply(function(){
+            processMeterScroll = function(scrollEvent) {
 
-                var scrollCordinates = {x: scrollEvent.layerX, y: scrollEvent.layerY};
+            	scope.$apply(function () {
 
-                if(scrollCordinates.y < meterBar.TopHalf) {
+	                var scrollCordinates = {x: scrollEvent.offsetX, y: scrollEvent.offsetY};
 
-                    // scroll on top-half: modify start time
-                    if(scrollEvent.deltaY > 0) {
+	                if(scrollCordinates.y < meterBar.TopHalf) {
 
-                        incrementStartTime('Short');
-                    }
-                    else {
+	                    // scroll on top-half: modify start time
+	                    if(scrollEvent.originalEvent.deltaY > 0) {
 
-                        decrementStartTime('Short');   
-                    }
-                }
-                else if (scrollCordinates.y > meterBar.BottomHalf) {
+	                        scope.IncrementStartTime('Short');
+	                    }
+	                    else {
 
-                    // scroll on bottom-half: modify start time
-                    if(scrollEvent.deltaY > 0) {
+	                        scope.DecrementStartTime('Short');   
+	                    }
+	                }
+	                else if (scrollCordinates.y > meterBar.BottomHalf) {
 
-                        incrementEndTime('Short');
-                    }
-                    else {
+	                    // scroll on bottom-half: modify start time
+	                    if(scrollEvent.originalEvent.deltaY > 0) {
 
-                        decrementEndTime('Short');
-                    }
-                }
-            });
+	                        scope.IncrementEndTime('Short');
+	                    }
+	                    else {
+
+	                        scope.DecrementEndTime('Short');
+	                    }
+	                }
+           	 	});
+            }
+
+
+            // Now, it can be safely bound.
+            wrapper.on('mousewheel', processMeterScroll);
 
         }
 
@@ -97,7 +131,7 @@
 
                 meterBar.Start += meterBarInterval[duration];
 
-                updatePublicProperties();
+                updatePublicProperties(this);
             }
         }
 
@@ -109,7 +143,7 @@
                 meterTime.Start.add(-timeInterval[duration], 'minutes');
                 meterBar.Start -=  meterBarInterval[duration];
 
-                updatePublicProperties();
+                updatePublicProperties(this);
             }
         }
 
@@ -121,7 +155,7 @@
                 meterTime.End.add(timeInterval[duration], 'minutes');
                 meterBar.End -= meterBarInterval[duration];
 
-                updatePublicProperties();
+                updatePublicProperties(this);
             }
         }
 
@@ -133,7 +167,7 @@
                 meterTime.End.add(-timeInterval[duration], 'minutes');
                 meterBar.End +=  meterBarInterval[duration];
 
-                updatePublicProperties();
+                updatePublicProperties(this);
             }
         }
 
@@ -150,19 +184,20 @@
         }
 
 
-        function updatePublicProperties() {
+        function updatePublicProperties(scope) {
 
-            vm.StartTime = meterTime.Start;
-            vm.EndTime = meterTime.End;
-            vm.MeterTop = meterBar.Start;
-            vm.MeterBottom = meterBar.End;
+            scope.StartTime = meterTime.Start;
+            scope.EndTime = meterTime.End;
+            scope.MeterTop = meterBar.Start;
+            scope.MeterBottom = meterBar.End;
         }   
 
 		return {
 
 			restrict : 'E',
 			templateUrl : 'app/views/meterDirective.html',
-			link : linkFunction
+			link : linkFunction,
+			scope : {}
 		};
-	});
+	}
 }());

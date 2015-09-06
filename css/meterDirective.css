@@ -15,3 +15,111 @@
 
 	overflow: hidden;
 }
+
+.button_adjustTask {
+
+	overflow: hidden;
+
+	min-width: 50px;
+	min-height: 40px;
+	max-width: 50px;
+	max-height: 40px;
+
+
+	margin: 5px;
+	padding-left: 0;
+
+	float: left;
+
+	border-radius: 20px 20px;
+}
+
+#minusButtonImg {
+
+	min-width: 50px;
+	min-height: 40px;
+	max-width: 50px;
+	max-height: 40px;	
+}
+
+
+#plusButtonImg {
+
+	min-width: 50px;
+	min-height: 40px;
+	max-width: 50px;
+	max-height: 40px;
+
+	background-color: '#0398D8';
+}
+
+#meterCard {
+
+	min-width: 110px;
+	max-width: 110px;
+	min-height: 250px;
+	max-height: 250px;
+
+	margin-left: 20px;
+	
+	position: relative;
+
+	width: 20%;
+	height: 100%;
+
+	padding: 0;
+	overflow: hidden;
+}
+
+#meterWrapper {
+
+	overflow: hidden;
+
+	min-width: 120px;
+	max-width: 120px;
+	max-height: 250px;
+	min-height: 250px;
+
+    width: 90px;
+    height: 130px;
+
+    background: grey;
+
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+    border-radius: 3px 3px;
+
+    padding-top: 0;
+    padding-right: 0;
+    padding-left: 0;
+    padding-bottom: 0;
+}
+
+#meter {
+
+	min-width: 120px;
+	max-width: 120px;
+	max-height: 250px;
+	min-height: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background: #ADD8E6;
+   
+    -webkit-transition: width .25s;
+    transition: .25s;
+
+    margin: 0;
+}
+
+#startHourDisplayCard {
+
+	min-width: 110px;
+	max-width: 110px;
+	min-height: 40px;
+	max-height: auto;
+	
+	position: relative;
+
+	margin-left: 5px;
+}

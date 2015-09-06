@@ -26,8 +26,8 @@
             },
             meterTime = {
 
-                Start : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
-                End : moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0}),
+                Start : null,
+                End : null,
                 MinStart : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
                 MaxStart : moment({y: 2015, M: 9, d:2, H:23, m:0, s:0, ms:0}),
                 MinEnd : moment({y: 2015, M: 9, d:2, H:8, m:0, s:0, ms:0}),
@@ -48,6 +48,8 @@
 
 			setupMeterBarObjectProperties(jQmeterWrapper[0]);
 
+			setupMeterTimeObjecProperties(scope);
+
 			// Setup scope public properties
 	       	scope.IncrementStartTime = incrementStartTime;
 	        scope.DecrementStartTime = decrementStartTime;
@@ -62,6 +64,13 @@
 
 		// Private Functions
 
+		function setupMeterTimeObjecProperties (scope) {
+			
+			meterTime.Start = scope.start;
+            meterTime.End = scope.end;
+		}
+
+
 		function setupMeterBarObjectProperties(meterWrapper) {
 
 			var workDayDuration = 17,
@@ -70,8 +79,8 @@
 
 			meterBar.Start = 0;
 			meterBar.End = 0;
-			meterBar.TopHalf = (meterWrapper.offsetHeight / 2) - 10;			// the middle aint what it seems
-			meterBar.BottomHalf = (meterWrapper.offsetHeight / 2) + 10;	// the bottom section starts 10px below the 'middle'
+			meterBar.TopHalf = (meterWrapper.offsetHeight / 2) - 10;					// the middle aint what it seems
+			meterBar.BottomHalf = (meterWrapper.offsetHeight / 2) + 10;					// the bottom section starts 10px below the 'middle'
 
 			meterBarInterval.Short = meterWrapper.offsetHeight / (workDayDuration * 4); // map the height to 15-min intervals
 			meterBarInterval.Long = meterWrapper.offsetHeight / workDayDuration;		// map the height to 1-hour intervals			
@@ -197,7 +206,11 @@
 			restrict : 'E',
 			templateUrl : 'app/views/meterDirective.html',
 			link : linkFunction,
-			scope : {}
+			scope : {
+
+				start : '=',
+				end : '='
+			}
 		};
 	}
 }());

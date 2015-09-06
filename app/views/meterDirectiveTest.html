@@ -2,5 +2,12 @@
 	<div class="container-fluid">
 		<h3 class="text-center">{{vm.CurrentEvent.Msg}}</h3>
 	</div>
-	<meter-bar-directive></meter-bar-directive>
+	<div class="row">
+		<div class="col-md-5">
+			<h4>Place holder</h4>
+		</div>
+		<div class="col-md-7">
+			<meter-bar-directive start="vm.CurrentEvent.Start" end="vm.CurrentEvent.End"></meter-bar-directive>
+		</div>
+	</div>
 </div>

@@ -1,0 +1,17 @@
+#meterDirectiveMainContainer {
+
+	min-width: 500px;
+	min-height: 200px;
+	max-width: 1400px;
+	max-height: 900px;
+
+	width: 500px;
+
+	position: relative;
+	top: 0;
+	left:0;
+
+	background: '#f3f3f3';
+
+	overflow: hidden;
+}

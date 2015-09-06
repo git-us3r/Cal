@@ -1,0 +1,29 @@
+<div id="meterDirectiveMainContainer_mobile">
+	<div id="startHourDisplay_mobile" class="row container-fluid">
+		<div id="startHourDisplayCard_mobile" class="card container-fluid">
+			<h5 class="text-center">Start: {{StartTime.toDate() | date : 'h:mma'}} </h5>
+			<h5 class="text-center">End: {{EndTime.toDate() | date : 'h:mma'}} </h5>
+		</div>
+	</div>
+	<div id="mainRow_mobile" class="container-fluid row">
+		<div id="minusButton_top_card_mobile" class="col-md-1 card card-link button_adjustTask container-fluid" ng-click="DecrementStartTime('Short')">
+		</div>
+		<div id="plusButton_top_card_mobile" class="col-md-1 card card-link button_adjustTask" ng-click="IncrementStartTime('Short')">
+		</div>
+	</div>
+	<div id="meterRow_mobile" class="row">
+		<div id="meterCard_mobile" class="col-md-2 card container-fluid">
+			<div id="meterWrapper_mobile" class="container-fluid" style="padding-top : {{MeterTop}}px; padding-bottom : {{MeterBottom}}px;">
+				<div id="meter_mobile" class="container-fluid">
+					<!-- Meter -->
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="bottomRow_mobile" class="container-fluid row">
+		<div id="minusButton_bottom_card_mobile" class="col-md-1 card card-link button_adjustTask container-fluid" ng-click="DecrementEndTime('Short')">
+		</div>
+		<div id="plusButton_bottom_card_mobile" class="col-md-1 card card-link button_adjustTask container-fluid" ng-click="IncrementEndTime('Short')">
+		</div>
+	</div>
+</div>

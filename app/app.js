@@ -34,7 +34,7 @@
                     url: "/meterDirectiveTest",
                     templateUrl: "app/views/meterDirectiveTest.html",
                     controller: "meterDirectiveTestCtrl as vm"
-                });
+                })
         }]
     );
 

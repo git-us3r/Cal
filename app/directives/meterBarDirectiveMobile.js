@@ -11,6 +11,7 @@
 
                 Start : null,
                 End : null,
+                Width : null,
                 TopHalf : null,
                 BottomHalf : null
             },
@@ -44,41 +45,43 @@
             };
 
 
-
 		function linkFunction(scope, element, attrs) {
-	       	
-            localScope = scope;
 
 	       	var jQmeterWrapper = element.find('#meterWrapper_mobile');
 
+            localScope = scope;
+
 	       	// Bind the onmousewheel event of the meterWrapper element to the processMeterScroll function
-	       	bindScrollingToWrapper(jQmeterWrapper)
+	       	bindScrollingToWrapper(jQmeterWrapper)	       	
 
-	       	// Make the whole directive unselectable
-			// element.on('selectstart', function(){ return false; });
+			setupMeterBarObjectProperties(jQmeterWrapper[0]);
 
-			setupMeterBarObjectProperties(jQmeterWrapper[0]);			
+            setupPublicScopeProperties();		
 
-			// Setup scope public properties
-	       	localScope.IncrementStartTime = incrementStartTime;
-	        localScope.DecrementStartTime = decrementStartTime;
-	        localScope.IncrementEndTime = incrementEndTime;
-	        localScope.DecrementEndTime = decrementEndTime;
-	        localScope.StartTime = scope.start;
-	        localScope.EndTime = scope.end;
+            setupMeterTimeObjectProperties();
 
-            setupMeterTimeObjecProperties();
+	        updatePublicProperties();
 
-	        updatePublicProperties();	        
-
-            
+            // Make the whole directive unselectable
+            element.on('selectstart', function(){ return false; });            
 		}
 
 
 		// Private Functions
+
+        function setupPublicScopeProperties() {
+
+            // Setup scope public properties
+            localScope.IncrementStartTime = incrementStartTime;
+            localScope.DecrementStartTime = decrementStartTime;
+            localScope.IncrementEndTime = incrementEndTime;
+            localScope.DecrementEndTime = decrementEndTime;
+            localScope.StartTime = localScope.start;
+            localScope.EndTime = localScope.end;
+        }
        
 
-		function setupMeterTimeObjecProperties () {
+		function setupMeterTimeObjectProperties () {
 			
 			meterTime.Start = localScope.start;
             meterTime.End = localScope.end;
@@ -93,11 +96,15 @@
 
 			meterBar.Start = 0;
 			meterBar.End = 0;
-			meterBar.TopHalf = (meterWrapper.offsetWidth / 2) - 10;					// the middle aint what it seems
-			meterBar.BottomHalf = (meterWrapper.offsetWidth / 2) + 10;					// the bottom section starts 10px below the 'middle'
+			
+            meterBar.BoundingClientRect = meterWrapper.getBoundingClientRect();
+            meterBar.TopHalf = (meterBar.BoundingClientRect.width / 2) - 10;					// the middle aint what it seems
+			meterBar.BottomHalf = (meterBar.BoundingClientRect.width / 2) + 10;					// the bottom section starts 10px below the 'middle'
 
-			meterBarInterval.Short = meterWrapper.offsetWidth / (workDayDuration * 4); // map the height to 15-min intervals
-			meterBarInterval.Long = meterWrapper.offsetWidth / workDayDuration;		// map the height to 1-hour intervals			
+
+
+			meterBarInterval.Short = meterBar.BoundingClientRect.width / (workDayDuration * 4); // map the height to 15-min intervals
+			meterBarInterval.Long = meterBar.BoundingClientRect.width / workDayDuration;		// map the height to 1-hour intervals			
 
 		}
 
@@ -146,7 +153,7 @@
                         }
                     }
                 });
-            }
+        }
 
 
         function bindScrollingToWrapper (wrapper) {
@@ -166,16 +173,25 @@
         }
 
 
-        function swipeMove(coords) {
+        function swipeMove(coords, jsEvent) {
 
-            swipeMoveCoordinates = coords;
+            localScope.$apply(function(){
 
-            swipeMoveDelta = swipeMoveCoordinates.x - swipeStartCoordinates.x;
+                var clientX;
 
-            if(swipeMoveDelta > 0) {
+                swipeMoveCoordinates = coords;
 
+                swipeMoveDelta = swipeMoveCoordinates.x - swipeStartCoordinates.x;
 
-            }
+                clientX = swipeMoveCoordinates.x - meterBar.BoundingClientRect.left;
+
+                if(clientX < meterBar.BottomHalf) {
+
+                    meterBar.Start = meterBarInterval.Short * (clientX * 17 * 4 / meterBar.BoundingClientRect.width);
+                }
+
+                updatePublicProperties();
+            });
         }
 
 

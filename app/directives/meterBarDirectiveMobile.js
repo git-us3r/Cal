@@ -9,82 +9,84 @@
 
 		var meterBar = {
 
-                Start : null,
-                End : null,
-                Width : null,
-                TopHalf : null,
-                BottomHalf : null
-            },
-            meterBarInterval = {
+				Start : null,
+				End : null,
+				Width : null,
+				TopHalf : null,
+				BottomHalf : null
+			},
+			meterBarInterval = {
 
-                Short : null,
-                Long : null
-            },
-            timeInterval = {
+				Short : null,
+				Long : null
+			},
+			timeInterval = {
 
-                Short : 15,
-                Long : 60
-            },
-            meterTime = {
+				Short : 15,
+				Long : 60
+			},
+			meterTime = {
 
-                Start : null,
-                End : null,
-                MinStart : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
-                MaxStart : moment({y: 2015, M: 9, d:2, H:23, m:0, s:0, ms:0}),
-                MinEnd : moment({y: 2015, M: 9, d:2, H:8, m:0, s:0, ms:0}),
-                MaxEnd :moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0})
-            },
-            swipeStartCoordinates = null,
-            swipeEndCoordinates = null,
-            swipeMoveCoordinates = null,
-            swipeMoveDelta = null,
-            swipeCancelCoordinates = null,
-            localScope = {
-                start : '=',
-                end : '='
-            };
+				Start : null,
+				End : null,
+				MinStart : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
+				MaxStart : moment({y: 2015, M: 9, d:2, H:23, m:0, s:0, ms:0}),
+				MinEnd : moment({y: 2015, M: 9, d:2, H:8, m:0, s:0, ms:0}),
+				MaxEnd :moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0})
+			},
+			swipeStartCoordinates = null,
+			swipeEndCoordinates = null,
+			swipeMoveCoordinates = null,
+			swipeMoveDelta = null,
+			lastXCoordinate = null,
+			swipeCancelCoordinates = null,
+			edgeBeingDragged = null,
+			localScope = {
+				start : '=',
+				end : '='
+			};
 
 
 		function linkFunction(scope, element, attrs) {
 
-	       	var jQmeterWrapper = element.find('#meterWrapper_mobile');
+			var jQmeterWrapper = element.find('#meterWrapper_mobile');
 
-            localScope = scope;
+			localScope = scope;
 
-	       	// Bind the onmousewheel event of the meterWrapper element to the processMeterScroll function
-	       	bindScrollingToWrapper(jQmeterWrapper)	       	
+			// Bind the onmousewheel event of the meterWrapper element to the processMeterScroll function
+			bindScrollingToWrapper(jQmeterWrapper)	       	
 
 			setupMeterBarObjectProperties(jQmeterWrapper[0]);
 
-            setupPublicScopeProperties();		
+			setupPublicScopeProperties();		
 
-            setupMeterTimeObjectProperties();
+			setupMeterTimeObjectProperties();
 
-	        updatePublicProperties();
+			updatePublicProperties();
 
-            // Make the whole directive unselectable
-            element.on('selectstart', function(){ return false; });            
+			// Make the whole directive unselectable
+			element.on('selectstart', function(){ return false; });            
 		}
 
 
 		// Private Functions
 
-        function setupPublicScopeProperties() {
+		function setupPublicScopeProperties() {
 
-            // Setup scope public properties
-            localScope.IncrementStartTime = incrementStartTime;
-            localScope.DecrementStartTime = decrementStartTime;
-            localScope.IncrementEndTime = incrementEndTime;
-            localScope.DecrementEndTime = decrementEndTime;
-            localScope.StartTime = localScope.start;
-            localScope.EndTime = localScope.end;
-        }
-       
+			// Setup scope public properties
+			localScope.IncrementStartTime = incrementStartTime;
+			localScope.DecrementStartTime = decrementStartTime;
+			localScope.IncrementEndTime = incrementEndTime;
+			localScope.DecrementEndTime = decrementEndTime;
+			localScope.StartTime = localScope.start;
+			localScope.EndTime = localScope.end;
+		}
+	   
 
 		function setupMeterTimeObjectProperties () {
 			
 			meterTime.Start = localScope.start;
-            meterTime.End = localScope.end;
+			meterTime.End = localScope.end;
 		}
 
 
@@ -97,8 +99,8 @@
 			meterBar.Start = 0;
 			meterBar.End = 0;
 			
-            meterBar.BoundingClientRect = meterWrapper.getBoundingClientRect();
-            meterBar.TopHalf = (meterBar.BoundingClientRect.width / 2) - 10;					// the middle aint what it seems
+			meterBar.BoundingClientRect = meterWrapper.getBoundingClientRect();
+			meterBar.TopHalf = (meterBar.BoundingClientRect.width / 2) - 10;					// the middle aint what it seems
 			meterBar.BottomHalf = (meterBar.BoundingClientRect.width / 2) + 10;					// the bottom section starts 10px below the 'middle'
 
 
@@ -109,174 +111,220 @@
 		}
 
 
-        function getSwipeHandlerObject() {
+		function getSwipeHandlerObject() {
 
-            var swipeHandlerObject = {};
-            swipeHandlerObject.start = swipeStart;
-            swipeHandlerObject.move = swipeMove;
-            swipeHandlerObject.end = swipeEnd;
-            swipeHandlerObject.cancel = swipeCancel;
+			var swipeHandlerObject = {};
+			swipeHandlerObject.start = swipeStart;
+			swipeHandlerObject.move = swipeMove;
+			swipeHandlerObject.end = swipeEnd;
+			swipeHandlerObject.cancel = swipeCancel;
 
-            return swipeHandlerObject;
+			return swipeHandlerObject;
 
-        }
+		}
 
 
-        function processMeterScroll(scrollEvent) {
+		function processMeterScroll(scrollEvent) {
 
-                localScope.$apply(function () {
+				localScope.$apply(function () {
 
-                    var scrollCordinates = {x: scrollEvent.offsetX, y: scrollEvent.offsetY};
+					var scrollCordinates = {x: scrollEvent.offsetX, y: scrollEvent.offsetY};
 
-                    if(scrollCordinates.x < meterBar.TopHalf) {
+					if(scrollCordinates.x < meterBar.TopHalf) {
 
-                        // scroll on top-half: modify start time
-                        if(scrollEvent.originalEvent.deltaY > 0) {
+						// scroll on top-half: modify start time
+						if(scrollEvent.originalEvent.deltaY > 0) {
 
-                            incrementStartTime('Short');
-                        }
-                        else {
+							incrementStartTime('Short');
+						}
+						else {
 
-                            decrementStartTime('Short');   
-                        }
-                    }
-                    else if (scrollCordinates.x > meterBar.BottomHalf) {
+							decrementStartTime('Short');   
+						}
+					}
+					else if (scrollCordinates.x > meterBar.BottomHalf) {
 
-                        // scroll on bottom-half: modify start time
-                        if(scrollEvent.originalEvent.deltaY > 0) {
+						// scroll on bottom-half: modify start time
+						if(scrollEvent.originalEvent.deltaY > 0) {
 
-                            incrementEndTime('Short');
-                        }
-                        else {
+							incrementEndTime('Short');
+						}
+						else {
 
-                            decrementEndTime('Short');
-                        }
-                    }
-                });
-        }
+							decrementEndTime('Short');
+						}
+					}
+				});
+		}
 
 
-        function bindScrollingToWrapper (wrapper) {
+		function bindScrollingToWrapper (wrapper) {
 
-            var swipeHandlerObject = getSwipeHandlerObject();
+			var swipeHandlerObject = getSwipeHandlerObject();
 
-      		$swipe.bind(wrapper, swipeHandlerObject);
+			$swipe.bind(wrapper, swipeHandlerObject, ['touch']);
 
-            // Now, it can be safely bound.
-            wrapper.on('mousewheel', processMeterScroll);
-        }
+			// Now, it can be safely bound.
+			wrapper.on('mousewheel', processMeterScroll);
+		}
 
 
-        function swipeStart(coords) {
+		function setEdgeBeingDragged(clientX) {
 
-            swipeStartCoordinates = coords;
-        }
+			var distanceFromStart,
+				distanceFromEnd;
 
+			distanceFromStart = Math.abs(clientX - meterBar.Start);
 
-        function swipeMove(coords, jsEvent) {
+			distanceFromEnd = (meterBar.End > 0) ? Math.abs(clientX - meterBar.End) : Math.abs(clientX - meterBar.BoundingClientRect.right);			
 
-            localScope.$apply(function(){
+			edgeBeingDragged = distanceFromStart < distanceFromEnd ? 'Start' : 'End';
 
-                var clientX;
+		}
 
-                swipeMoveCoordinates = coords;
 
-                swipeMoveDelta = swipeMoveCoordinates.x - swipeStartCoordinates.x;
+		function swipeStart(coords) {
 
-                clientX = swipeMoveCoordinates.x - meterBar.BoundingClientRect.left;
+			swipeStartCoordinates = coords;
+			lastXCoordinate = coords.x;
+		}
 
-                if(clientX < meterBar.BottomHalf) {
 
-                    meterBar.Start = meterBarInterval.Short * (clientX * 17 * 4 / meterBar.BoundingClientRect.width);
-                }
+		function swipeMove(coords, jsEvent) {
 
-                updatePublicProperties();
-            });
-        }
+			localScope.$apply(function(){
 
+				var startClientX,
+					shortInterval = meterBarInterval.Short * 17 * 4 / meterBar.BoundingClientRect.width;
 
-        function swipeEnd(coords) {
+				swipeMoveCoordinates = coords;
 
-            // TODO
-        }
+				swipeMoveDelta = Math.abs(swipeMoveCoordinates.x - swipeStartCoordinates.x);
 
+				startClientX = swipeMoveCoordinates.x - meterBar.BoundingClientRect.left;
 
-        function swipeCancel(coords) {
+				if(!edgeBeingDragged) {
 
-            // TODO
-        }
+					setEdgeBeingDragged(startClientX);
+				}
 
+				if(swipeMoveDelta >= shortInterval) {
+				 
+					if(edgeBeingDragged === 'Start'){
+						
+						if(swipeMoveCoordinates.x > lastXCoordinate) {
 
+							incrementStartTime('Short');
+							// meterBar[edgeBeingDragged] = Math.floor(startBarLocation);
+						}
+						else {
 
+							decrementStartTime('Short');
+						}
+					}
+					else {
 
-        function incrementStartTime(duration) {
+						if(swipeMoveCoordinates.x > lastXCoordinate) {
 
-            if(meterTime.Start.isBefore(meterTime.MaxStart) && shiftCanGetSmaller()) {
+							incrementEndTime('Short');
+						}
+						else {
 
-                meterTime.Start.add(timeInterval[duration], 'minutes');
+							decrementEndTime('Short');
+						}
+					}
+				
+				}			
 
-                meterBar.Start += meterBarInterval[duration];
+				updatePublicProperties();
 
-                updatePublicProperties(this);
-            }
-        }
+				lastXCoordinate = swipeMoveCoordinates.x;
+			});
+		}
 
 
-        function decrementStartTime(duration) {
+		function swipeEnd(coords) {
 
-            if(meterTime.Start.isAfter(meterTime.MinStart)) {
+			edgeBeingDragged = null;
+		}
 
-                meterTime.Start.add(-timeInterval[duration], 'minutes');
-                meterBar.Start -=  meterBarInterval[duration];
 
-                updatePublicProperties();
-            }
-        }
+		function swipeCancel(coords) {
 
+			edgeBeingDragged = null;
+		}
 
-        function incrementEndTime(duration) {
 
-            if(meterTime.End.isBefore(meterTime.MaxEnd)) {
 
-                meterTime.End.add(timeInterval[duration], 'minutes');
-                meterBar.End -= meterBarInterval[duration];
 
-                updatePublicProperties();
-            }
-        }
+		function incrementStartTime(duration) {
 
+			if(meterTime.Start.isBefore(meterTime.MaxStart) && shiftCanGetSmaller()) {
 
-        function decrementEndTime(duration) {
+				meterTime.Start.add(timeInterval[duration], 'minutes');
 
-            if(meterTime.End.isAfter(meterTime.MinEnd) && shiftCanGetSmaller()) {
+				meterBar.Start += meterBarInterval[duration];
 
-                meterTime.End.add(-timeInterval[duration], 'minutes');
-                meterBar.End +=  meterBarInterval[duration];
+				updatePublicProperties(this);
+			}
+		}
 
-                updatePublicProperties();
-            }
-        }
 
+		function decrementStartTime(duration) {
 
-        function shiftCanGetSmaller() {
+			if(meterTime.Start.isAfter(meterTime.MinStart)) {
 
-            var startDay = meterTime.Start.date(),
-                endDay = meterTime.End.date(),
-                startHourInMinutes = meterTime.Start.hour() * 60 + meterTime.Start.minutes(),
-                endHourInMinutes = meterTime.End.hour() * 60 + meterTime.End.minutes(),
-                answer = startDay < endDay || (endHourInMinutes - startHourInMinutes > 60);
+				meterTime.Start.add(-timeInterval[duration], 'minutes');
+				meterBar.Start -=  meterBarInterval[duration];
 
-            return answer;
-        }
+				updatePublicProperties();
+			}
+		}
 
 
-        function updatePublicProperties() {
+		function incrementEndTime(duration) {
 
-            localScope.StartTime = meterTime.Start;
-            localScope.EndTime = meterTime.End;
-            localScope.MeterTop = meterBar.Start;
-            localScope.MeterBottom = meterBar.End;
-        }   
+			if(meterTime.End.isBefore(meterTime.MaxEnd)) {
+
+				meterTime.End.add(timeInterval[duration], 'minutes');
+				meterBar.End -= meterBarInterval[duration];
+
+				updatePublicProperties();
+			}
+		}
+
+
+		function decrementEndTime(duration) {
+
+			if(meterTime.End.isAfter(meterTime.MinEnd) && shiftCanGetSmaller()) {
+
+				meterTime.End.add(-timeInterval[duration], 'minutes');
+				meterBar.End +=  meterBarInterval[duration];
+
+				updatePublicProperties();
+			}
+		}
+
+
+		function shiftCanGetSmaller() {
+
+			var startDay = meterTime.Start.date(),
+				endDay = meterTime.End.date(),
+				startHourInMinutes = meterTime.Start.hour() * 60 + meterTime.Start.minutes(),
+				endHourInMinutes = meterTime.End.hour() * 60 + meterTime.End.minutes(),
+				answer = startDay < endDay || (endHourInMinutes - startHourInMinutes > 60);
+
+			return answer;
+		}
+
+
+		function updatePublicProperties() {
+
+			localScope.StartTime = meterTime.Start;
+			localScope.EndTime = meterTime.End;
+			localScope.MeterTop = meterBar.Start;
+			localScope.MeterBottom = meterBar.End;
+		}   
 
 		return {
 

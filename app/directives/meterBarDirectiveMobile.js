@@ -3,9 +3,9 @@
 	'use strict';
 
 	angular.module('Calendar')
-	.directive('meterBarDirectiveMobile', [directiveFunction]);
+	.directive('meterBarDirectiveMobile', ['$swipe', directiveFunction]);
 
-	function directiveFunction(){
+	function directiveFunction($swipe){
 
 		var meterBar = {
 
@@ -33,7 +33,13 @@
                 MinEnd : moment({y: 2015, M: 9, d:2, H:8, m:0, s:0, ms:0}),
                 MaxEnd :moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0})
             },
-            processMeterScroll = null;											// This will actually be a function!
+            swipeStartCoordinates = null,
+            swipeEndCoordinates = null,
+            swipeMoveCoordinates = null,
+            swipeMoveDelta = null,
+            swipeCancelCoordinates = null,
+            processMeterScroll = null;									// This will actually be a function!
+
 
 
 		function linkFunction(scope, element, attrs) {
@@ -44,7 +50,7 @@
 	       	bindScrollingToWrapper(scope, jQmeterWrapper)
 
 	       	// Make the whole directive unselectable
-			element.on('selectstart', function(){ return false; });
+			// element.on('selectstart', function(){ return false; });
 
 			setupMeterBarObjectProperties(jQmeterWrapper[0]);
 
@@ -63,6 +69,7 @@
 
 
 		// Private Functions
+       
 
 		function setupMeterTimeObjecProperties (scope) {
 			
@@ -79,57 +86,106 @@
 
 			meterBar.Start = 0;
 			meterBar.End = 0;
-			meterBar.TopHalf = (meterWrapper.offsetHeight / 2) - 10;					// the middle aint what it seems
-			meterBar.BottomHalf = (meterWrapper.offsetHeight / 2) + 10;					// the bottom section starts 10px below the 'middle'
+			meterBar.TopHalf = (meterWrapper.offsetWidth / 2) - 10;					// the middle aint what it seems
+			meterBar.BottomHalf = (meterWrapper.offsetWidth / 2) + 10;					// the bottom section starts 10px below the 'middle'
 
-			meterBarInterval.Short = meterWrapper.offsetHeight / (workDayDuration * 4); // map the height to 15-min intervals
-			meterBarInterval.Long = meterWrapper.offsetHeight / workDayDuration;		// map the height to 1-hour intervals			
+			meterBarInterval.Short = meterWrapper.offsetWidth / (workDayDuration * 4); // map the height to 15-min intervals
+			meterBarInterval.Long = meterWrapper.offsetWidth / workDayDuration;		// map the height to 1-hour intervals			
 
 		}
 
 
-        function bindScrollingToWrapper (scope, wrapper) {
+        function getSwipeHandlerObject() {
 
-      		// Gotta love clousures!
+            var swipeHandlerObject = {};
+            swipeHandlerObject.start = swipeStart;
+            swipeHandlerObject.move = swipeMove;
+            swipeHandlerObject.end = swipeEnd;
+            swipeHandlerObject.cancel = swipeCancel;
+
+            return swipeHandlerObject;
+
+        }
+
+
+        function defineProcessScrollFunction(scope) {
+
+            // Gotta love clousures!
             
             processMeterScroll = function(scrollEvent) {
 
-            	scope.$apply(function () {
+                scope.$apply(function () {
 
-	                var scrollCordinates = {x: scrollEvent.offsetX, y: scrollEvent.offsetY};
+                    var scrollCordinates = {x: scrollEvent.offsetX, y: scrollEvent.offsetY};
 
-	                if(scrollCordinates.y < meterBar.TopHalf) {
+                    if(scrollCordinates.x < meterBar.TopHalf) {
 
-	                    // scroll on top-half: modify start time
-	                    if(scrollEvent.originalEvent.deltaY > 0) {
+                        // scroll on top-half: modify start time
+                        if(scrollEvent.originalEvent.deltaY > 0) {
 
-	                        scope.IncrementStartTime('Short');
-	                    }
-	                    else {
+                            scope.IncrementStartTime('Short');
+                        }
+                        else {
 
-	                        scope.DecrementStartTime('Short');   
-	                    }
-	                }
-	                else if (scrollCordinates.y > meterBar.BottomHalf) {
+                            scope.DecrementStartTime('Short');   
+                        }
+                    }
+                    else if (scrollCordinates.x > meterBar.BottomHalf) {
 
-	                    // scroll on bottom-half: modify start time
-	                    if(scrollEvent.originalEvent.deltaY > 0) {
+                        // scroll on bottom-half: modify start time
+                        if(scrollEvent.originalEvent.deltaY > 0) {
 
-	                        scope.IncrementEndTime('Short');
-	                    }
-	                    else {
+                            scope.IncrementEndTime('Short');
+                        }
+                        else {
 
-	                        scope.DecrementEndTime('Short');
-	                    }
-	                }
-           	 	});
+                            scope.DecrementEndTime('Short');
+                        }
+                    }
+                });
             }
+        }
 
+
+        function bindScrollingToWrapper (scope, wrapper) {
+
+            var swipeHandlerObject = getSwipeHandlerObject();
+
+      		$swipe.bind(wrapper, swipeHandlerObject);
+
+            defineProcessScrollFunction(scope);
 
             // Now, it can be safely bound.
             wrapper.on('mousewheel', processMeterScroll);
-
         }
+
+
+        function swipeStart(coords) {
+
+            swipeStartCoordinates = coords;
+        }
+
+
+        function swipeMove(coords) {
+
+            swipeMoveCoordinates = coords;
+
+            swipeMoveDelta = swipeMoveCoordinates.x - swipeStartCoordinates.x;
+        }
+
+
+        function swipeEnd(coords) {
+
+            // TODO
+        }
+
+
+        function swipeCancel(coords) {
+
+            // TODO
+        }
+
+
 
 
         function incrementStartTime(duration) {

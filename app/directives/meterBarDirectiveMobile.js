@@ -38,43 +38,50 @@
             swipeMoveCoordinates = null,
             swipeMoveDelta = null,
             swipeCancelCoordinates = null,
-            processMeterScroll = null;									// This will actually be a function!
+            localScope = {
+                start : '=',
+                end : '='
+            };
 
 
 
 		function linkFunction(scope, element, attrs) {
 	       	
+            localScope = scope;
+
 	       	var jQmeterWrapper = element.find('#meterWrapper_mobile');
 
 	       	// Bind the onmousewheel event of the meterWrapper element to the processMeterScroll function
-	       	bindScrollingToWrapper(scope, jQmeterWrapper)
+	       	bindScrollingToWrapper(jQmeterWrapper)
 
 	       	// Make the whole directive unselectable
 			// element.on('selectstart', function(){ return false; });
 
-			setupMeterBarObjectProperties(jQmeterWrapper[0]);
-
-			setupMeterTimeObjecProperties(scope);
+			setupMeterBarObjectProperties(jQmeterWrapper[0]);			
 
 			// Setup scope public properties
-	       	scope.IncrementStartTime = incrementStartTime;
-	        scope.DecrementStartTime = decrementStartTime;
-	        scope.IncrementEndTime = incrementEndTime;
-	        scope.DecrementEndTime = decrementEndTime;
-	        scope.StartTime = scope.$parent.vm.CurrentEvent.Start;
-	        scope.EndTime = scope.$parent.vm.CurrentEvent.End;
+	       	localScope.IncrementStartTime = incrementStartTime;
+	        localScope.DecrementStartTime = decrementStartTime;
+	        localScope.IncrementEndTime = incrementEndTime;
+	        localScope.DecrementEndTime = decrementEndTime;
+	        localScope.StartTime = scope.start;
+	        localScope.EndTime = scope.end;
 
-	        updatePublicProperties(scope);	        
+            setupMeterTimeObjecProperties();
+
+	        updatePublicProperties();	        
+
+            
 		}
 
 
 		// Private Functions
        
 
-		function setupMeterTimeObjecProperties (scope) {
+		function setupMeterTimeObjecProperties () {
 			
-			meterTime.Start = scope.start;
-            meterTime.End = scope.end;
+			meterTime.Start = localScope.start;
+            meterTime.End = localScope.end;
 		}
 
 
@@ -108,13 +115,9 @@
         }
 
 
-        function defineProcessScrollFunction(scope) {
+        function processMeterScroll(scrollEvent) {
 
-            // Gotta love clousures!
-            
-            processMeterScroll = function(scrollEvent) {
-
-                scope.$apply(function () {
+                localScope.$apply(function () {
 
                     var scrollCordinates = {x: scrollEvent.offsetX, y: scrollEvent.offsetY};
 
@@ -123,11 +126,11 @@
                         // scroll on top-half: modify start time
                         if(scrollEvent.originalEvent.deltaY > 0) {
 
-                            scope.IncrementStartTime('Short');
+                            incrementStartTime('Short');
                         }
                         else {
 
-                            scope.DecrementStartTime('Short');   
+                            decrementStartTime('Short');   
                         }
                     }
                     else if (scrollCordinates.x > meterBar.BottomHalf) {
@@ -135,25 +138,22 @@
                         // scroll on bottom-half: modify start time
                         if(scrollEvent.originalEvent.deltaY > 0) {
 
-                            scope.IncrementEndTime('Short');
+                            incrementEndTime('Short');
                         }
                         else {
 
-                            scope.DecrementEndTime('Short');
+                            decrementEndTime('Short');
                         }
                     }
                 });
             }
-        }
 
 
-        function bindScrollingToWrapper (scope, wrapper) {
+        function bindScrollingToWrapper (wrapper) {
 
             var swipeHandlerObject = getSwipeHandlerObject();
 
       		$swipe.bind(wrapper, swipeHandlerObject);
-
-            defineProcessScrollFunction(scope);
 
             // Now, it can be safely bound.
             wrapper.on('mousewheel', processMeterScroll);
@@ -171,6 +171,11 @@
             swipeMoveCoordinates = coords;
 
             swipeMoveDelta = swipeMoveCoordinates.x - swipeStartCoordinates.x;
+
+            if(swipeMoveDelta > 0) {
+
+
+            }
         }
 
 
@@ -208,7 +213,7 @@
                 meterTime.Start.add(-timeInterval[duration], 'minutes');
                 meterBar.Start -=  meterBarInterval[duration];
 
-                updatePublicProperties(this);
+                updatePublicProperties();
             }
         }
 
@@ -220,7 +225,7 @@
                 meterTime.End.add(timeInterval[duration], 'minutes');
                 meterBar.End -= meterBarInterval[duration];
 
-                updatePublicProperties(this);
+                updatePublicProperties();
             }
         }
 
@@ -232,7 +237,7 @@
                 meterTime.End.add(-timeInterval[duration], 'minutes');
                 meterBar.End +=  meterBarInterval[duration];
 
-                updatePublicProperties(this);
+                updatePublicProperties();
             }
         }
 
@@ -249,12 +254,12 @@
         }
 
 
-        function updatePublicProperties(scope) {
+        function updatePublicProperties() {
 
-            scope.StartTime = meterTime.Start;
-            scope.EndTime = meterTime.End;
-            scope.MeterTop = meterBar.Start;
-            scope.MeterBottom = meterBar.End;
+            localScope.StartTime = meterTime.Start;
+            localScope.EndTime = meterTime.End;
+            localScope.MeterTop = meterBar.Start;
+            localScope.MeterBottom = meterBar.End;
         }   
 
 		return {
@@ -262,11 +267,7 @@
 			restrict : 'E',
 			templateUrl : 'app/views/meterDirectiveMobile.html',
 			link : linkFunction,
-			scope : {
-
-				start : '=',
-				end : '='
-			}
+			scope : localScope
 		};
 	}	
 

@@ -108,7 +108,7 @@
 
 			var endOfDayInMinutes = meterTime.EndOfDay.hours() * 60 + meterTime.EndOfDay.minutes(),
 				endOfShiftInMinutes = (24 - meterTime.End.hours()) * 60 + meterTime.End.minutes(),
-				minutesFromEndOfDay = Math.abs(endOfDayInMinutes - endOfShiftInMinutes);										// because the day ends at 12 a,
+				minutesFromEndOfDay = Math.abs(endOfDayInMinutes - endOfShiftInMinutes),										// because the day ends at 12 a,
 				intervalsFromEndOfDay = minutesFromEndOfDay / timeInterval.Short,
 				meterBarEndLocation = intervalsFromEndOfDay * meterBarInterval.Short;
 

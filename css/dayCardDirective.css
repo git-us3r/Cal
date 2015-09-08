@@ -1,21 +1,21 @@
 .dayCardEventColumn {
 
-	min-width: 40px;
+	min-width: 60px;
 	max-height: 120px;
 	min-height: auto;
-	max-width: 40px;
+	max-width: 60px;
 
-	background: blue;
+	background: #2BAFA5;
 	
 }
 
 .dayCardText {
 
 	display: block;
-    font-size: 1.2em;
+    font-size: .8em;
     text-align: center;
     font-family: 'BebasNeueRegular', Arial, Helvetica, sans-serif;
-    text-shadow: 0 0 5px #00c6ff;
-    color: red;
+    text-shadow: 0 0 8px #151717;
+    color: white;
 }
 

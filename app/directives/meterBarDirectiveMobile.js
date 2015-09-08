@@ -42,8 +42,8 @@
 			swipeCancelCoordinates = null,
 			edgeBeingDragged = null,
 			localScope = {
-				start : '=',
-				end : '='
+
+				currentEvent : '='
 			};
 
 
@@ -53,14 +53,14 @@
 
 			localScope = scope;
 
+			setupPublicScopeProperties();
+
 			setupMeterTimeObjectProperties();
 
 			// Bind the onmousewheel event of the meterWrapper element to the processMeterScroll function
 			bindScrollingToWrapper(jQmeterWrapper)	       	
 
 			setupMeterBarObjectProperties(jQmeterWrapper[0]);
-
-			setupPublicScopeProperties();		
 
 			updatePublicProperties();
 
@@ -78,15 +78,15 @@
 			localScope.DecrementStartTime = decrementStartTime;
 			localScope.IncrementEndTime = incrementEndTime;
 			localScope.DecrementEndTime = decrementEndTime;
-			localScope.StartTime = localScope.start;
-			localScope.EndTime = localScope.end;
+			localScope.StartTime = localScope.currentEvent.start;
+			localScope.EndTime = localScope.currentEvent.end;
 		}
 	   
 
 		function setupMeterTimeObjectProperties () {
 			
-			meterTime.Start = localScope.start;
-			meterTime.End = localScope.end;
+			meterTime.Start = localScope.StartTime;
+			meterTime.End = localScope.EndTime;
 			meterTime.StartOfDay = moment({H:7, m:0});
 			meterTime.EndOfDay = moment({H:0, h:0});											//.. of the next day.
 		}

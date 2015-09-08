@@ -24,7 +24,7 @@
 	var localScope = {
 
 		Events : '=',
-		ViewEvents : '&'
+		ViewEvent : '&'
 	};
 
 
@@ -32,6 +32,19 @@
 
 		localScope = scope;
 		localScope.Events = scope.$parent.vm.DayEvents;
+		localScope.ViewEvent = scope.$parent.vm.ViewEvent;
+		localScope.SelectEvent = selectEvent;
+	}
+
+	function selectEvent(eventId) {
+
+		for(var i = 0; i < localScope.Events.length; ++i) {
+
+			if(localScope.Events[i].id === eventId) {
+
+				localScope.ViewEvent(localScope.Events[i]);
+			}
+		}
 	}
 
 }());

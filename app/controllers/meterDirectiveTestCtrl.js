@@ -7,34 +7,39 @@
 		.controller("meterDirectiveTestCtrl",
 					['$scope', '$state', ctrl]);
 
-	function ctrl(){
+	function ctrl($scope){
 
 		var vm = this;
 
 		vm.DayEvents = [
 
 			{
-				id : 'Available',
+				id: 0,
+				title : 'Available',
 				start : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
         		end : moment({y: 2015, M: 9, d:2, H:11, m:0, s:0, ms:0})
 			},
 			{
-				id : 'Available',
+				id: 1,
+				title : 'Available',
 				start : moment({y: 2015, M: 9, d:2, H:13, m:0, s:0, ms:0}),
         		end : moment({y: 2015, M: 9, d:2, H:16, m:0, s:0, ms:0})
 			},
 			{
-				id : 'Available',
+				id: 2,
+				title : 'Available',
 				start : moment({y: 2015, M: 9, d:2, H:19, m:0, s:0, ms:0}),
         		end : moment({y: 2015, M: 9, d:2, H:23, m:0, s:0, ms:0})
 			},
 			{
-				id : 'Available',
+				id: 3,
+				title : 'Available',
 				start : moment({y: 2015, M: 9, d:3, H:7, m:0, s:0, ms:0}),
         		end : moment({y: 2015, M: 9, d:3, H:23, m:0, s:0, ms:0})
 			},
 			{
-				id : 'Available',
+				id: 4,
+				title : 'Available',
 				start : moment({y: 2015, M: 9, d:4, H:7, m:0, s:0, ms:0}),
         		end : moment({y: 2015, M: 9, d:4, H:13, m:0, s:0, ms:0})
 			}
@@ -44,9 +49,10 @@
 
 		vm.Msg = 'Directive Test Ground';
 
-		vm.ViewEvent = function() {
+		vm.ViewEvent = function(_event) {
 
-			// TODO
+			vm.CurrentEvent = _event;
+			
 		};
 
         return vm;

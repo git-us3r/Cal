@@ -53,14 +53,14 @@
 
 			localScope = scope;
 
+			setupMeterTimeObjectProperties();
+
 			// Bind the onmousewheel event of the meterWrapper element to the processMeterScroll function
 			bindScrollingToWrapper(jQmeterWrapper)	       	
 
 			setupMeterBarObjectProperties(jQmeterWrapper[0]);
 
 			setupPublicScopeProperties();		
-
-			setupMeterTimeObjectProperties();
 
 			updatePublicProperties();
 
@@ -87,6 +87,32 @@
 			
 			meterTime.Start = localScope.start;
 			meterTime.End = localScope.end;
+			meterTime.StartOfDay = moment({H:7, m:0});
+			meterTime.EndOfDay = moment({H:0, h:0});											//.. of the next day.
+		}
+
+
+		function initializeMeterBarStart(meterWrapper) {
+
+			var startOfDayInMinutes = meterTime.StartOfDay.hours() * 60 + meterTime.StartOfDay.minutes(),
+				startOfShiftInMinutes = meterTime.Start.hours() * 60 + meterTime.Start.minutes(),
+				minutesFromStartOfDay = startOfShiftInMinutes - startOfDayInMinutes,
+				intervalsFromStartOfDay = minutesFromStartOfDay / timeInterval.Short,
+				meterBarStartLocation = intervalsFromStartOfDay * meterBarInterval.Short;
+
+			return meterBarStartLocation;
+		}	
+
+
+		function initializeMeterBarEnd(meterWrapper) {
+
+			var endOfDayInMinutes = meterTime.EndOfDay.hours() * 60 + meterTime.EndOfDay.minutes(),
+				endOfShiftInMinutes = (24 - meterTime.End.hours()) * 60 + meterTime.End.minutes(),
+				minutesFromEndOfDay = Math.abs(endOfDayInMinutes - endOfShiftInMinutes);										// because the day ends at 12 a,
+				intervalsFromEndOfDay = minutesFromEndOfDay / timeInterval.Short,
+				meterBarEndLocation = intervalsFromEndOfDay * meterBarInterval.Short;
+
+			return meterBarEndLocation;
 		}
 
 
@@ -94,19 +120,16 @@
 
 			var workDayDuration = 17,
 				centerOffset = 30;
-
-
-			meterBar.Start = 0;
-			meterBar.End = 0;
 			
 			meterBar.BoundingClientRect = meterWrapper.getBoundingClientRect();
 			meterBar.TopHalf = (meterBar.BoundingClientRect.width / 2) - 10;					// the middle aint what it seems
 			meterBar.BottomHalf = (meterBar.BoundingClientRect.width / 2) + 10;					// the bottom section starts 10px below the 'middle'
 
-
-
 			meterBarInterval.Short = meterBar.BoundingClientRect.width / (workDayDuration * 4); // map the height to 15-min intervals
 			meterBarInterval.Long = meterBar.BoundingClientRect.width / workDayDuration;		// map the height to 1-hour intervals			
+
+			meterBar.Start = initializeMeterBarStart(meterWrapper);
+			meterBar.End = initializeMeterBarEnd(meterWrapper);
 
 		}
 

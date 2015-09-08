@@ -21,12 +21,17 @@
 
 	//////////////////////////////////////////
 
-	var localScope;
+	var localScope = {
+
+		Events : '=',
+		ViewEvents : '&'
+	};
 
 
 	function linkFunction(scope, element, attrs) {
 
-		// TODO
+		localScope = scope;
+		localScope.Events = scope.$parent.vm.DayEvents;
 	}
 
 }());

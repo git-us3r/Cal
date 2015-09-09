@@ -25,15 +25,12 @@
 				Short : 15,
 				Long : 60
 			},
-			meterTime = {
-
-				Start : null,
-				End : null,
-				MinStart : moment({y: 2015, M: 9, d:2, H:7, m:0, s:0, ms:0}),
-				MaxStart : moment({y: 2015, M: 9, d:2, H:23, m:0, s:0, ms:0}),
-				MinEnd : moment({y: 2015, M: 9, d:2, H:8, m:0, s:0, ms:0}),
-				MaxEnd :moment({y: 2015, M: 9, d:3, H:0, m:0, s:0, ms:0})
-			},
+			startHour = 7,
+			startMinute = 0,
+			endHour = 0,
+			endMinute = 0,
+			minEndHour = startHour + 1,
+			maxStartHour = (endHour === 0) ? 23 : endHour - 1,
 			swipeStartCoordinates = null,
 			swipeEndCoordinates = null,
 			swipeMoveCoordinates = null,
@@ -54,8 +51,6 @@
 			localScope = scope;
 
 			setupPublicScopeProperties();
-
-			setupMeterTimeObjectProperties();
 
 			// Bind the onmousewheel event of the meterWrapper element to the processMeterScroll function
 			bindScrollingToWrapper(jQmeterWrapper)	       	
@@ -84,18 +79,16 @@
 			localScope.IncrementEndTime = incrementEndTime;
 			localScope.DecrementEndTime = decrementEndTime;
 		}
-	   
-
-		function setupMeterTimeObjectProperties () {
-			
-			meterTime.StartOfDay = moment({H:7, m:0});
-			meterTime.EndOfDay = moment({H:0, h:0});											//.. of the next day.
-		}
 
 
-		function initializeMeterBarStart(meterWrapper) {
+		function initializeMeterBarStart() {
 
-			var startOfDayInMinutes = meterTime.StartOfDay.hours() * 60 + meterTime.StartOfDay.minutes(),
+			if(localScope.currentEvent.start.hours() === 7 && localScope.currentEvent.start.minutes() === 0) {
+
+				return 0;
+			}
+
+			var startOfDayInMinutes = startHour * 60 + startMinute,
 				startOfShiftInMinutes = localScope.currentEvent.start.hours() * 60 + localScope.currentEvent.start.minutes(),
 				minutesFromStartOfDay = startOfShiftInMinutes - startOfDayInMinutes,
 				intervalsFromStartOfDay = minutesFromStartOfDay / timeInterval.Short,
@@ -105,14 +98,14 @@
 		}	
 
 
-		function initializeMeterBarEnd(meterWrapper) {
+		function initializeMeterBarEnd() {
 
 			if(localScope.currentEvent.end.hours() === 0) {
 
 				return 0;
 			}
 
-			var endOfDayInMinutes = meterTime.EndOfDay.hours() * 60 + meterTime.EndOfDay.minutes(),
+			var endOfDayInMinutes = endHour * 60 + endMinute,
 				endOfShiftInMinutes = (24 - localScope.currentEvent.end.hours()) * 60 - localScope.currentEvent.end.minutes(),
 				minutesFromEndOfDay = Math.abs(endOfDayInMinutes - endOfShiftInMinutes),										// because the day ends at 12 a,
 				intervalsFromEndOfDay = minutesFromEndOfDay / timeInterval.Short,
@@ -286,7 +279,17 @@
 
 		function incrementStartTime(duration) {
 
-			if(localScope.currentEvent.start.isBefore(meterTime.MaxStart) && shiftCanGetSmaller()) {
+			var maxStartMoment = moment({
+				y: localScope.currentEvent.start.year(),
+				M: localScope.currentEvent.start.month(),
+				d: localScope.currentEvent.start.date(),
+				H: maxStartHour,
+				m: 0,
+				s: 0,
+				ms: 0
+			});
+
+			if(localScope.currentEvent.start.isBefore(maxStartMoment) && shiftCanGetSmaller()) {
 
 				localScope.currentEvent.start.add(timeInterval[duration], 'minutes');
 
@@ -299,7 +302,17 @@
 
 		function decrementStartTime(duration) {
 
-			if(localScope.currentEvent.start.isAfter(meterTime.MinStart)) {
+			var minStartMoment = moment({
+				y: localScope.currentEvent.start.year(),
+				M: localScope.currentEvent.start.month(),
+				d: localScope.currentEvent.start.date(),
+				H: startHour,
+				m: 0,
+				s: 0,
+				ms: 0
+			});
+
+			if(localScope.currentEvent.start.isAfter(minStartMoment)) {
 
 				localScope.currentEvent.start.add(-timeInterval[duration], 'minutes');
 				// meterBar.Start -=  meterBarInterval[duration];
@@ -311,7 +324,7 @@
 
 		function incrementEndTime(duration) {
 
-			if(localScope.currentEvent.end.isBefore(meterTime.MaxEnd)) {
+			if(localScope.currentEvent.end.hours() > 0) {
 
 				localScope.currentEvent.end.add(timeInterval[duration], 'minutes');
 				// meterBar.End -= meterBarInterval[duration];
@@ -323,7 +336,18 @@
 
 		function decrementEndTime(duration) {
 
-			if(localScope.currentEvent.end.isAfter(meterTime.MinEnd) && shiftCanGetSmaller()) {
+			var minEndMoment = moment({
+				y: localScope.currentEvent.end.year(),
+				M: localScope.currentEvent.end.month(),
+				d: localScope.currentEvent.end.date(),
+				H: minEndHour,
+				m: 0,
+				s: 0,
+				ms: 0
+			});
+
+			if(localScope.currentEvent.end.hours() === 0 ||
+				(localScope.currentEvent.end.isAfter(minEndMoment) && shiftCanGetSmaller())) {
 
 				localScope.currentEvent.end.add(-timeInterval[duration], 'minutes');
 				// meterBar.End +=  meterBarInterval[duration];

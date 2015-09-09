@@ -51,8 +51,7 @@
 
 		vm.ViewEvent = function(_event) {
 
-			vm.CurrentEvent = _event;
-			
+			// todo			
 		};
 
         return vm;

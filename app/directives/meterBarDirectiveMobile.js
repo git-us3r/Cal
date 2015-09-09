@@ -65,7 +65,7 @@
 			updatePublicProperties();
 
 			// Make the whole directive unselectable
-			element.on('selectstart', function(){ return false; });            
+			element.on('selectstart', function(){ return false; });
 		}
 
 
@@ -78,15 +78,11 @@
 			localScope.DecrementStartTime = decrementStartTime;
 			localScope.IncrementEndTime = incrementEndTime;
 			localScope.DecrementEndTime = decrementEndTime;
-			localScope.StartTime = localScope.currentEvent.start;
-			localScope.EndTime = localScope.currentEvent.end;
 		}
 	   
 
 		function setupMeterTimeObjectProperties () {
 			
-			meterTime.Start = localScope.StartTime;
-			meterTime.End = localScope.EndTime;
 			meterTime.StartOfDay = moment({H:7, m:0});
 			meterTime.EndOfDay = moment({H:0, h:0});											//.. of the next day.
 		}
@@ -95,7 +91,7 @@
 		function initializeMeterBarStart(meterWrapper) {
 
 			var startOfDayInMinutes = meterTime.StartOfDay.hours() * 60 + meterTime.StartOfDay.minutes(),
-				startOfShiftInMinutes = meterTime.Start.hours() * 60 + meterTime.Start.minutes(),
+				startOfShiftInMinutes = localScope.currentEvent.start.hours() * 60 + localScope.currentEvent.start.minutes(),
 				minutesFromStartOfDay = startOfShiftInMinutes - startOfDayInMinutes,
 				intervalsFromStartOfDay = minutesFromStartOfDay / timeInterval.Short,
 				meterBarStartLocation = intervalsFromStartOfDay * meterBarInterval.Short;
@@ -107,7 +103,7 @@
 		function initializeMeterBarEnd(meterWrapper) {
 
 			var endOfDayInMinutes = meterTime.EndOfDay.hours() * 60 + meterTime.EndOfDay.minutes(),
-				endOfShiftInMinutes = (24 - meterTime.End.hours()) * 60 + meterTime.End.minutes(),
+				endOfShiftInMinutes = (24 - localScope.currentEvent.end.hours()) * 60 + localScope.currentEvent.end.minutes(),
 				minutesFromEndOfDay = Math.abs(endOfDayInMinutes - endOfShiftInMinutes),										// because the day ends at 12 a,
 				intervalsFromEndOfDay = minutesFromEndOfDay / timeInterval.Short,
 				meterBarEndLocation = intervalsFromEndOfDay * meterBarInterval.Short;
@@ -278,26 +274,24 @@
 		}
 
 
-
-
 		function incrementStartTime(duration) {
 
-			if(meterTime.Start.isBefore(meterTime.MaxStart) && shiftCanGetSmaller()) {
+			if(localScope.currentEvent.start.isBefore(meterTime.MaxStart) && shiftCanGetSmaller()) {
 
-				meterTime.Start.add(timeInterval[duration], 'minutes');
+				localScope.currentEvent.start.add(timeInterval[duration], 'minutes');
 
 				meterBar.Start += meterBarInterval[duration];
 
-				updatePublicProperties(this);
+				updatePublicProperties();
 			}
 		}
 
 
 		function decrementStartTime(duration) {
 
-			if(meterTime.Start.isAfter(meterTime.MinStart)) {
+			if(localScope.currentEvent.start.isAfter(meterTime.MinStart)) {
 
-				meterTime.Start.add(-timeInterval[duration], 'minutes');
+				localScope.currentEvent.start.add(-timeInterval[duration], 'minutes');
 				meterBar.Start -=  meterBarInterval[duration];
 
 				updatePublicProperties();
@@ -307,9 +301,9 @@
 
 		function incrementEndTime(duration) {
 
-			if(meterTime.End.isBefore(meterTime.MaxEnd)) {
+			if(localScope.currentEvent.end.isBefore(meterTime.MaxEnd)) {
 
-				meterTime.End.add(timeInterval[duration], 'minutes');
+				localScope.currentEvent.end.add(timeInterval[duration], 'minutes');
 				meterBar.End -= meterBarInterval[duration];
 
 				updatePublicProperties();
@@ -319,9 +313,9 @@
 
 		function decrementEndTime(duration) {
 
-			if(meterTime.End.isAfter(meterTime.MinEnd) && shiftCanGetSmaller()) {
+			if(localScope.currentEvent.end.isAfter(meterTime.MinEnd) && shiftCanGetSmaller()) {
 
-				meterTime.End.add(-timeInterval[duration], 'minutes');
+				localScope.currentEvent.end.add(-timeInterval[duration], 'minutes');
 				meterBar.End +=  meterBarInterval[duration];
 
 				updatePublicProperties();
@@ -331,10 +325,10 @@
 
 		function shiftCanGetSmaller() {
 
-			var startDay = meterTime.Start.date(),
-				endDay = meterTime.End.date(),
-				startHourInMinutes = meterTime.Start.hour() * 60 + meterTime.Start.minutes(),
-				endHourInMinutes = meterTime.End.hour() * 60 + meterTime.End.minutes(),
+			var startDay = localScope.currentEvent.start.date(),
+				endDay = localScope.currentEvent.end.date(),
+				startHourInMinutes = localScope.currentEvent.start.hour() * 60 + localScope.currentEvent.start.minutes(),
+				endHourInMinutes = localScope.currentEvent.end.hour() * 60 + localScope.currentEvent.end.minutes(),
 				answer = startDay < endDay || (endHourInMinutes - startHourInMinutes > 60);
 
 			return answer;
@@ -343,8 +337,6 @@
 
 		function updatePublicProperties() {
 
-			localScope.StartTime = meterTime.Start;
-			localScope.EndTime = meterTime.End;
 			localScope.MeterTop = meterBar.Start;
 			localScope.MeterBottom = meterBar.End;
 		}   

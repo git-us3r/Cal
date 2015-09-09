@@ -5,7 +5,7 @@
 				<h5 class="text-center timeHeading">Start</h5>
 			</div>	
 			<div class="row container-fluid">
-				<h4 class="text-center time">{{StartTime.toDate() | date : 'h:mma'}} </h4>
+				<h4 class="text-center time">{{currentEvent.start.toDate() | date : 'h:mma'}} </h4>
 			</div>
 			<div class="row container-fluid buttonRow">
 				<div id="start_minusButton_bottom_card_mobile" class="container-fluid buttonCard_mobile col-md-6" ng-click="DecrementStartTime('Short')">
@@ -25,7 +25,7 @@
 				<h5 class="text-center timeHeading">End</h5>
 			</div>	
 			<div class="row container-fluid">
-				<h4 class="text-center time">{{EndTime.toDate() | date : 'h:mma'}} </h4>
+				<h4 class="text-center time">{{currentEvent.end.toDate() | date : 'h:mma'}} </h4>
 			</div>
 			<div class="row container-fluid buttonRow">
 				<div id="end_minusButton_bottom_card_mobile" class="col-md-6 container-fluid buttonCard_mobile" ng-click="DecrementEndTime('Short')">

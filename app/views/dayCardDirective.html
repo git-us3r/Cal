@@ -1,7 +1,7 @@
  <div class="dayCardDirectiveMainWrapper">
  	<h3 class="text-center">Day Card Directive</h3>
  	<div id="dayCardDirectiveEventRow" class="row container-fluid">
- 		<div class="col-md-2 container-fluid dayCardEventColumn" ng-repeat="event in Events" ng-click="SelectEvent(event.id)">
+ 		<div class="col-md-2 container-fluid dayCardEventColumn" ng-repeat="event in events" ng-click="SelectEvent(event.id)">
  			<div class="row">
  				<div class="dayCardText">Start: {{event.start.toDate() | date:'h:mma'}}</div>
  			</div>

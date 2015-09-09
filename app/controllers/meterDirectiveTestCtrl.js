@@ -9,7 +9,7 @@
 
 	function ctrl($scope){
 
-		var vm = this;
+		var vm = $scope;
 
 		vm.DayEvents = [
 
@@ -49,13 +49,12 @@
 
 		vm.Msg = 'Directive Test Ground';
 
-		vm.Switch = true;
+		vm.updateSwitch = true;
 
-		vm.SelectCurrentEvent = function(_event) {
+		vm.$watch("CurrentEvent", function(){
+			vm.updateSwitch = !vm.updateSwitch;
 
-			vm.Switch = !vm.Switch;
-			console.log('vm.Switch: ' + vm.Switch);
-		};
+		});
 
         return vm;
 	}

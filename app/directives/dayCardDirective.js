@@ -24,8 +24,7 @@
 	var localScope = {
 
 		events : '=',
-		currentEvent : '=',
-		selectCurrentEvent : '&'
+		currentEvent : '='
 	};
 
 
@@ -41,7 +40,7 @@
 
 			if(localScope.events[i].id === eventId) {
 
-				localScope.selectCurrentEvent(localScope.events[i]);
+				localScope.currentEvent = localScope.events[i];
 				return;
 			}
 		}

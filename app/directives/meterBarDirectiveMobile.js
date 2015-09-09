@@ -41,7 +41,7 @@
 			localScope = {
 
 				currentEvent : '=',
-				suitch : '='
+				updateSwitch : '='
 			};
 
 
@@ -58,15 +58,15 @@
 
 			setupMeterBarObjectProperties(jQmeterWrapper[0]);
 
-			updatePublicProperties();
-
 			// Make the whole directive unselectable
 			element.on('selectstart', function(){ return false; });
 
-			scope.$watch('suitch', function(){
+			scope.$watch('updateSwitch', function(){
 
-				console.log('currentEvent has changed');
+				updatePublicProperties();
 			});
+
+			updatePublicProperties();			
 		}
 
 

@@ -66,6 +66,11 @@
 
 			// Make the whole directive unselectable
 			element.on('selectstart', function(){ return false; });
+
+			localScope.$watch(localScope.currentEvent.id, function(){
+
+				console.log('currentEvent has changed');
+			});
 		}
 
 
@@ -102,8 +107,13 @@
 
 		function initializeMeterBarEnd(meterWrapper) {
 
+			if(localScope.currentEvent.end.hours() === 0) {
+
+				return 0;
+			}
+
 			var endOfDayInMinutes = meterTime.EndOfDay.hours() * 60 + meterTime.EndOfDay.minutes(),
-				endOfShiftInMinutes = (24 - localScope.currentEvent.end.hours()) * 60 + localScope.currentEvent.end.minutes(),
+				endOfShiftInMinutes = (24 - localScope.currentEvent.end.hours()) * 60 - localScope.currentEvent.end.minutes(),
 				minutesFromEndOfDay = Math.abs(endOfDayInMinutes - endOfShiftInMinutes),										// because the day ends at 12 a,
 				intervalsFromEndOfDay = minutesFromEndOfDay / timeInterval.Short,
 				meterBarEndLocation = intervalsFromEndOfDay * meterBarInterval.Short;
@@ -280,7 +290,7 @@
 
 				localScope.currentEvent.start.add(timeInterval[duration], 'minutes');
 
-				meterBar.Start += meterBarInterval[duration];
+				// meterBar.Start += meterBarInterval[duration];
 
 				updatePublicProperties();
 			}
@@ -292,7 +302,7 @@
 			if(localScope.currentEvent.start.isAfter(meterTime.MinStart)) {
 
 				localScope.currentEvent.start.add(-timeInterval[duration], 'minutes');
-				meterBar.Start -=  meterBarInterval[duration];
+				// meterBar.Start -=  meterBarInterval[duration];
 
 				updatePublicProperties();
 			}
@@ -304,7 +314,7 @@
 			if(localScope.currentEvent.end.isBefore(meterTime.MaxEnd)) {
 
 				localScope.currentEvent.end.add(timeInterval[duration], 'minutes');
-				meterBar.End -= meterBarInterval[duration];
+				// meterBar.End -= meterBarInterval[duration];
 
 				updatePublicProperties();
 			}
@@ -316,7 +326,7 @@
 			if(localScope.currentEvent.end.isAfter(meterTime.MinEnd) && shiftCanGetSmaller()) {
 
 				localScope.currentEvent.end.add(-timeInterval[duration], 'minutes');
-				meterBar.End +=  meterBarInterval[duration];
+				// meterBar.End +=  meterBarInterval[duration];
 
 				updatePublicProperties();
 			}
@@ -337,8 +347,8 @@
 
 		function updatePublicProperties() {
 
-			localScope.MeterTop = meterBar.Start;
-			localScope.MeterBottom = meterBar.End;
+			localScope.MeterTop = initializeMeterBarStart();
+			localScope.MeterBottom = initializeMeterBarEnd();
 		}   
 
 		return {

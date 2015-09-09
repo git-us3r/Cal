@@ -51,9 +51,14 @@
 
 		vm.updateSwitch = true;
 
-		vm.$watch("CurrentEvent", function(){
-			vm.updateSwitch = !vm.updateSwitch;
+		vm.update = function() {
 
+			vm.updateSwitch = !vm.updateSwitch;
+		};
+
+		vm.$watch("CurrentEvent", function(){
+
+			vm.updateSwitch = !vm.updateSwitch;
 		});
 
         return vm;

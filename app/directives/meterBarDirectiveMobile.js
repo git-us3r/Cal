@@ -41,7 +41,8 @@
 			localScope = {
 
 				currentEvent : '=',
-				updateSwitch : '='
+				updateSwitch : '=',
+				requestUpdate : '&'
 			};
 
 
@@ -64,7 +65,7 @@
 			// update on command - until I figure how to watch the right way :(
 			scope.$watch('updateSwitch', function(){
 
-				updatePublicProperties();
+				updateModelProperties();
 			});
 
 			// update to display the current event
@@ -376,7 +377,15 @@
 
 			localScope.MeterTop = initializeMeterBarStart();
 			localScope.MeterBottom = initializeMeterBarEnd();
-		}   
+
+			localScope.requestUpdate();
+		}
+
+		function updateModelProperties() {
+
+			localScope.MeterTop = initializeMeterBarStart();
+			localScope.MeterBottom = initializeMeterBarEnd();
+		}  
 
 		return {
 

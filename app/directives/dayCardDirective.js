@@ -24,7 +24,9 @@
 	var localScope = {
 
 		events : '=',
-		currentEvent : '='
+		currentEvent : '=',
+		updateSwitch : '='
+
 	};
 
 
@@ -32,6 +34,11 @@
 
 		localScope = scope;
 		localScope.SelectEvent = selectEvent;
+
+		scope.$watch('updateSwitch', function(newValue, oldValue, scope) {
+			
+			setEventsHeight();
+		});
 
 		setEventsHeight();
 	}
@@ -50,7 +57,8 @@
 			eventEndInMinutes = _event.end.hours() === 0 ? 24 : _event.end.hours() * 60 + _event.end.minutes(),
 			eventStartInMinutes = _event.start.hours() * 60 + _event.start.minutes(),
 			eventDurationInMinutes = eventEndInMinutes - eventStartInMinutes,
-			eventHeightAsPercentage = eventDurationInMinutes * 100 / workDayInMinutes;
+			maxHeight = 100,
+			eventHeightAsPercentage = eventDurationInMinutes / workDayInMinutes * maxHeight;
 
 		return Math.floor(eventHeightAsPercentage);
 	}

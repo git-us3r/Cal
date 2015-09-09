@@ -3,13 +3,13 @@
  	<div id="dayCardDirectiveEventRow" class="row container-fluid">
  		<div class="col-md-2 container-fluid dayCardEventColumn" ng-repeat="event in events" ng-click="SelectEvent(event)">
  			<div class="row">
- 				<div class="dayCardText">Start: {{event.start.toDate() | date:'h:mma'}}</div>
+ 				<div class="dayCardText">{{event.start.toDate() | date:'h:mma'}}</div>
  			</div>
  			<div class="container-fluid dayCardDirectiveMeterBar" style="height : {{event.height}}px;">
  				
  			</div>
  			<div class="row">
- 				<div class="dayCardText">End: {{event.end.toDate() | date:'h:mma'}}</div>
+ 				<div class="dayCardText">{{event.end.toDate() | date:'h:mma'}}</div>
  			</div>
  		</div>
  	</div>

@@ -4,12 +4,12 @@
 	</div>
 	<div class="row">
 		<div class="col-md-7">
-			<meter-bar-directive-mobile current-event="vm.CurrentEvent"></meter-bar-directive-mobile>
+			<meter-bar-directive-mobile current-event="vm.CurrentEvent" suitch="vm.Switch"></meter-bar-directive-mobile>
 		</div>
 	</div>
 	<div class="row container-fluid">
 		<div class="col-md-7 container-fluid">
-			<day-card-directive events="vm.DayEvents" current-event="vm.CurrentEvent"></day-card-directive>
+			<day-card-directive events="vm.DayEvents" current-event="vm.CurrentEvent" select-current-event="vm.SelectCurrentEvent()"></day-card-directive>
 		</div>
 	</div>
 </div>

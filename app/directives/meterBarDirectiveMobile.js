@@ -40,7 +40,8 @@
 			edgeBeingDragged = null,
 			localScope = {
 
-				currentEvent : '='
+				currentEvent : '=',
+				suitch : '='
 			};
 
 
@@ -62,7 +63,7 @@
 			// Make the whole directive unselectable
 			element.on('selectstart', function(){ return false; });
 
-			localScope.$watch(localScope.currentEvent.id, function(){
+			scope.$watch('suitch', function(){
 
 				console.log('currentEvent has changed');
 			});

@@ -49,9 +49,12 @@
 
 		vm.Msg = 'Directive Test Ground';
 
-		vm.ViewEvent = function(_event) {
+		vm.Switch = true;
 
-			// todo			
+		vm.SelectCurrentEvent = function(_event) {
+
+			vm.Switch = !vm.Switch;
+			console.log('vm.Switch: ' + vm.Switch);
 		};
 
         return vm;

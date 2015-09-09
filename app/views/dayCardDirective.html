@@ -5,9 +5,11 @@
  			<div class="row">
  				<div class="dayCardText">{{event.start.toDate() | date:'h:mma'}}</div>
  			</div>
- 			<div class="container-fluid dayCardDirectiveMeterBar" style="height : {{event.height}}px;">
- 				
- 			</div>
+ 			<div class="container-fluid dayCardDirectiveMeterBarWrapper">
+				<div class="container-fluid dayCardDirectiveMeterBar" style="height : {{event.height}}px; margin-top : {{event.top}}px; margin-bottom: {{event.bottom}}px;">
+					
+				</div>
+			</div>
  			<div class="row">
  				<div class="dayCardText">{{event.end.toDate() | date:'h:mma'}}</div>
  			</div>

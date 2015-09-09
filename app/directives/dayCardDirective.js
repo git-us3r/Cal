@@ -32,18 +32,33 @@
 
 		localScope = scope;
 		localScope.SelectEvent = selectEvent;
+
+		setEventsHeight();
 	}
 
-	function selectEvent(eventId) {
+	function setEventsHeight() {
 
-		for(var i = 0; i < localScope.events.length; ++i) {
+		angular.forEach(localScope.events, function(value, key){
+			
+			value.height = getEventHeightAsPercentage(value);
+		});
+	}
 
-			if(localScope.events[i].id === eventId) {
+	function getEventHeightAsPercentage(_event) {
 
-				localScope.currentEvent = localScope.events[i];
-				return;
-			}
-		}
+		var workDayInMinutes = 17 * 60,
+			eventEndInMinutes = _event.end.hours() === 0 ? 24 : _event.end.hours() * 60 + _event.end.minutes(),
+			eventStartInMinutes = _event.start.hours() * 60 + _event.start.minutes(),
+			eventDurationInMinutes = eventEndInMinutes - eventStartInMinutes,
+			eventHeightAsPercentage = eventDurationInMinutes * 100 / workDayInMinutes;
+
+		return Math.floor(eventHeightAsPercentage);
+	}
+
+
+	function selectEvent(_event) {
+
+		localScope.currentEvent = _event;
 	}
 
 }());

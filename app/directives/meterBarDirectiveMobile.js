@@ -61,11 +61,13 @@
 			// Make the whole directive unselectable
 			element.on('selectstart', function(){ return false; });
 
+			// update on command - until I figure how to watch the right way :(
 			scope.$watch('updateSwitch', function(){
 
 				updatePublicProperties();
 			});
 
+			// update to display the current event
 			updatePublicProperties();			
 		}
 

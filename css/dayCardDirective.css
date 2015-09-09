@@ -1,12 +1,28 @@
+#dayCardDirectiveMainWrapper {
+
+	min-width: 350px;
+	max-widh: 30px;
+}
+
+#dayCardDirectiveEventRow {
+
+	min-width: 450px;
+	max-widh: auto;	
+}
+
 .dayCardEventColumn {
 
-	min-width: 60px;
-	max-height: 120px;
-	min-height: auto;
-	max-width: 60px;
+	padding: 15px;
+	background: #333;
 
-	background: #2BAFA5;
-	
+	min-height: 170px;
+	max-height: auto;
+	min-width: 60px;
+	max-width: auto;	
+
+	overflow: hidden;
+
+	float: left;
 }
 
 .dayCardText {
@@ -17,5 +33,15 @@
     font-family: 'BebasNeueRegular', Arial, Helvetica, sans-serif;
     text-shadow: 0 0 8px #151717;
     color: white;
+}
+
+.dayCardDirectiveMeterBar {
+
+	min-width: 45px;
+	max-height: 150px;
+	min-height: auto;
+	max-width: 45px;
+
+	background: #2BAFA5;
 }
 

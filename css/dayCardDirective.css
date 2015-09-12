@@ -1,13 +1,12 @@
 #dayCardDirectiveMainWrapper {
 
 	min-width: 350px;
-	max-widh: 30px;
+	max-width: 350px;
 }
 
 #dayCardDirectiveEventRow {
 
 	min-width: 450px;
-	max-widh: auto;	
 }
 
 .dayCardEventColumn {
@@ -16,9 +15,7 @@
 	background: #333;
 
 	min-height: 170px;
-	max-height: auto;
 	min-width: 60px;
-	max-width: auto;	
 
 	overflow: hidden;
 

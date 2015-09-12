@@ -8,12 +8,12 @@
 				<h4 class="text-center time">{{currentEvent.start.toDate() | date : 'h:mma'}} </h4>
 			</div>
 			<div class="row container-fluid buttonRow">
-				<div id="start_minusButton_bottom_card_mobile" class="container-fluid buttonCard_mobile col-md-6" ng-click="DecrementStartTime('Short')">
+				<div id="start_minusButton_bottom_card_mobile" class="container-fluid buttonCard_mobile col-md-6" data-ng-click="DecrementStartTime('Short')">
 					<div class="buttonText text-center container-fluid">
 						-
 					</div>
 				</div>
-				<div id="start_plusButton_bottom_card_mobile" class="container-fluid buttonCard_mobile col-md-6" ng-click="IncrementStartTime('Short')">
+				<div id="start_plusButton_bottom_card_mobile" class="container-fluid buttonCard_mobile col-md-6" data-ng-click="IncrementStartTime('Short')">
 					<div class="buttonText text-center container-fluid">
 						+
 					</div>
@@ -28,12 +28,12 @@
 				<h4 class="text-center time">{{currentEvent.end.toDate() | date : 'h:mma'}} </h4>
 			</div>
 			<div class="row container-fluid buttonRow">
-				<div id="end_minusButton_bottom_card_mobile" class="col-md-6 container-fluid buttonCard_mobile" ng-click="DecrementEndTime('Short')">
+				<div id="end_minusButton_bottom_card_mobile" class="col-md-6 container-fluid buttonCard_mobile" data-ng-click="DecrementEndTime('Short')">
 					<div class="buttonText text-center container-fluid">
 						-
 					</div>
 				</div>
-				<div id="end_plusButton_bottom_card_mobile" class="col-md-6 container-fluid buttonCard_mobile" ng-click="IncrementEndTime('Short')">
+				<div id="end_plusButton_bottom_card_mobile" class="col-md-6 container-fluid buttonCard_mobile" data-ng-click="IncrementEndTime('Short')">
 					<div class="buttonText text-center container-fluid">
 						+
 					</div>

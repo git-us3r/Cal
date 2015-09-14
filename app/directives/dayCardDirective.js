@@ -61,7 +61,7 @@
 	function getEventHeight(_event) {
 
 		var workDayInMinutes = 17 * 60,
-			eventEndInMinutes = _event.end.hours() === 0 ? 24 : _event.end.hours() * 60 + _event.end.minutes(),
+			eventEndInMinutes = _event.end.hours() === 0 ? (24 * 60) : _event.end.hours() * 60 + _event.end.minutes(),
 			eventStartInMinutes = _event.start.hours() * 60 + _event.start.minutes(),
 			eventDurationInMinutes = eventEndInMinutes - eventStartInMinutes,
 			maxHeight = 100,

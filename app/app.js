@@ -22,7 +22,7 @@
                 })
                 .state("sandbox", {
                     url: "/sandbox",
-                    templateUrl: "app/views/sandbox.html",
+                    templateUrl: "app/views/sandbox_interactiveTables.html",
                     controller: "sandboxCtrl as vm"
                 })
                 .state("taskCard", {

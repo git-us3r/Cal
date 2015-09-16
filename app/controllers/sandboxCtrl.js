@@ -9,40 +9,28 @@
 
     function ctrl($scope, $state, $window) {
 
-    	var vm = this,
-            minHeight = 500,
-            minWidth = 1205;
+    	var uid = -1,
+            vm = $scope;        
 
-        (function init(){
+        vm.Data = ['d1', 'd2', 'd3', 'd4'];
 
-            window.onresize = function() {
+        (function makeDataDraggableWithJQuery() {
 
-                $scope.$apply(function(){
+            angular.element("standAlondeDraggable").ready(function(){
 
-                    updateDimensions();
-                });   
-            };
-
-            updateDimensions();
-
+                 $('#standAlondeDraggable').draggable();
+            })
+                       
         }());
 
 
-        function updateDimensions() {
+        function getUid() {
 
-            vm.VisibleHeight = $window.innerHeight;        
-            vm.VisibleWidth = $window.innerWidth;
-
-            if(vm.VisibleWidth < minWidth) {
-
-                vm.CurrentView = 'smallView';
-            } 
-            else {
-
-                vm.CurrentView = 'largeView';
-            }
+            ++uid;
+            return uid;
         }
 
+        vm.GetUID = getUid;
 
     	return vm;
     }

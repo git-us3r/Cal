@@ -35,6 +35,11 @@
                     templateUrl: "app/views/meterDirectiveTest.html",
                     controller: "meterDirectiveTestCtrl as vm"
                 })
+                .state("calendarDirectiveTest", {
+                    url: "/calendarDirectiveTest",
+                    templateUrl: "app/views/calendarDirectiveTest.html",
+                    controller: "meterDirectiveTestCtrl as vm"
+                });
         }]
     );
 

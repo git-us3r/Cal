@@ -20,6 +20,11 @@
 
                  $('#standAlondeDraggable').draggable();
             })
+
+            angular.element("Droppable0").ready(function(){
+
+                $('#droppable0').droppable();
+            });
                        
         }());
 

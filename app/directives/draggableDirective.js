@@ -18,7 +18,13 @@
 
 	function linkFunction(scope, element, attrs) {
 
-		$(element).draggable();
+		$(element).draggable({
+
+			containment : '#droppable0',
+			snap : '#droppable0',			
+			snapMode : "outer",
+			zIndex: 100
+		});
 	}
 
 }());

@@ -11,6 +11,9 @@
 
 		var vm = $scope;
 
+		vm.Message = "Cal Dir Test Ctrl"
+		vm.Events = {};
+
         return vm;
 	}
 

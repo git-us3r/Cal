@@ -5,7 +5,7 @@
 	angular.module('Calendar')
 	.directive('calendarDirective', ['$swipe', directiveFunction]);
 
-	var localScope = {},
+	var localScope = { clientEventArray : "=" },
 		events = {},
 		eventsArray = [],
 		retrievableGarbage = [],
@@ -30,12 +30,12 @@
 
 	function linkFunction(scope, element, attrs) {
 
-		init();
-
+		localScope = scope;
+		initCalendar();
 	}
 
 
-	function init(functions) {
+	function initCalendar(functions) {
 
 		$(document).ready(function() {
 
@@ -81,7 +81,7 @@
 
 		if(multiday) {
 
-			vm.AddMultiDayEvent(start, end);
+			addMultiDayEvent(start, end);
 		}
 		else if(dayHasEvents && viewIsMonth) {
 
@@ -303,15 +303,20 @@
 
 	function updateEventsArray() {
 
-		eventsArray = [];
+		localScope.$apply(function(){
 
-		for(var key in events) {
+			eventsArray = [];
+			localScope.clientEventArray = {};
 
-			if(events.hasOwnProperty(key)) {
+			for(var key in events) {
 
-				eventsArray.push(events[key]);
+				if(events.hasOwnProperty(key)) {
+
+					eventsArray.push(events[key]);
+					localScope.clientEventArray[key] = events[key];
+				}
 			}
-		}
+		});
 	}
 
 

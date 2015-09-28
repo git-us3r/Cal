@@ -5,7 +5,12 @@
 	angular.module('Calendar')
 	.directive('calendarDirective', ['$swipe', directiveFunction]);
 
-	var localScope = { clientEventArray : "=" },
+	var localScope = { 
+		
+			eventCollection : "=",
+			workDayInHours : "="
+
+		},
 		events = {},
 		eventsArray = [],
 		retrievableGarbage = [],
@@ -59,7 +64,7 @@
 				businessHours : true,
 				lazyFetching : false,
 				slotDuration : '01:00:00',
-				select : calendarSelect,
+				select : processEvent,
 				eventResize : calendarEventResize,
 				eventClick : calendarEventClick,
 				eventDrop : calendarEventDrop
@@ -69,15 +74,16 @@
 
 		calendar = $('#theCalendar').fullCalendar('getCalendar');
 		calendar.addEventSource(eventsArray);
+		localScope.eventCollection.SetWorkDayInHours(localScope.workDayInHours);
 	}
 
 
 	function processEvent(start, end, jsEvent, view) {
 
-		var multiday = eventIsMultiDay(start, end),
-			dayHasEvents = thisDayHasEvent(start.date()),
+		var multiday = localScope.eventCollection.EventIsMultiDay(start, end),
+			dayHasEvents = localScope.eventCollection.DayHasEvent(start.date()),
 			viewIsMonth = currentViewIsMonth(view),
-			allDayEvent = eventIsAllDay(start, end);
+			allDayEvent = localScope.eventCollection.EventIsAllDay(start, end, localScope.workDayInHours);
 
 		if(multiday) {
 
@@ -95,22 +101,9 @@
 
 			addEvent('Available', start, end);
 		}
+
+		refreshCalendar();
 	}
-
-
-
-	function eventIsMultiDay(start, end) {
-
-		if(end.date() - start.date() > 1) {
-
-			return true;
-		}
-		else {
-
-			return false;
-		}
-	}
-
 
 
 	function currentViewIsMonth(view) {
@@ -124,23 +117,9 @@
 	}
 
 
-
-	function eventIsAllDay(start, end) {
-
-		var diff = end.diff(start, 'hours');
-		return diff === 24;
-	}
-
-
-	function calendarSelect(start, end, jsEvent, view) {
-
-		processEvent(start, end, jsEvent, view);
-	}
-
-
 	function calendarEventClick(_event, jsEvent, view) {
 
-		setCurrentEvent(_event, jsEvent, view);
+		localScope.eventCollection.SetCurrentEvent(_event, jsEvent, view);
 	}
 
 
@@ -149,46 +128,18 @@
 		// There isn't much to be done, as the calendar does the work.
 		// We just notify to update the gui
 		// TODO
-		eventResize(_event);
+		localScope.eventCollection.EditEvent(_event);
 	}
 
 
 	function calendarEventResize(_event, delta, revertFunc) {
 
-		if(events.hasOwnProperty(_event.id)) {
+		localScope.$apply(function(){
 
-			_event.color = defaultEventColor;
-			setCurrentEvent(_event);
-		}
+			localScope.eventCollection.EditEvent(_event);
+		});	
 
 		refreshCalendar();
-	}
-
-
-	function getEvents() {
-
-		updateEventsArray();
-
-		return eventsArray;
-	}
-
-
-	function thisDayHasEvent(day) {
-
-		for(var key in events) {
-
-			if(events.hasOwnProperty(key)) {
-
-				var evnt = events[key];
-
-				if(evnt.start.date() === day || evnt.end.date() === day) {
-
-					return true;
-				}
-			}			
-		}
-
-		return false;
 	}
 
 
@@ -210,7 +161,7 @@
 
 	function addAllDayEvent(_title, _start, _end) {
 
-		if(thisDayHasEvent(_start.date())) {
+		if(localScope.eventCollection.DayHasEvent(_start.date())) {
 
 			return;
 		}
@@ -218,12 +169,14 @@
 		var year = _start.year();
 		var month = _start.month();
 		var day = _start.date();
+		var nextDaysMonth = moment(_start).add(1, 'days').month();
+		var nextDay = moment(_start).add(1, 'days').date();
 		
 		var newEventStart = calendar.moment({
 			y : year,
 			M : month,
 			d : day,
-			h : 9,
+			h : 7,
 			m : 0,
 			s : 0,
 			ms : 0
@@ -232,9 +185,9 @@
 
 		var newEventEnd = calendar.moment({
 			y : year,
-			M : month,
-			d : day,
-			h : 18,
+			M : nextDaysMonth,
+			d : nextDay,
+			h : 0,
 			m : 0,
 			s : 0,
 			ms : 0
@@ -249,7 +202,11 @@
 			color : 'orange'
 		};
 
-		storeEvent(newEvent);
+
+		localScope.$apply(function(){
+
+			localScope.eventCollection.AddEvent(newEvent);
+		});	
 	}
 
 
@@ -263,21 +220,11 @@
 				start : _start,
 				end : _end
 			};
-		
-		storeEvent(newEvent);
-	}
 
+		localScope.$apply(function(){
 
-	function storeEvent(newEvent) {
-
-		if(events.hasOwnProperty(newEvent.id)) {
-
-			return; 	// event exists ?!
-		}
-
-		currentEvent = newEvent;
-		events[newEvent.id] = newEvent;
-		refreshCalendar();
+			localScope.eventCollection.AddEvent(newEvent);
+		});	
 	}
 
 
@@ -303,20 +250,7 @@
 
 	function updateEventsArray() {
 
-		localScope.$apply(function(){
-
-			eventsArray = [];
-			localScope.clientEventArray = {};
-
-			for(var key in events) {
-
-				if(events.hasOwnProperty(key)) {
-
-					eventsArray.push(events[key]);
-					localScope.clientEventArray[key] = events[key];
-				}
-			}
-		});
+		eventsArray = localScope.eventCollection.GetEventsArray();
 	}
 
 
@@ -327,143 +261,10 @@
 	}
 
 
-	function getCurrentEvent() {
-
-		return currentEvent;
-	}
-
-
-	function hasEvent(_event) {
-
-		return events.hasOwnProperty(_event.id);
-	}
-
-
-	function setCurrentEvent(_event) {
-
-		if(events.hasOwnProperty(_event.id)) {
-
-			events[_event.id] = _event;
-			currentEvent = events[_event.id];
-		}
-	}
-
-
-	function editEvent(_event) {
-
-		setCurrentEvent(_event);
-
-		refreshCalendar();
-	}
-
-
 	function addListenerToCalendarUpdateEvent(listener) {
 
 		listeners.CalendarUpdate.push(listener);
 	}
-
-
-	function removeEvent(_event) {
-
-		if(events.hasOwnProperty(_event.id)) {
-			
-			delete events[_event.id];
-
-			if(currentEvent.id === _event.id) {
-
-				currentEvent = null;
-			}
-
-			refreshCalendar();
-		}
-	}
-
-
-	function addTimeToEvent(_event, timeSection, time, timeUnit) {
-
-		if(events.hasOwnProperty(_event.id)) {
-
-			if(timeSection === 'start') {
-
-				_event.start = _event.start.add(time, timeUnit);
-			}
-			else {
-
-				_event.end = _event.end.add(time, timeUnit);
-			}
-
-			_event.color = defaultEventColor;
-
-			editEvent(_event);
-		}
-	}
-
-
-	function getEventPercentageValue(_event) {
-
-		var workdayInMinutes = 9 * 60,
-			eventDurationInMinutes = getEventDurationInMinutes(_event),
-			eventDurationPercentage = eventDurationInMinutes / workdayInMinutes * 100; 		// 8-hour day
-
-		return  eventDurationPercentage;
-	}
-
-
-
-	function getEventDurationInMinutes(_event) {
-
-		var startTimeInMinutesFromZero = _event.start.hour() * 60 + _event.start.minute(),
-			endTimeInMinutesFromZero = _event.end.hour() * 60 + _event.end.minute(),
-			differenceInMinutes = endTimeInMinutesFromZero - startTimeInMinutesFromZero;	// greater than 0
-
-		return differenceInMinutes;
-	}
-
-
-	function getTasksInCurrentMonth() {
-
-		var currentMonth = calendar.getDate().month(),
-			returnArray = [],
-			iterationEvent = null;
-
-		for(var key in events) {
-
-			if(events.hasOwnProperty(key)) {
-
-				iterationEvent = events[key];
-
-				if(iterationEvent.start.month() === currentMonth) {
-
-					returnArray.push(iterationEvent);
-				}
-			}
-		}
-
-		return returnArray;
-	}
-
-
-	function getTasksInDay(day) {
-
-		var returnArray = [],
-			iterationEvent = null;
-
-		for(var key in events) {
-
-			iterationEvent = events[key];
-
-			if(iterationEvent.start.date() === day) {
-
-				returnArray.push(iterationEvent);
-			}
-		}
-
-		return returnArray;
-	}
-
-
-
-	// TODO
 
 
 }());

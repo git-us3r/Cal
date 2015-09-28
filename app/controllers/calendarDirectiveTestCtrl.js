@@ -12,7 +12,8 @@
 		var vm = $scope;
 
 		vm.Message = "Cal Dir Test Ctrl"
-		vm.Events = {};
+		vm.EventCollection = Using.Require('EventCollection');
+		vm.WorkDayInHours = 17;
 
         return vm;
 	}

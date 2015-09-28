@@ -6,7 +6,30 @@
 
 
 	var eventsIndex = {},
-		currentEvent = {};
+		currentEvent = {},
+		defaultEventColor = '#337AB7',
+		allDayEventColor = 'orange',
+		workDayInHours;
+
+
+	function eventIsAllDay(start, end) {
+
+		var diff = end.diff(start, 'hours');
+		return diff >= workDayInHours;
+	}	
+
+
+	function eventIsMultiDay(start, end) {
+
+		if(end.date() - start.date() > 1) {
+
+			return true;
+		}
+		else {
+
+			return false;
+		}
+	}	
 
 
 	function getEventsIndex() {
@@ -20,11 +43,11 @@
 
 		var eventsArray = [];
 
-		for(var _event in eventsIndex) {
+		for(var key in eventsIndex) {
 
-			if(eventsIndex.hasOwnProperty(_event)) {
+			if(eventsIndex.hasOwnProperty(key)) {
 
-				eventsArray.push(_event);
+				eventsArray.push(eventsIndex[key]);
 			}			
 		}
 
@@ -53,13 +76,13 @@
 
 	function addEvent(_event) {
 
-		if(_events.hasOwnProperty(newEvent.id)) {
+		if(eventsIndex.hasOwnProperty(_event.id)) {
 
 			return; 	// _event exists ?!
 		}
 
-		eventsIndex[newEvent.id] = newEvent;
-		currentEvent = eventsIndex[newEvent.id];
+		eventsIndex[_event.id] = _event;
+		currentEvent = eventsIndex[_event.id];
 	}
 
 
@@ -89,6 +112,11 @@
 		if(eventsIndex.hasOwnProperty(_event.id)) {
 
 			eventsIndex[_event.id] = _event;
+
+			if(eventsIndex[_event.id].color === allDayEventColor && !eventIsAllDay(_event.start, _event.end)) {
+
+				eventsIndex[_event.id].color = defaultEventColor;
+			}
 		}
 	}
 
@@ -231,9 +259,17 @@
 	}
 
 
+	function setWorkDayInHours(_workDayInHours) {
+
+		workDayInHours = _workDayInHours;
+	}
+
+
 
 	Using.Expose('EventCollection', { 
 
+		EventIsMultiDay : eventIsMultiDay,
+		EventIsAllDay : eventIsAllDay,
 		GetEventsArray : getEventsArray,
 		GetEventsIndex : getEventsIndex,
 		DayHasEvent : thisDayHasEvent,
@@ -242,13 +278,14 @@
 		HasEvent : hasEvent,
 		SetCurrentEvent : setCurrentEvent,
 		EditEvent : editEvent,
-		AddListener : addListener
+		AddListener : addListener,
 		RemoveEvent : removeEvent,
 		AddTimeToEvent : addTimeToEvent,
 		GetEventAsPercentageOfWorkDay: getEventAsPercentageOfWorkDay,
 		GetEventDuration: getEventDuration,
 		GetEventsInDay : getEventsInDay,
 		GetEventsInWeek : getEventsInWeek,
-		GetEventsInMonth : getEventsInMonth
+		GetEventsInMonth : getEventsInMonth,
+		SetWorkDayInHours : setWorkDayInHours
 	});
 }());

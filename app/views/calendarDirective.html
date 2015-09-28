@@ -2,6 +2,40 @@
 	<div class="row container-fluid">
 		<div id="clendarCard" class="col-md-12 container-fluid card">
 		    <div id="theCalendar"></div>
+		    <div class="row">
+		    	<div class="col-md-6 container-fluid">
+		    		<div class="container-fluid calendarDirectiveButtonCard calendarDirectiveButtonCard-link" ng-click="ButtonClick('viewButton');">
+		    			{{ViewButtonNextView}}
+		    		</div>
+		    	</div>
+		    	<div class="col-md-2 container-fluid">
+		    		<div class="container-fluid calendarDirectiveButtonCard calendarDirectiveButtonCard-link" ng-click="ButtonClick('prevButton');">
+		    			Prev
+		    		</div>
+		    	</div>
+		    	<div class="col-md-2 container-fluid">
+		    		<div class="container-fluid calendarDirectiveButtonCard calendarDirectiveButtonCard-link" ng-click="ButtonClick('todayButton');">
+		    			Today
+		    		</div>
+		    	</div>
+		    	<div class="col-md-2 container-fluid">
+		    		<div class="container-fluid calendarDirectiveButtonCard calendarDirectiveButtonCard-link" ng-click="ButtonClick('nextButton');">
+		    			Next
+		    		</div>
+		    	</div>
+		    </div>
+		    <div class="row">
+		    	<div class="col-md-6 container-fluid">
+		    		<div class="container-fluid calendarDirectiveButtonCard calendarDirectiveButtonCard-link" ng-click="ButtonClick('addButton');">
+		    			Add
+		    		</div>
+		    	</div>
+		    	<div class=" col-md-6 container-fluid">
+		    		<div class="container-fluid calendarDirectiveButtonCard calendarDirectiveButtonCard-link" ng-click="ButtonClick('deleteButton');">
+		    			Delete
+		    		</div>
+		    	</div>
+		    </div>
 		</div>
 	</div>
 </div>

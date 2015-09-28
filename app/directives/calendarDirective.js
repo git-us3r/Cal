@@ -16,9 +16,9 @@
 		retrievableGarbage = [],
 		calendar = null,
 		listeners = {CalendarUpdate : []},
-		currentEvent = null,
 		defaultEventColor = '#337AB7',
-		allDayEventColor = 'orange';
+		allDayEventColor = 'orange',
+		viewButtonNextView = 'Day';
 
 
 	function directiveFunction($swipe){
@@ -36,6 +36,10 @@
 	function linkFunction(scope, element, attrs) {
 
 		localScope = scope;
+		localScope.ViewButtonNextView = viewButtonNextView;
+		localScope.eventCollection.SetWorkDayInHours(localScope.workDayInHours);
+		localScope.ButtonClick = buttonClick;
+
 		initCalendar();
 	}
 
@@ -53,9 +57,9 @@
 				selectable : true,
 				header : {
 
-					left : 'month agendaDay',
+					left : '',
 					center : 'title',
-					right : 'today prev,next'
+					right : ''
 				},
 				eventColor : defaultEventColor,
 				eventOverlap : false,
@@ -74,7 +78,6 @@
 
 		calendar = $('#theCalendar').fullCalendar('getCalendar');
 		calendar.addEventSource(eventsArray);
-		localScope.eventCollection.SetWorkDayInHours(localScope.workDayInHours);
 	}
 
 
@@ -106,9 +109,113 @@
 	}
 
 
+	function buttonClick(buttonClicked) {
+
+		switch(buttonClicked) {
+
+			case 'viewButton':
+
+				handleButtonClick_viewButton();				
+				break;
+
+			case 'prevButton':
+				
+				handleButtonClick_prevButton();
+				break;
+
+			case 'todayButton':
+				
+				handleButtonClick_todayButton();
+				break;
+
+			case 'nextButton':
+				
+				handleButtonClick_nextButton();
+				break;
+
+			case 'addButton':
+				
+				handleButtonClick_addButton();
+				break;
+
+			case 'deleteButton':
+				
+				handleButtonClick_deleteButton();
+				break;
+
+			default:
+				throw 'NotImplementedException: No handling for case: ' + buttonClicked;
+
+		}
+	}
+
+
+	function handleButtonClick_viewButton() {
+
+		var currentEvent = localScope.eventCollection.GetCurrentEvent(),
+			currentView = calendar.getView();
+		
+		if(currentEvent && currentViewIsMonth(currentView.name)) {
+		
+			viewButtonNextView = (viewButtonNextView === 'Day') ? 'Month' : 'Day';
+			localScope.ViewButtonNextView = viewButtonNextView;
+			gotoCalendarDayView(currentEvent.start);
+		}
+		else if(currentViewIsDay(currentView.name)) {
+
+			gotoCalendarMonthView();
+		}	
+	}
+
+
+	function handleButtonClick_prevButton() {
+
+		calendar.next();
+	}
+
+
+	function handleButtonClick_todayButton() {
+
+		calendar.today();
+	}
+
+
+	function handleButtonClick_nextButton() {
+
+		calendar.prev();
+	}
+
+
+	function handleButtonClick_addButton() {
+
+		throw 'NotImplementedException: Method: handleButtonClick_addButton'; 
+	}
+
+
+	function handleButtonClick_deleteButton() {
+
+		localScope.eventCollection.RemoveEvent(localScope.eventCollection.GetCurrentEvent());
+
+		refreshCalendar();
+	}
+
+
+
+
 	function currentViewIsMonth(view) {
 
-		if(view.intervalUnit === 'month') {
+		if(view === 'month') {
+
+			return true;
+		}
+
+		return false;
+	}
+
+
+	function currentViewIsDay(view) {
+
+		if(view === 'agendaDay') {
 
 			return true;
 		}
@@ -119,7 +226,17 @@
 
 	function calendarEventClick(_event, jsEvent, view) {
 
-		localScope.eventCollection.SetCurrentEvent(_event, jsEvent, view);
+		localScope.$apply(function(){
+
+			localScope.eventCollection.SetCurrentEvent(_event, jsEvent, view);
+		});
+
+		if(currentViewIsMonth(calendar.getView().name)) {
+
+			gotoCalendarDayView(localScope.eventCollection.GetCurrentEvent().start);
+		}
+
+		refreshCalendar();
 	}
 
 
@@ -128,7 +245,12 @@
 		// There isn't much to be done, as the calendar does the work.
 		// We just notify to update the gui
 		// TODO
-		localScope.eventCollection.EditEvent(_event);
+		localScope.$apply(function(){
+
+			localScope.eventCollection.EditEvent(_event);
+		});
+
+		refreshCalendar();	
 	}
 
 
@@ -203,6 +325,7 @@
 		};
 
 
+
 		localScope.$apply(function(){
 
 			localScope.eventCollection.AddEvent(newEvent);
@@ -256,8 +379,17 @@
 
 	function gotoCalendarDayView (start) {
 			
-		calendar.changeView('agendaDay');
-		calendar.gotoDate(calendar.moment(start));
+		if(start) {
+
+			calendar.changeView('agendaDay');
+			calendar.gotoDate(calendar.moment(start));
+		}
+	}
+
+
+	function gotoCalendarMonthView () {
+			
+		calendar.changeView('month');
 	}
 
 

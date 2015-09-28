@@ -63,7 +63,15 @@
 
 				var _event = eventsIndex[key];
 
-				if(_event.start.date() === day || _event.end.date() === day) {
+				if(_event.start.date() === day) {
+
+					return true;
+				}
+				else if(_event.end.date() === day && _event.end.hours() === 0) {
+
+					return false;
+				}
+				else if(_event.end.date() === day) {
 
 					return true;
 				}
@@ -129,7 +137,7 @@
 
 	function removeEvent(_event) {
 
-		if(eventsIndex.hasOwnProperty(_event.id)) {
+		if(_event && eventsIndex.hasOwnProperty(_event.id)) {
 
 			delete eventsIndex[_event.id];
 		}
